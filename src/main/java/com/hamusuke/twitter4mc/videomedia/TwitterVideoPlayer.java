@@ -2,7 +2,7 @@ package com.hamusuke.twitter4mc.videomedia;
 
 import java.io.InputStream;
 
-import com.hamusuke.twitter4mc.TwitterForMinecraft;
+import com.hamusuke.twitter4mc.TwitterForMC;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.apache.logging.log4j.LogManager;
@@ -62,7 +62,7 @@ public class TwitterVideoPlayer {
 	private void start(Stage primaryStage, int x, int y, int width, int height) throws Exception {
 		this.stage = primaryStage;
 		this.stage.show();
-		InputStream icon = TwitterVideoPlayer.class.getResourceAsStream("/assets/" + TwitterForMinecraft.MOD_ID + "/textures/twitter/icon/twitter.png");
+		InputStream icon = TwitterVideoPlayer.class.getResourceAsStream("/assets/" + TwitterForMC.MOD_ID + "/textures/twitter/icon/twitter.png");
 		if (icon != null) {
 			this.stage.getIcons().add(new Image(icon));
 		} else {

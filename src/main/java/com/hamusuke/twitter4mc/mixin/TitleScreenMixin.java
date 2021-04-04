@@ -1,6 +1,6 @@
 package com.hamusuke.twitter4mc.mixin;
 
-import com.hamusuke.twitter4mc.TwitterForMinecraft;
+import com.hamusuke.twitter4mc.TwitterForMC;
 import com.hamusuke.twitter4mc.gui.widget.ScalableImageButton;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -16,7 +16,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 @Environment(EnvType.CLIENT)
 @Mixin(TitleScreen.class)
 public class TitleScreenMixin extends Screen {
-    private static final Identifier TWITTER_ICON = new Identifier(TwitterForMinecraft.MOD_ID, "textures/twitter/icon/twbtn.png");
+    private static final Identifier TWITTER_ICON = new Identifier(TwitterForMC.MOD_ID, "textures/twitter/icon/twbtn.png");
 
     public TitleScreenMixin() {
         super(NarratorManager.EMPTY);
@@ -25,8 +25,8 @@ public class TitleScreenMixin extends Screen {
     @Inject(at = @At("RETURN"), method = "init()V")
     public void init(CallbackInfo info) {
         this.addButton(new ScalableImageButton(this.width / 2 + 104, this.height / 4 + 48, 20, 20, 40, 40, 0.5F, 0, 0, 40, TWITTER_ICON, 40, 80, (b) -> {
-            TwitterForMinecraft.twitterScreen.setParentScreen(this);
-            this.minecraft.openScreen(TwitterForMinecraft.twitterScreen);
+            TwitterForMC.twitterScreen.setParentScreen(this);
+            this.minecraft.openScreen(TwitterForMC.twitterScreen);
         }, "Twitter"));
     }
 

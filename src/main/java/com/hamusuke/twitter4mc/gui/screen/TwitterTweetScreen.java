@@ -1,6 +1,6 @@
 package com.hamusuke.twitter4mc.gui.screen;
 
-import com.hamusuke.twitter4mc.TwitterForMinecraft;
+import com.hamusuke.twitter4mc.TwitterForMC;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -40,7 +40,7 @@ public class TwitterTweetScreen extends ParentalScreen {
 
 		this.addButton(new ButtonWidget(i * 2, (this.height / 4 + this.height / 2) + 10, i, 20, I18n.translate("tweet"), (a) -> {
 			try {
-				TwitterForMinecraft.mctwitter.updateStatus(this.tweettext.getText());
+				TwitterForMC.mctwitter.updateStatus(this.tweettext.getText());
 				((TwitterScreen) this.parent).accept(I18n.translate("sent.tweet"));
 			} catch (TwitterException e) {
 				LOGGER.error("Error occurred while sending tweet: {}", e);

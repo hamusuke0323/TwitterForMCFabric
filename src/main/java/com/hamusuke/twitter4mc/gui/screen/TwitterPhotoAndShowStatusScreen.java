@@ -4,7 +4,7 @@ import java.awt.Dimension;
 import java.io.InputStream;
 import java.util.List;
 
-import com.hamusuke.twitter4mc.TwitterForMinecraft;
+import com.hamusuke.twitter4mc.TwitterForMC;
 import com.hamusuke.twitter4mc.photomedia.ITwitterPhotoMedia;
 import com.hamusuke.twitter4mc.utils.TweetSummary;
 import com.hamusuke.twitter4mc.utils.TwitterUtil;
@@ -45,7 +45,7 @@ public class TwitterPhotoAndShowStatusScreen extends ParentalScreen {
 			InputStream data = imedia.getData();
 			if (data != null) {
 				Dimension d = TwitterUtil.getScaledDimensionMinRatio(new Dimension(imedia.getWidth(), imedia.getHeight()), new Dimension(this.width, this.height));
-				TwitterForMinecraft.getTextureManager().bindTexture(data);
+				TwitterForMC.getTextureManager().bindTexture(data);
 				DrawableHelper.blit(0, 0, 0.0F, 0.0F, d.width, d.height, d.width, d.height);
 			}
 		} catch (Throwable t) {

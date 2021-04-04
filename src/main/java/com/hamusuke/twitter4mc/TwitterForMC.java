@@ -33,7 +33,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 @Environment(EnvType.CLIENT)
-public class TwitterForMinecraft implements ModInitializer {
+public class TwitterForMC implements ModInitializer {
     public static final String MOD_ID = "twitter4mc";
     private static final Logger LOGGER = LogManager.getLogger();
     private static final TextureManager TEXTURE_MANAGER = new TextureManager();
@@ -184,10 +184,10 @@ public class TwitterForMinecraft implements ModInitializer {
 
     public static void update() {
         if (readToken()) {
-            TwitterForMinecraft.consumer.setText(token.getConsumer());
-            TwitterForMinecraft.consumerS.setText(token.getConsumerSecret());
-            TwitterForMinecraft.access.setText(token.getAccessToken());
-            TwitterForMinecraft.accessS.setText(token.getAccessTokenSecret());
+            TwitterForMC.consumer.setText(token.getConsumer());
+            TwitterForMC.consumerS.setText(token.getConsumerSecret());
+            TwitterForMC.access.setText(token.getAccessToken());
+            TwitterForMC.accessS.setText(token.getAccessTokenSecret());
         }
     }
 

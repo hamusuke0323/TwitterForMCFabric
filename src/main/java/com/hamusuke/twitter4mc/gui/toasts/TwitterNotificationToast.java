@@ -3,7 +3,7 @@ package com.hamusuke.twitter4mc.gui.toasts;
 import java.io.InputStream;
 import java.util.List;
 
-import com.hamusuke.twitter4mc.TwitterForMinecraft;
+import com.hamusuke.twitter4mc.TwitterForMC;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.DrawableHelper;
@@ -65,7 +65,7 @@ public class TwitterNotificationToast extends InputStreamToast implements IClick
 				RenderSystem.enableBlend();
 				RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 				RenderSystem.translatef(8.0F, 8.0F, 0.0F);
-				TwitterForMinecraft.getTextureManager().bindTexture(this.image);
+				TwitterForMC.getTextureManager().bindTexture(this.image);
 				DrawableHelper.blit(0, 0, 0.0F, 0.0F, 16, 16, 16, 16);
 				RenderSystem.popMatrix();
 			} catch (Throwable t) {

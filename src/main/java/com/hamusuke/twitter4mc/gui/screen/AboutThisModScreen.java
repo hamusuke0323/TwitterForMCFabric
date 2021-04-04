@@ -1,6 +1,6 @@
 package com.hamusuke.twitter4mc.gui.screen;
 
-import com.hamusuke.twitter4mc.TwitterForMinecraft;
+import com.hamusuke.twitter4mc.TwitterForMC;
 import com.hamusuke.twitter4mc.gui.screen.license.ViewLicenseScreen;
 import com.hamusuke.twitter4mc.gui.widget.TextWidget;
 import com.hamusuke.twitter4mc.gui.widget.list.WidgetList;
@@ -42,7 +42,7 @@ public class AboutThisModScreen extends ParentalScreen {
             }
         };
 
-        FabricLoader.getInstance().getModContainer(TwitterForMinecraft.MOD_ID).ifPresent((mod) -> {
+        FabricLoader.getInstance().getModContainer(TwitterForMC.MOD_ID).ifPresent((mod) -> {
             ModMetadata data = mod.getMetadata();
             this.list.addEntry(new TextWidget(j, 0, i, 20, new TranslatableText("tw.mod.id", data.getId())));
             this.list.addEntry(new TextWidget(j, 30, i, 20, new TranslatableText("tw.mod.name", data.getName())));
@@ -51,11 +51,11 @@ public class AboutThisModScreen extends ParentalScreen {
 
         this.list.addEntry(new TextWidget(j, 90, i, 20, new TranslatableText("tw.license.this")));
         this.list.addEntry(new ButtonWidget(j, 120, i, 20, I18n.translate("tw.mit.license"), (b) -> {
-            this.minecraft.openScreen(new ViewLicenseScreen(new TranslatableText("tw.mit.license"), this, new Identifier(TwitterForMinecraft.MOD_ID, "license/mitlicense.txt")));
+            this.minecraft.openScreen(new ViewLicenseScreen(new TranslatableText("tw.mit.license"), this, new Identifier(TwitterForMC.MOD_ID, "license/mitlicense.txt")));
         }));
         this.list.addEntry(new TextWidget(j, 150, i, 20, new TranslatableText("tw.open.source.license")));
         this.list.addEntry(new ButtonWidget(j, 180, i, 20, I18n.translate("tw.license.for", "Twitter4J"), (b) -> {
-            this.minecraft.openScreen(new ViewLicenseScreen(new TranslatableText("tw.license.for", "Twitter4J"), this, new Identifier(TwitterForMinecraft.MOD_ID, "license/twitter4j_license.txt")));
+            this.minecraft.openScreen(new ViewLicenseScreen(new TranslatableText("tw.license.for", "Twitter4J"), this, new Identifier(TwitterForMC.MOD_ID, "license/twitter4j_license.txt")));
         }));
 
         this.children.add(this.list);
