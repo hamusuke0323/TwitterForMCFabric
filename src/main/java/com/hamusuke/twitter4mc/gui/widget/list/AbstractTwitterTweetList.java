@@ -6,6 +6,8 @@ import java.util.List;
 import java.util.Objects;
 
 import com.hamusuke.twitter4mc.gui.widget.list.entry.ITwitterListEntry;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.AbstractParentElement;
 import net.minecraft.client.gui.Drawable;
@@ -24,6 +26,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
 
+@Environment(EnvType.CLIENT)
 public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetList.AbstractTwitterListEntry<E>> extends AbstractParentElement implements Drawable {
 	protected final MinecraftClient minecraft;
 	private int averageHeight;
@@ -83,7 +86,7 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 
 	@Nullable
 	public E getFocused() {
-		return (E)(super.getFocused());
+		return (E) (super.getFocused());
 	}
 
 	public List<E> children() {
@@ -106,7 +109,7 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 	}
 
 	protected E getEntry(int p_getEntry_1_) {
-		return (E)(this.children().get(p_getEntry_1_));
+		return (E) (this.children().get(p_getEntry_1_));
 	}
 
 	public int addEntry(E p_addEntry_1_) {
@@ -132,12 +135,12 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 		int j = this.leftpos + this.width / 2;
 		int k = j - i;
 		int l = j + i;
-		boolean flag = x < (double)this.getScrollbarPosition() && x >= (double)k && x <= (double)l;
-		if(flag) {
-			for(E e : this.children()) {
+		boolean flag = x < (double) this.getScrollbarPosition() && x >= (double) k && x <= (double) l;
+		if (flag) {
+			for (E e : this.children()) {
 				int ey = e.getY();
 				int eyheight = ey + e.getHeight();
-				if(ey <= (int)y && eyheight >= (int)y) {
+				if (ey <= (int) y && eyheight >= (int) y) {
 					return e;
 				}
 			}
@@ -182,10 +185,10 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 		RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 		float f = 32.0F;
 		bufferbuilder.begin(7, VertexFormats.POSITION_TEXTURE_COLOR);
-		bufferbuilder.vertex((double)this.leftpos, (double)this.bottom, 0.0D).texture((float)this.leftpos / 32.0F, (float)(this.bottom + (int)this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).next();
-		bufferbuilder.vertex((double)this.rightpos, (double)this.bottom, 0.0D).texture((float)this.rightpos / 32.0F, (float)(this.bottom + (int)this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).next();
-		bufferbuilder.vertex((double)this.rightpos, (double)this.top, 0.0D).texture((float)this.rightpos / 32.0F, (float)(this.top + (int)this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).next();
-		bufferbuilder.vertex((double)this.leftpos, (double)this.top, 0.0D).texture((float)this.leftpos / 32.0F, (float)(this.top + (int)this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).next();
+		bufferbuilder.vertex((double) this.leftpos, (double) this.bottom, 0.0D).texture((float) this.leftpos / 32.0F, (float) (this.bottom + (int) this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).next();
+		bufferbuilder.vertex((double) this.rightpos, (double) this.bottom, 0.0D).texture((float) this.rightpos / 32.0F, (float) (this.bottom + (int) this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).next();
+		bufferbuilder.vertex((double) this.rightpos, (double) this.top, 0.0D).texture((float) this.rightpos / 32.0F, (float) (this.top + (int) this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).next();
+		bufferbuilder.vertex((double) this.leftpos, (double) this.top, 0.0D).texture((float) this.leftpos / 32.0F, (float) (this.top + (int) this.getScrollAmount()) / 32.0F).color(32, 32, 32, 255).next();
 		tessellator.draw();
 	}
 
@@ -199,7 +202,7 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder bufferbuilder = tessellator.getBuffer();
 		int k = this.getRowLeft();
-		int l = this.top + 4 - (int)this.getScrollAmount();
+		int l = this.top + 4 - (int) this.getScrollAmount();
 
 		if (this.renderHeader) {
 			this.renderHeader(k, l, tessellator);
@@ -216,47 +219,45 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 		RenderSystem.disableTexture();
 		int i1 = 4;
 		bufferbuilder.begin(7, VertexFormats.POSITION_TEXTURE_COLOR);
-		bufferbuilder.vertex((double)this.leftpos, (double)(this.top + 4), 0.0D).texture(0.0F, 1.0F).color(0, 0, 0, 0).next();
-		bufferbuilder.vertex((double)this.rightpos, (double)(this.top + 4), 0.0D).texture(1.0F, 1.0F).color(0, 0, 0, 0).next();
-		bufferbuilder.vertex((double)this.rightpos, (double)this.top, 0.0D).texture(1.0F, 0.0F).color(0, 0, 0, 255).next();
-		bufferbuilder.vertex((double)this.leftpos, (double)this.top, 0.0D).texture(0.0F, 0.0F).color(0, 0, 0, 255).next();
+		bufferbuilder.vertex((double) this.leftpos, (double) (this.top + 4), 0.0D).texture(0.0F, 1.0F).color(0, 0, 0, 0).next();
+		bufferbuilder.vertex((double) this.rightpos, (double) (this.top + 4), 0.0D).texture(1.0F, 1.0F).color(0, 0, 0, 0).next();
+		bufferbuilder.vertex((double) this.rightpos, (double) this.top, 0.0D).texture(1.0F, 0.0F).color(0, 0, 0, 255).next();
+		bufferbuilder.vertex((double) this.leftpos, (double) this.top, 0.0D).texture(0.0F, 0.0F).color(0, 0, 0, 255).next();
 		tessellator.draw();
 		bufferbuilder.begin(7, VertexFormats.POSITION_TEXTURE_COLOR);
-		bufferbuilder.vertex((double)this.leftpos, (double)this.bottom, 0.0D).texture(0.0F, 1.0F).color(0, 0, 0, 255).next();
-		bufferbuilder.vertex((double)this.rightpos, (double)this.bottom, 0.0D).texture(1.0F, 1.0F).color(0, 0, 0, 255).next();
-		bufferbuilder.vertex((double)this.rightpos, (double)(this.bottom - 4), 0.0D).texture(1.0F, 0.0F).color(0, 0, 0, 0).next();
-		bufferbuilder.vertex((double)this.leftpos, (double)(this.bottom - 4), 0.0D).texture(0.0F, 0.0F).color(0, 0, 0, 0).next();
+		bufferbuilder.vertex((double) this.leftpos, (double) this.bottom, 0.0D).texture(0.0F, 1.0F).color(0, 0, 0, 255).next();
+		bufferbuilder.vertex((double) this.rightpos, (double) this.bottom, 0.0D).texture(1.0F, 1.0F).color(0, 0, 0, 255).next();
+		bufferbuilder.vertex((double) this.rightpos, (double) (this.bottom - 4), 0.0D).texture(1.0F, 0.0F).color(0, 0, 0, 0).next();
+		bufferbuilder.vertex((double) this.leftpos, (double) (this.bottom - 4), 0.0D).texture(0.0F, 0.0F).color(0, 0, 0, 0).next();
 		tessellator.draw();
 		int j1 = this.getMaxScroll();
 
-		if (j1 > 0)
-		{
-			int k1 = (int)((float)((this.bottom - this.top) * (this.bottom - this.top)) / (float)this.getMaxPosition());
+		if (j1 > 0) {
+			int k1 = (int) ((float) ((this.bottom - this.top) * (this.bottom - this.top)) / (float) this.getMaxPosition());
 			k1 = MathHelper.clamp(k1, 32, this.bottom - this.top - 8);
-			int l1 = (int)this.getScrollAmount() * (this.bottom - this.top - k1) / j1 + this.top;
+			int l1 = (int) this.getScrollAmount() * (this.bottom - this.top - k1) / j1 + this.top;
 
-			if (l1 < this.top)
-			{
+			if (l1 < this.top) {
 				l1 = this.top;
 			}
 
 			bufferbuilder.begin(7, VertexFormats.POSITION_TEXTURE_COLOR);
-			bufferbuilder.vertex((double)i, (double)this.bottom, 0.0D).texture(0.0F, 1.0F).color(0, 0, 0, 255).next();
-			bufferbuilder.vertex((double)j, (double)this.bottom, 0.0D).texture(1.0F, 1.0F).color(0, 0, 0, 255).next();
-			bufferbuilder.vertex((double)j, (double)this.top, 0.0D).texture(1.0F, 0.0F).color(0, 0, 0, 255).next();
-			bufferbuilder.vertex((double)i, (double)this.top, 0.0D).texture(0.0F, 0.0F).color(0, 0, 0, 255).next();
+			bufferbuilder.vertex((double) i, (double) this.bottom, 0.0D).texture(0.0F, 1.0F).color(0, 0, 0, 255).next();
+			bufferbuilder.vertex((double) j, (double) this.bottom, 0.0D).texture(1.0F, 1.0F).color(0, 0, 0, 255).next();
+			bufferbuilder.vertex((double) j, (double) this.top, 0.0D).texture(1.0F, 0.0F).color(0, 0, 0, 255).next();
+			bufferbuilder.vertex((double) i, (double) this.top, 0.0D).texture(0.0F, 0.0F).color(0, 0, 0, 255).next();
 			tessellator.draw();
 			bufferbuilder.begin(7, VertexFormats.POSITION_TEXTURE_COLOR);
-			bufferbuilder.vertex((double)i, (double)(l1 + k1), 0.0D).texture(0.0F, 1.0F).color(128, 128, 128, 255).next();
-			bufferbuilder.vertex((double)j, (double)(l1 + k1), 0.0D).texture(1.0F, 1.0F).color(128, 128, 128, 255).next();
-			bufferbuilder.vertex((double)j, (double)l1, 0.0D).texture(1.0F, 0.0F).color(128, 128, 128, 255).next();
-			bufferbuilder.vertex((double)i, (double)l1, 0.0D).texture(0.0F, 0.0F).color(128, 128, 128, 255).next();
+			bufferbuilder.vertex((double) i, (double) (l1 + k1), 0.0D).texture(0.0F, 1.0F).color(128, 128, 128, 255).next();
+			bufferbuilder.vertex((double) j, (double) (l1 + k1), 0.0D).texture(1.0F, 1.0F).color(128, 128, 128, 255).next();
+			bufferbuilder.vertex((double) j, (double) l1, 0.0D).texture(1.0F, 0.0F).color(128, 128, 128, 255).next();
+			bufferbuilder.vertex((double) i, (double) l1, 0.0D).texture(0.0F, 0.0F).color(128, 128, 128, 255).next();
 			tessellator.draw();
 			bufferbuilder.begin(7, VertexFormats.POSITION_TEXTURE_COLOR);
-			bufferbuilder.vertex((double)i, (double)(l1 + k1 - 1), 0.0D).texture(0.0F, 1.0F).color(192, 192, 192, 255).next();
-			bufferbuilder.vertex((double)(j - 1), (double)(l1 + k1 - 1), 0.0D).texture(1.0F, 1.0F).color(192, 192, 192, 255).next();
-			bufferbuilder.vertex((double)(j - 1), (double)l1, 0.0D).texture(1.0F, 0.0F).color(192, 192, 192, 255).next();
-			bufferbuilder.vertex((double)i, (double)l1, 0.0D).texture(0.0F, 0.0F).color(192, 192, 192, 255).next();
+			bufferbuilder.vertex((double) i, (double) (l1 + k1 - 1), 0.0D).texture(0.0F, 1.0F).color(192, 192, 192, 255).next();
+			bufferbuilder.vertex((double) (j - 1), (double) (l1 + k1 - 1), 0.0D).texture(1.0F, 1.0F).color(192, 192, 192, 255).next();
+			bufferbuilder.vertex((double) (j - 1), (double) l1, 0.0D).texture(1.0F, 0.0F).color(192, 192, 192, 255).next();
+			bufferbuilder.vertex((double) i, (double) l1, 0.0D).texture(0.0F, 0.0F).color(192, 192, 192, 255).next();
 			tessellator.draw();
 		}
 
@@ -268,14 +269,14 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 	}
 
 	protected void centerScrollOn(E p_centerScrollOn_1_) {
-		this.setScrollAmount((double)(this.countBefore(this.children().indexOf(p_centerScrollOn_1_)) + p_centerScrollOn_1_.getHeight() / 2 - (this.bottom - this.top) / 2));
+		this.setScrollAmount((double) (this.countBefore(this.children().indexOf(p_centerScrollOn_1_)) + p_centerScrollOn_1_.getHeight() / 2 - (this.bottom - this.top) / 2));
 	}
 
 	protected void ensureVisible(E entry) {
 		int i = this.getRowTop(this.children().indexOf(entry));
 		int j = i - this.top - 4 - entry.getHeight();
 
-		if(j < 0) {
+		if (j < 0) {
 			this.scroll(j);
 		}
 
@@ -287,7 +288,7 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 	}
 
 	private void scroll(int p_scroll_1_) {
-		this.setScrollAmount(this.getScrollAmount() + (double)p_scroll_1_);
+		this.setScrollAmount(this.getScrollAmount() + (double) p_scroll_1_);
 		this.yDrag = -2;
 	}
 
@@ -296,8 +297,8 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 	}
 
 	public void setScrollAmount(double p_setScrollAmount_1_) {
-		this.scrollAmount = MathHelper.clamp(p_setScrollAmount_1_, 0.0D, (double)this.getMaxScroll());
-		this.setY(-(int)this.scrollAmount);
+		this.scrollAmount = MathHelper.clamp(p_setScrollAmount_1_, 0.0D, (double) this.getMaxScroll());
+		this.setY(-(int) this.scrollAmount);
 	}
 
 	protected int getMaxScroll() {
@@ -305,11 +306,11 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 	}
 
 	public int getScrollBottom() {
-		return (int)this.getScrollAmount() - this.height - this.headerHeight;
+		return (int) this.getScrollAmount() - this.height - this.headerHeight;
 	}
 
 	protected void updateScrollingState(double mouseX, double mouseY, int mouseButton) {
-		this.scrolling = mouseButton == 0 && mouseX >= (double)this.getScrollbarPosition() && mouseX < (double)(this.getScrollbarPosition() + 6);
+		this.scrolling = mouseButton == 0 && mouseX >= (double) this.getScrollbarPosition() && mouseX < (double) (this.getScrollbarPosition() + 6);
 	}
 
 	protected int getScrollbarPosition() {
@@ -321,7 +322,7 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 
 		if (!this.isMouseOver(p_mouseClicked_1_, p_mouseClicked_3_)) {
 			return false;
-		}else {
+		} else {
 			E e = this.getEntryAtPosition(p_mouseClicked_1_, p_mouseClicked_3_);
 
 			if (e != null) {
@@ -330,8 +331,8 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 					this.setDragging(true);
 					return true;
 				}
-			}else if (p_mouseClicked_5_ == 0) {
-				this.clickedHeader((int)(p_mouseClicked_1_ - (double)(this.leftpos + this.width / 2 - this.getRowWidth() / 2)), (int)(p_mouseClicked_3_ - (double)this.top) + (int)this.getScrollAmount() - 4);
+			} else if (p_mouseClicked_5_ == 0) {
+				this.clickedHeader((int) (p_mouseClicked_1_ - (double) (this.leftpos + this.width / 2 - this.getRowWidth() / 2)), (int) (p_mouseClicked_3_ - (double) this.top) + (int) this.getScrollAmount() - 4);
 				return true;
 			}
 
@@ -350,46 +351,46 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 	public boolean mouseDragged(double p_mouseDragged_1_, double p_mouseDragged_3_, int p_mouseDragged_5_, double p_mouseDragged_6_, double p_mouseDragged_8_) {
 		if (super.mouseDragged(p_mouseDragged_1_, p_mouseDragged_3_, p_mouseDragged_5_, p_mouseDragged_6_, p_mouseDragged_8_)) {
 			return true;
-		}else if (p_mouseDragged_5_ == 0 && this.scrolling) {
-			if (p_mouseDragged_3_ < (double)this.top) {
+		} else if (p_mouseDragged_5_ == 0 && this.scrolling) {
+			if (p_mouseDragged_3_ < (double) this.top) {
 				this.setScrollAmount(0.0D);
-			}else if (p_mouseDragged_3_ > (double)this.bottom) {
-				this.setScrollAmount((double)this.getMaxScroll());
-			}else {
-				double d0 = (double)Math.max(1, this.getMaxScroll());
+			} else if (p_mouseDragged_3_ > (double) this.bottom) {
+				this.setScrollAmount((double) this.getMaxScroll());
+			} else {
+				double d0 = (double) Math.max(1, this.getMaxScroll());
 				int i = this.bottom - this.top;
-				int j = MathHelper.clamp((int)((float)(i * i) / (float)this.getMaxPosition()), 32, i - 8);
-				double d1 = Math.max(1.0D, d0 / (double)(i - j));
+				int j = MathHelper.clamp((int) ((float) (i * i) / (float) this.getMaxPosition()), 32, i - 8);
+				double d1 = Math.max(1.0D, d0 / (double) (i - j));
 				this.setScrollAmount(this.getScrollAmount() + p_mouseDragged_8_ * d1);
 			}
 
 			return true;
-		}else {
+		} else {
 			return false;
 		}
 	}
 
 	public boolean mouseScrolled(double p_mouseScrolled_1_, double p_mouseScrolled_3_, double p_mouseScrolled_5_) {
-		this.setScrollAmount(this.getScrollAmount() - p_mouseScrolled_5_ * (double)this.averageHeight / 2.0D);
+		this.setScrollAmount(this.getScrollAmount() - p_mouseScrolled_5_ * (double) this.averageHeight / 2.0D);
 		return true;
 	}
 
 	public boolean keyPressed(int p_keyPressed_1_, int p_keyPressed_2_, int p_keyPressed_3_) {
 		if (super.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_)) {
 			return true;
-		}else if (p_keyPressed_1_ == 264) {
+		} else if (p_keyPressed_1_ == 264) {
 			this.moveSelection(1);
 			return true;
-		}else if (p_keyPressed_1_ == 265) {
+		} else if (p_keyPressed_1_ == 265) {
 			this.moveSelection(-1);
 			return true;
-		}else {
+		} else {
 			return false;
 		}
 	}
 
 	protected void moveSelection(int inc) {
-		if(!this.children().isEmpty()) {
+		if (!this.children().isEmpty()) {
 			int i = this.children().indexOf(this.getSelected());
 			int j = MathHelper.clamp(i + inc, 0, this.getItemCount() - 1);
 			E e = this.children().get(j);
@@ -398,7 +399,7 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 	}
 
 	public boolean isMouseOver(double p_isMouseOver_1_, double p_isMouseOver_3_) {
-		return p_isMouseOver_3_ >= (double)this.top && p_isMouseOver_3_ <= (double)this.bottom && p_isMouseOver_1_ >= (double)this.leftpos && p_isMouseOver_1_ <= (double)this.rightpos;
+		return p_isMouseOver_3_ >= (double) this.top && p_isMouseOver_3_ <= (double) this.bottom && p_isMouseOver_1_ >= (double) this.leftpos && p_isMouseOver_1_ <= (double) this.rightpos;
 	}
 
 	protected void renderList(int p_renderList_1_, int p_renderList_2_, int p_renderList_3_, int p_renderList_4_, float p_renderList_5_) {
@@ -423,23 +424,23 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 					float f = this.isFocused() ? 1.0F : 0.5F;
 					RenderSystem.color4f(f, f, f, 1.0F);
 					bufferbuilder.begin(7, VertexFormats.POSITION);
-					bufferbuilder.vertex((double)l1, (double)(i1 + j1 + 2), 0.0D).next();
-					bufferbuilder.vertex((double)i2, (double)(i1 + j1 + 2), 0.0D).next();
-					bufferbuilder.vertex((double)i2, (double)(i1 - 2), 0.0D).next();
-					bufferbuilder.vertex((double)l1, (double)(i1 - 2), 0.0D).next();
+					bufferbuilder.vertex((double) l1, (double) (i1 + j1 + 2), 0.0D).next();
+					bufferbuilder.vertex((double) i2, (double) (i1 + j1 + 2), 0.0D).next();
+					bufferbuilder.vertex((double) i2, (double) (i1 - 2), 0.0D).next();
+					bufferbuilder.vertex((double) l1, (double) (i1 - 2), 0.0D).next();
 					tessellator.draw();
 					RenderSystem.color4f(0.0F, 0.0F, 0.0F, 1.0F);
 					bufferbuilder.begin(7, VertexFormats.POSITION);
-					bufferbuilder.vertex((double)(l1 + 1), (double)(i1 + j1 + 1), 0.0D).next();
-					bufferbuilder.vertex((double)(i2 - 1), (double)(i1 + j1 + 1), 0.0D).next();
-					bufferbuilder.vertex((double)(i2 - 1), (double)(i1 - 1), 0.0D).next();
-					bufferbuilder.vertex((double)(l1 + 1), (double)(i1 - 1), 0.0D).next();
+					bufferbuilder.vertex((double) (l1 + 1), (double) (i1 + j1 + 1), 0.0D).next();
+					bufferbuilder.vertex((double) (i2 - 1), (double) (i1 + j1 + 1), 0.0D).next();
+					bufferbuilder.vertex((double) (i2 - 1), (double) (i1 - 1), 0.0D).next();
+					bufferbuilder.vertex((double) (l1 + 1), (double) (i1 - 1), 0.0D).next();
 					tessellator.draw();
 					RenderSystem.enableTexture();
 				}
 
 				int j2 = this.getRowLeft();
-				e.render(j, k, j2, k1, j1, p_renderList_3_, p_renderList_4_, this.isMouseOver((double)p_renderList_3_, (double)p_renderList_4_) && Objects.equals(this.getEntryAtPosition((double)p_renderList_3_, (double)p_renderList_4_), e), p_renderList_5_);
+				e.render(j, k, j2, k1, j1, p_renderList_3_, p_renderList_4_, this.isMouseOver((double) p_renderList_3_, (double) p_renderList_4_) && Objects.equals(this.getEntryAtPosition((double) p_renderList_3_, (double) p_renderList_4_), e), p_renderList_5_);
 			}
 		}
 	}
@@ -449,7 +450,7 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 	}
 
 	protected int getRowTop(int p_getRowTop_1_) {
-		return this.top + 4 - (int)this.getScrollAmount() + this.countBefore(p_getRowTop_1_) + this.headerHeight;
+		return this.top + 4 - (int) this.getScrollAmount() + this.countBefore(p_getRowTop_1_) + this.headerHeight;
 	}
 
 	protected int getRowBottom(int p_getRowBottom_1_) {
@@ -467,25 +468,25 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 		RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 		float f = 32.0F;
 		bufferbuilder.begin(7, VertexFormats.POSITION_TEXTURE_COLOR);
-		bufferbuilder.vertex((double)this.leftpos, (double)p_renderHoleBackground_2_, 0.0D).texture(0.0F, (float)p_renderHoleBackground_2_ / 32.0F).color(64, 64, 64, p_renderHoleBackground_4_).next();
-		bufferbuilder.vertex((double)(this.leftpos + this.width), (double)p_renderHoleBackground_2_, 0.0D).texture((float)this.width / 32.0F, (float)p_renderHoleBackground_2_ / 32.0F).color(64, 64, 64, p_renderHoleBackground_4_).next();
-		bufferbuilder.vertex((double)(this.leftpos + this.width), (double)p_renderHoleBackground_1_, 0.0D).texture((float)this.width / 32.0F, (float)p_renderHoleBackground_1_ / 32.0F).color(64, 64, 64, p_renderHoleBackground_3_).next();
-		bufferbuilder.vertex((double)this.leftpos, (double)p_renderHoleBackground_1_, 0.0D).texture(0.0F, (float)p_renderHoleBackground_1_ / 32.0F).color(64, 64, 64, p_renderHoleBackground_3_).next();
+		bufferbuilder.vertex((double) this.leftpos, (double) p_renderHoleBackground_2_, 0.0D).texture(0.0F, (float) p_renderHoleBackground_2_ / 32.0F).color(64, 64, 64, p_renderHoleBackground_4_).next();
+		bufferbuilder.vertex((double) (this.leftpos + this.width), (double) p_renderHoleBackground_2_, 0.0D).texture((float) this.width / 32.0F, (float) p_renderHoleBackground_2_ / 32.0F).color(64, 64, 64, p_renderHoleBackground_4_).next();
+		bufferbuilder.vertex((double) (this.leftpos + this.width), (double) p_renderHoleBackground_1_, 0.0D).texture((float) this.width / 32.0F, (float) p_renderHoleBackground_1_ / 32.0F).color(64, 64, 64, p_renderHoleBackground_3_).next();
+		bufferbuilder.vertex((double) this.leftpos, (double) p_renderHoleBackground_1_, 0.0D).texture(0.0F, (float) p_renderHoleBackground_1_ / 32.0F).color(64, 64, 64, p_renderHoleBackground_3_).next();
 		tessellator.draw();
 	}
 
 	protected E remove(int p_remove_1_) {
 		E e = this.children.get(p_remove_1_);
-		return (E)(this.removeEntry((E)(this.children.get(p_remove_1_))) ? e : null);
+		return (E) (this.removeEntry((E) (this.children.get(p_remove_1_))) ? e : null);
 	}
 
 	protected boolean removeEntry(E p_removeEntry_1_) {
 		boolean flag = this.children.remove(p_removeEntry_1_);
 
-		if(flag) {
+		if (flag) {
 			this.allHeight -= p_removeEntry_1_.getHeight();
-			if(p_removeEntry_1_ == this.getSelected()) {
-				this.setSelected((E)null);
+			if (p_removeEntry_1_ == this.getSelected()) {
+				this.setSelected((E) null);
 			}
 			p_removeEntry_1_.onRemove();
 		}
@@ -495,7 +496,7 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 
 	protected int countBefore(int index) {
 		int j = 0;
-		for(int i = 0; i < index; i++) {
+		for (int i = 0; i < index; i++) {
 			j += this.children().get(i).getHeight();
 		}
 		return j;
@@ -503,7 +504,7 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 
 	protected void calcAllHeight() {
 		this.allHeight = 0;
-		for(E e : this.children()) {
+		for (E e : this.children()) {
 			this.allHeight += e.getHeight();
 		}
 	}
@@ -513,11 +514,12 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 	}
 
 	protected void setY(int topY) {
-		for(int i = 0; i < this.children().size(); i++) {
+		for (int i = 0; i < this.children().size(); i++) {
 			this.children().get(i).setY(topY + this.countBefore(i));
 		}
 	}
 
+	@Environment(EnvType.CLIENT)
 	public abstract static class AbstractTwitterListEntry<E extends AbstractTwitterTweetList.AbstractTwitterListEntry<E>> implements ITwitterListEntry {
 		@Deprecated
 		AbstractTwitterTweetList<E> list;
@@ -529,7 +531,7 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 
 		public void render(int itemIndex, int rowTop, int rowLeft, int rowWidth, int height2, int mouseX, int mouseY, boolean isMouseOverAndObjectEquals, float p_render_9_) {
 
-			for(int i = 0; i < this.buttons.size(); i++) {
+			for (int i = 0; i < this.buttons.size(); i++) {
 				this.buttons.get(i).render(mouseX, mouseY, p_render_9_);
 			}
 		}
@@ -548,6 +550,7 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 		}
 	}
 
+	@Environment(EnvType.CLIENT)
 	class SimpleArrayList extends AbstractList<E> {
 		private final List<E> field_216871_b = Lists.newArrayList();
 
@@ -555,7 +558,7 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 		}
 
 		public E get(int p_get_1_) {
-			return (E)(this.field_216871_b.get(p_get_1_));
+			return (E) (this.field_216871_b.get(p_get_1_));
 		}
 
 		public int size() {
@@ -574,7 +577,7 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 		}
 
 		public E remove(int p_remove_1_) {
-			return (E)(this.field_216871_b.remove(p_remove_1_));
+			return (E) (this.field_216871_b.remove(p_remove_1_));
 		}
 	}
 }

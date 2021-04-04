@@ -3,6 +3,8 @@ package com.hamusuke.twitter4mc.videomedia;
 import java.io.InputStream;
 
 import com.hamusuke.twitter4mc.TwitterForMinecraft;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -25,6 +27,7 @@ import javafx.stage.Stage;
 import javafx.util.Duration;
 import org.jetbrains.annotations.Nullable;
 
+@Environment(EnvType.CLIENT)
 public class TwitterVideoPlayer {
 	private static final Logger LOGGER = LogManager.getLogger();
 	private final String url;

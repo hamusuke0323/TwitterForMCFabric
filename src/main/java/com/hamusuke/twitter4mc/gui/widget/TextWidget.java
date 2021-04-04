@@ -1,10 +1,13 @@
 package com.hamusuke.twitter4mc.gui.widget;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.AbstractButtonWidget;
 import net.minecraft.text.Text;
 import net.minecraft.util.Formatting;
 
+@Environment(EnvType.CLIENT)
 public class TextWidget extends AbstractButtonWidget {
     public TextWidget(int x, int y, int width, int height, Text msg) {
         super(x, y, width, height, msg.asFormattedString());

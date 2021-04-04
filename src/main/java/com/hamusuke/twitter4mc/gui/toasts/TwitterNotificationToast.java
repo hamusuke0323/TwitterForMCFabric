@@ -4,6 +4,8 @@ import java.io.InputStream;
 import java.util.List;
 
 import com.hamusuke.twitter4mc.TwitterForMinecraft;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.toast.Toast;
 import net.minecraft.client.toast.ToastManager;
@@ -14,6 +16,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
 
+@Environment(EnvType.CLIENT)
 public class TwitterNotificationToast extends InputStreamToast implements IClickableToast {
 	private final String title;
 	@Nullable
@@ -41,22 +44,22 @@ public class TwitterNotificationToast extends InputStreamToast implements IClick
 				int j = 1500;
 				float f = 300.0F;
 				if (delta < 1500L) {
-					int k = MathHelper.floor(MathHelper.clamp((float)(1500L - delta) / 300.0F, 0.0F, 1.0F) * 255.0F) << 24 | 67108864;
+					int k = MathHelper.floor(MathHelper.clamp((float) (1500L - delta) / 300.0F, 0.0F, 1.0F) * 255.0F) << 24 | 67108864;
 					toastGui.getGame().textRenderer.draw(this.title, 30.0F, 7.0F, 16777215 | k);
 					toastGui.getGame().textRenderer.draw(this.subtitle, 30.0F, 18.0F, 16777215 | k);
 				} else {
-					int i1 = MathHelper.floor(MathHelper.clamp((float)(delta - 1500L) / 300.0F, 0.0F, 1.0F) * 252.0F) << 24 | 67108864;
+					int i1 = MathHelper.floor(MathHelper.clamp((float) (delta - 1500L) / 300.0F, 0.0F, 1.0F) * 252.0F) << 24 | 67108864;
 					int l = 16 - list.size() * 9 / 2;
 
-					for(String s : list) {
-						toastGui.getGame().textRenderer.draw(s, 30.0F, (float)l, 16777215 | i1);
+					for (String s : list) {
+						toastGui.getGame().textRenderer.draw(s, 30.0F, (float) l, 16777215 | i1);
 						l += 9;
 					}
 				}
 			}
 		}
 
-		if(this.image != null) {
+		if (this.image != null) {
 			try {
 				RenderSystem.pushMatrix();
 				RenderSystem.enableBlend();
@@ -65,7 +68,7 @@ public class TwitterNotificationToast extends InputStreamToast implements IClick
 				TwitterForMinecraft.getTextureManager().bindTexture(this.image);
 				DrawableHelper.blit(0, 0, 0.0F, 0.0F, 16, 16, 16, 16);
 				RenderSystem.popMatrix();
-			}catch(Throwable t) {
+			} catch (Throwable t) {
 				return Toast.Visibility.HIDE;
 			}
 		}

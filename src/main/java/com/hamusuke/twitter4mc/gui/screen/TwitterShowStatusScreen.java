@@ -1,9 +1,12 @@
 package com.hamusuke.twitter4mc.gui.screen;
 
 import com.hamusuke.twitter4mc.utils.TweetSummary;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.util.NarratorManager;
 
 //TODO
+@Environment(EnvType.CLIENT)
 public class TwitterShowStatusScreen extends ParentalScreen {
 	private final TweetSummary summary;
 

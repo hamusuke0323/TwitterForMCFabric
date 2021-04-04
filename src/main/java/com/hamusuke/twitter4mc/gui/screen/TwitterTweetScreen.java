@@ -1,6 +1,8 @@
 package com.hamusuke.twitter4mc.gui.screen;
 
 import com.hamusuke.twitter4mc.TwitterForMinecraft;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.resource.language.I18n;
@@ -15,6 +17,7 @@ import twitter4j.TwitterException;
 import twitter4j.util.CharacterUtil;
 
 //TODO Allow line breaks
+@Environment(EnvType.CLIENT)
 public class TwitterTweetScreen extends ParentalScreen {
 	private static final Logger LOGGER = LogManager.getLogger();
 	private TextFieldWidget tweettext;

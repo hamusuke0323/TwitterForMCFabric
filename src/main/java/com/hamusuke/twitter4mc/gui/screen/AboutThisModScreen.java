@@ -4,6 +4,8 @@ import com.hamusuke.twitter4mc.TwitterForMinecraft;
 import com.hamusuke.twitter4mc.gui.screen.license.ViewLicenseScreen;
 import com.hamusuke.twitter4mc.gui.widget.TextWidget;
 import com.hamusuke.twitter4mc.gui.widget.list.WidgetList;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.fabricmc.loader.api.FabricLoader;
 import net.fabricmc.loader.api.metadata.ModMetadata;
 import net.minecraft.client.gui.screen.Screen;
@@ -13,6 +15,7 @@ import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 
+@Environment(EnvType.CLIENT)
 public class AboutThisModScreen extends ParentalScreen {
     private WidgetList list;
 

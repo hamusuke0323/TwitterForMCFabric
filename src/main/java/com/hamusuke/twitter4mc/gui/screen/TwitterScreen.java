@@ -13,6 +13,8 @@ import com.hamusuke.twitter4mc.photomedia.ITwitterPhotoMedia;
 import com.hamusuke.twitter4mc.utils.TweetSummary;
 import com.hamusuke.twitter4mc.utils.TwitterThread;
 import com.hamusuke.twitter4mc.utils.TwitterUtil;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.widget.AbstractButtonWidget;
@@ -41,6 +43,7 @@ import twitter4j.Status;
 import twitter4j.TwitterException;
 import twitter4j.User;
 
+@Environment(EnvType.CLIENT)
 public class TwitterScreen extends Screen {
 	private static final Identifier PROTECTED = new Identifier(TwitterForMinecraft.MOD_ID, "textures/twitter/icon/protected.png");
 	private static final Identifier VERIFIED = new Identifier(TwitterForMinecraft.MOD_ID, "textures/twitter/icon/verified.png");
@@ -400,6 +403,7 @@ public class TwitterScreen extends Screen {
 		return this.list;
 	}
 
+	@Environment(EnvType.CLIENT)
 	public class TweetList extends ExtendedTwitterTweetList<TweetList.TweetEntry> {
 		public TweetList(MinecraftClient mcIn) {
 			super(mcIn, TwitterScreen.this.width, TwitterScreen.this.height, 0, TwitterScreen.this.height - 20);
@@ -448,6 +452,7 @@ public class TwitterScreen extends Screen {
 			return TwitterScreen.this.getFocused() == this;
 		}
 
+		@Environment(EnvType.CLIENT)
 		public class TweetEntry extends ExtendedTwitterTweetList.AbstractTwitterListEntry<TweetEntry> {
 			private final TweetSummary summary;
 			@Nullable

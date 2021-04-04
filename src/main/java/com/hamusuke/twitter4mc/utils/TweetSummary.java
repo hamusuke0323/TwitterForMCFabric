@@ -10,6 +10,8 @@ import java.util.Locale;
 import com.hamusuke.twitter4mc.photomedia.ITwitterPhotoMedia;
 import com.hamusuke.twitter4mc.photomedia.TwitterPhotoMedia;
 import com.hamusuke.twitter4mc.videomedia.TwitterVideoPlayer;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
@@ -23,6 +25,7 @@ import twitter4j.Status;
 import twitter4j.URLEntity;
 import twitter4j.User;
 
+@Environment(EnvType.CLIENT)
 public class TweetSummary {
 	private static final Logger LOGGER = LogManager.getLogger();
 	private final Status status;
@@ -79,7 +82,7 @@ public class TweetSummary {
 		String url = this.user.get400x400ProfileImageURLHttps();
 		this.userIconData = TwitterUtil.getInputStream(url);
 		this.userIconFormat = url.contains(".png") ? "PNG" : "JPEG";
-		if(this.userIconData == null) {
+		if (this.userIconData == null) {
 			LOGGER.warn("Failed load user icon. return null");
 		}
 		this.createdAt = status.getCreatedAt();
@@ -100,7 +103,7 @@ public class TweetSummary {
 		this.player = this.videoURL == null ? null : new TwitterVideoPlayer(this.videoURL);
 		this.photoMediaLength = this.isIncludeImages ? this.medias.length : 0;
 
-		for(int i = 0; i < this.photoMediaLength; i++) {
+		for (int i = 0; i < this.photoMediaLength; i++) {
 			this.photolist.add(new TwitterPhotoMedia(this.medias[i]));
 		}
 
@@ -217,7 +220,7 @@ public class TweetSummary {
 		return this.isIncludeImages;
 	}
 
-	public List<ITwitterPhotoMedia> getPhotoMedias(){
+	public List<ITwitterPhotoMedia> getPhotoMedias() {
 		return this.photolist;
 	}
 
@@ -284,9 +287,9 @@ public class TweetSummary {
 	}
 
 	public boolean equals(Object var1) {
-		if(var1 instanceof TweetSummary) {
-			return this.getId() == ((TweetSummary)var1).getId();
-		}else {
+		if (var1 instanceof TweetSummary) {
+			return this.getId() == ((TweetSummary) var1).getId();
+		} else {
 			return false;
 		}
 	}

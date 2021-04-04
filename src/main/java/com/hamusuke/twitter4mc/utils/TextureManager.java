@@ -3,6 +3,8 @@ package com.hamusuke.twitter4mc.utils;
 import com.google.common.collect.Maps;
 import com.hamusuke.twitter4mc.photomedia.InputStreamTexture;
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.texture.AbstractTexture;
 import net.minecraft.client.texture.MissingSprite;
 import net.minecraft.util.crash.CrashException;
@@ -15,23 +17,24 @@ import java.io.IOException;
 import java.io.InputStream;
 import java.util.Map;
 
+@Environment(EnvType.CLIENT)
 public class TextureManager {
     private static final Logger LOGGER = LogManager.getLogger();
     private final Map<InputStream, AbstractTexture> textureMap = Maps.newHashMap();
 
     public void bindTexture(InputStream is) {
-        if(!RenderSystem.isOnRenderThread()) {
+        if (!RenderSystem.isOnRenderThread()) {
             RenderSystem.recordRenderCall(() -> {
                 this.bindTextureRaw(is);
             });
-        }else {
+        } else {
             this.bindTextureRaw(is);
         }
     }
 
     private void bindTextureRaw(InputStream inputStream) {
         AbstractTexture texture = this.textureMap.get(inputStream);
-        if(texture == null) {
+        if (texture == null) {
             texture = new InputStreamTexture();
             this.registerTexture(inputStream, texture);
         }
@@ -42,8 +45,8 @@ public class TextureManager {
     public void registerTexture(InputStream inputStream, AbstractTexture texture) {
         texture = this.loadTexture(inputStream, texture);
         AbstractTexture texture1 = this.textureMap.put(inputStream, texture);
-        if(texture1 != texture) {
-            if(texture1 != null && texture1 != MissingSprite.getMissingSpriteTexture()) {
+        if (texture1 != texture) {
+            if (texture1 != null && texture1 != MissingSprite.getMissingSpriteTexture()) {
                 texture1.clearGlId();
             }
         }
@@ -51,7 +54,7 @@ public class TextureManager {
 
     private AbstractTexture loadTexture(InputStream inputStream, AbstractTexture texture) {
         try {
-            ((InputStreamTexture)texture).load(inputStream);
+            ((InputStreamTexture) texture).load(inputStream);
             return texture;
         } catch (IOException var7) {
             LOGGER.warn("Failed to load inputstream texture", var7);

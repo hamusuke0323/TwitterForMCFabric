@@ -57,7 +57,7 @@ public class ScalableImageButton extends ButtonWidget {
 
         RenderSystem.translatef(this.x, this.y, 0.0F);
         RenderSystem.scalef(this.scale, this.scale, this.scale);
-        blit(0, 0, (float)this.u, (float)i, this.renderWidth, this.renderHeight, this.textureWidth, this.textureHeight);
+        blit(0, 0, (float) this.u, (float) i, this.renderWidth, this.renderHeight, this.textureWidth, this.textureHeight);
         RenderSystem.enableDepthTest();
         RenderSystem.popMatrix();
     }

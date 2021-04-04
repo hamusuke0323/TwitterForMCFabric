@@ -3,12 +3,15 @@ package com.hamusuke.twitter4mc.photomedia;
 import java.io.InputStream;
 
 import com.hamusuke.twitter4mc.utils.TwitterUtil;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import org.jetbrains.annotations.Nullable;
 import twitter4j.MediaEntity;
 
+@Environment(EnvType.CLIENT)
 public class TwitterPhotoMedia implements ITwitterPhotoMedia {
 	private final MediaEntity entity;
 	private final String url;
@@ -23,12 +26,12 @@ public class TwitterPhotoMedia implements ITwitterPhotoMedia {
 		this.entity = entity;
 		this.url = this.entity.getMediaURLHttps();
 		this.data = TwitterUtil.getInputStream(this.url);
-		if(this.data == null) {
+		if (this.data == null) {
 			LOGGER.warn("Failed to load photo data. return null");
 		}
 		int[] wh = TwitterUtil.getImageWidthHeight(this.url);
 		int w = 0, h = 0;
-		if(wh != null) {
+		if (wh != null) {
 			w = wh[0];
 			h = wh[1];
 		}

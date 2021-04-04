@@ -1,11 +1,14 @@
 package com.hamusuke.twitter4mc.gui.screen;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 
+@Environment(EnvType.CLIENT)
 public class TwitterSettingsScreen extends ParentalScreen {
     public TwitterSettingsScreen(Screen parent) {
         super(new TranslatableText("tw.settings"), parent);

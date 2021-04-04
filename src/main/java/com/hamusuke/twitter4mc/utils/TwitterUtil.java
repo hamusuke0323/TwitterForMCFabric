@@ -10,6 +10,8 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.resource.language.I18n;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -22,6 +24,7 @@ import twitter4j.Status;
 import twitter4j.Twitter;
 import twitter4j.TwitterException;
 
+@Environment(EnvType.CLIENT)
 public class TwitterUtil {
 	private static final Logger LOGGER = LogManager.getLogger();
 
@@ -198,6 +201,7 @@ public class TwitterUtil {
 		return new Dimension((int) (imageSize.width * ratio), (int) (imageSize.height * ratio));
 	}
 
+	@Environment(EnvType.CLIENT)
 	public enum Unit {
 		KILO('K', 1),
 		MEGA('M', 2),

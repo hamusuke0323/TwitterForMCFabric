@@ -5,6 +5,8 @@ import java.util.List;
 
 import com.google.common.collect.Lists;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.Element;
@@ -13,6 +15,7 @@ import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
 
 //TODO
+@Environment(EnvType.CLIENT)
 public class TwitterTweetFieldWidget extends AbstractButtonWidget implements Drawable, Element {
 	private final TextRenderer fontRenderer;
 	private String text = "";
@@ -25,17 +28,17 @@ public class TwitterTweetFieldWidget extends AbstractButtonWidget implements Dra
 	private int cursorX;
 	private int cursorY;
 	private int enabledColor = 14737632;
-    private int disabledColor = 7368816;
+	private int disabledColor = 7368816;
 
 	public TwitterTweetFieldWidget(TextRenderer msg, int x, int y, int width, int height, String message) {
-        this(msg, x, y, width, height, null, message);
-    }
+		this(msg, x, y, width, height, null, message);
+	}
 
 	public TwitterTweetFieldWidget(TextRenderer fontRenderer, int x, int y, int width, int height, @Nullable TwitterTweetFieldWidget p_i1956_6_, String message) {
 		super(x, y, width, height, message);
 		this.fontRenderer = fontRenderer;
 
-		if(p_i1956_6_ != null) {
+		if (p_i1956_6_ != null) {
 			this.setText(p_i1956_6_.getText());
 		}
 	}
@@ -56,7 +59,7 @@ public class TwitterTweetFieldWidget extends AbstractButtonWidget implements Dra
 	private void setByte(String text) {
 		try {
 			this.bytes = this.text.getBytes(ENCODING).length;
-		}catch (UnsupportedEncodingException e) {
+		} catch (UnsupportedEncodingException e) {
 			;
 		}
 	}
@@ -105,27 +108,27 @@ public class TwitterTweetFieldWidget extends AbstractButtonWidget implements Dra
 	}
 
 	public void renderButton(int p_renderButton_1_, int p_renderButton_2_, float p_renderButton_3_) {
-		if(this.visible) {
-			if(this.enableBackgroundDrawing) {
+		if (this.visible) {
+			if (this.enableBackgroundDrawing) {
 				fill(this.x - 1, this.y - 1, this.x + this.width + 1, this.y + this.height + 1, -6250336);
 				fill(this.x, this.y, this.x + this.width, this.y + this.height, -16777216);
 			}
 
 			boolean flag = this.isFocused();
-            boolean flag1 = this.cursorX < this.text.length();
+			boolean flag1 = this.cursorX < this.text.length();
 			int i = this.isEnabled ? this.enabledColor : this.disabledColor;
 			int l = this.enableBackgroundDrawing ? this.x + 4 : this.x;
-            int i1 = this.enableBackgroundDrawing ? this.y + 4 : this.y;
-            int j1 = l;
+			int i1 = this.enableBackgroundDrawing ? this.y + 4 : this.y;
+			int j1 = l;
 
-            if(flag) {
-                if(flag1) {
-                    //AbstractGui.fill(k1, i1 - 1, k1 + 1, i1 + 1 + 9, -3092272);
-                }else {
-                    //this.fontRenderer.drawStringWithShadow("_", (float)k1, (float)i1, i);
-                }
-            }
-        }
+			if (flag) {
+				if (flag1) {
+					//AbstractGui.fill(k1, i1 - 1, k1 + 1, i1 + 1 + 9, -3092272);
+				} else {
+					//this.fontRenderer.drawStringWithShadow("_", (float)k1, (float)i1, i);
+				}
+			}
+		}
 	}
 
 	public boolean keyPressed(int p_keyPressed_1_, int p_keyPressed_2_, int p_keyPressed_3_) {

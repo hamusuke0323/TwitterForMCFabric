@@ -3,6 +3,8 @@ package com.hamusuke.twitter4mc.gui.screen;
 import com.hamusuke.twitter4mc.Token;
 import com.hamusuke.twitter4mc.TwitterForMinecraft;
 import com.hamusuke.twitter4mc.gui.widget.MaskableTextFieldWidget;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.CheckboxWidget;
@@ -22,6 +24,7 @@ import java.io.FileOutputStream;
 import java.io.ObjectOutputStream;
 import java.net.URI;
 
+@Environment(EnvType.CLIENT)
 public class TwitterLoginScreen extends ParentalScreen {
     private static final Logger LOGGER = LogManager.getLogger();
 
@@ -58,7 +61,7 @@ public class TwitterLoginScreen extends ParentalScreen {
         TwitterForMinecraft.accessS.setMessage(I18n.translate("tw.access.token.secret"));
         this.addButton(TwitterForMinecraft.accessS);
 
-        if(flag) {
+        if (flag) {
             TwitterForMinecraft.update();
         }
 

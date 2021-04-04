@@ -1,12 +1,15 @@
 package com.hamusuke.twitter4mc.gui.widget;
 
 import com.mojang.blaze3d.systems.RenderSystem;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.util.Identifier;
 
+@Environment(EnvType.CLIENT)
 public class ChangeableImageButton extends ButtonWidget {
-	protected Identifier resourceLocation;
+    protected Identifier resourceLocation;
     protected final int xTexStart;
     protected final int yTexStart;
     protected int yDiffText;
@@ -37,16 +40,16 @@ public class ChangeableImageButton extends ButtonWidget {
     }
 
     public void setSize(int x, int y) {
-    	this.textureSizeX = x;
-    	this.textureSizeY = y;
+        this.textureSizeX = x;
+        this.textureSizeY = y;
     }
 
     public void setImage(Identifier image) {
-    	this.resourceLocation = image;
+        this.resourceLocation = image;
     }
 
     public void setWhenHovered(int i) {
-    	this.yDiffText = i;
+        this.yDiffText = i;
     }
 
     public void renderButton(int p_renderButton_1_, int p_renderButton_2_, float p_renderButton_3_) {
@@ -55,12 +58,11 @@ public class ChangeableImageButton extends ButtonWidget {
         RenderSystem.disableDepthTest();
         int i = this.yTexStart;
 
-        if (this.isHovered())
-        {
+        if (this.isHovered()) {
             i += this.yDiffText;
         }
 
-        blit(this.x, this.y, (float)this.xTexStart, (float)i, this.width, this.height, this.textureSizeX, this.textureSizeY);
+        blit(this.x, this.y, (float) this.xTexStart, (float) i, this.width, this.height, this.textureSizeX, this.textureSizeY);
         RenderSystem.enableDepthTest();
     }
 }

@@ -11,6 +11,7 @@ import javafx.application.Platform;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.loader.api.FabricLoader;
 import net.minecraft.client.gui.widget.ButtonWidget;
@@ -75,6 +76,12 @@ public class TwitterForMinecraft implements ModInitializer {
         tokenFile = configFile.resolve("token").toFile();
 
         openTwitter = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.twitter4mc.opentw", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_B, "key.categories.gameplay"));
+        ClientTickEvents.END_CLIENT_TICK.register((client) -> {
+            while (openTwitter.wasPressed()) {
+                twitterScreen.setParentScreen(null);
+                client.openScreen(twitterScreen);
+            }
+        });
 
         PlatformImpl.startup(() -> {
         });
@@ -176,7 +183,7 @@ public class TwitterForMinecraft implements ModInitializer {
     }
 
     public static void update() {
-        if(readToken()) {
+        if (readToken()) {
             TwitterForMinecraft.consumer.setText(token.getConsumer());
             TwitterForMinecraft.consumerS.setText(token.getConsumerSecret());
             TwitterForMinecraft.access.setText(token.getAccessToken());

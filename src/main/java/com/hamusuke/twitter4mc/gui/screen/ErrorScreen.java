@@ -1,5 +1,7 @@
 package com.hamusuke.twitter4mc.gui.screen;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.resource.language.I18n;
@@ -9,6 +11,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
 
+@Environment(EnvType.CLIENT)
 public class ErrorScreen extends ParentalScreen {
     private final String errormsg;
 

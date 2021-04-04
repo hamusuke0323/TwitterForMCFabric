@@ -8,6 +8,8 @@ import com.hamusuke.twitter4mc.TwitterForMinecraft;
 import com.hamusuke.twitter4mc.photomedia.ITwitterPhotoMedia;
 import com.hamusuke.twitter4mc.utils.TweetSummary;
 import com.hamusuke.twitter4mc.utils.TwitterUtil;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.util.NarratorManager;
 import org.apache.logging.log4j.LogManager;
@@ -15,6 +17,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 
+@Environment(EnvType.CLIENT)
 public class TwitterPhotoAndShowStatusScreen extends ParentalScreen {
 	private static final Logger LOGGER = LogManager.getLogger();
 	private final TweetSummary summary;

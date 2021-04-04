@@ -95,7 +95,7 @@ public class MaskableTextFieldWidget extends AbstractButtonWidget implements Dra
 
     private String mask(String text) {
         String s = "";
-        for(int i = 0; i < text.length(); i++) {
+        for (int i = 0; i < text.length(); i++) {
             s += String.valueOf(this.mask);
         }
         return s;
@@ -192,23 +192,23 @@ public class MaskableTextFieldWidget extends AbstractButtonWidget implements Dra
         boolean bl = wordOffset < 0;
         int j = Math.abs(wordOffset);
 
-        for(int k = 0; k < j; ++k) {
+        for (int k = 0; k < j; ++k) {
             if (!bl) {
                 int l = this.text.length();
                 i = this.text.indexOf(32, i);
                 if (i == -1) {
                     i = l;
                 } else {
-                    while(skipOverSpaces && i < l && this.text.charAt(i) == ' ') {
+                    while (skipOverSpaces && i < l && this.text.charAt(i) == ' ') {
                         ++i;
                     }
                 }
             } else {
-                while(skipOverSpaces && i > 0 && this.text.charAt(i - 1) == ' ') {
+                while (skipOverSpaces && i > 0 && this.text.charAt(i - 1) == ' ') {
                     --i;
                 }
 
-                while(i > 0 && this.text.charAt(i - 1) != ' ') {
+                while (i > 0 && this.text.charAt(i - 1) != ' ') {
                     --i;
                 }
             }
@@ -268,7 +268,7 @@ public class MaskableTextFieldWidget extends AbstractButtonWidget implements Dra
 
                 return true;
             } else {
-                switch(keyCode) {
+                switch (keyCode) {
                     case 259:
                         if (this.editable) {
                             this.selecting = false;
@@ -341,7 +341,7 @@ public class MaskableTextFieldWidget extends AbstractButtonWidget implements Dra
         if (!this.isVisible()) {
             return false;
         } else {
-            boolean bl = mouseX >= (double)this.x && mouseX < (double)(this.x + this.width) && mouseY >= (double)this.y && mouseY < (double)(this.y + this.height);
+            boolean bl = mouseX >= (double) this.x && mouseX < (double) (this.x + this.width) && mouseY >= (double) this.y && mouseY < (double) (this.y + this.height);
             if (this.focusUnlocked) {
                 this.setSelected(bl);
             }
@@ -387,7 +387,7 @@ public class MaskableTextFieldWidget extends AbstractButtonWidget implements Dra
 
             if (!string.isEmpty()) {
                 String string2 = bl ? string.substring(0, j) : string;
-                n = this.textRenderer.drawWithShadow((String)this.renderTextProvider.apply(string2, this.firstCharacterIndex), (float)l, (float)m, i);
+                n = this.textRenderer.drawWithShadow((String) this.renderTextProvider.apply(string2, this.firstCharacterIndex), (float) l, (float) m, i);
             }
 
             boolean bl3 = this.selectionStart < this.text.length() || this.text.length() >= this.getMaxLength();
@@ -400,11 +400,11 @@ public class MaskableTextFieldWidget extends AbstractButtonWidget implements Dra
             }
 
             if (!string.isEmpty() && bl && j < string.length()) {
-                this.textRenderer.drawWithShadow((String)this.renderTextProvider.apply(string.substring(j), this.selectionStart), (float)n, (float)m, i);
+                this.textRenderer.drawWithShadow((String) this.renderTextProvider.apply(string.substring(j), this.selectionStart), (float) n, (float) m, i);
             }
 
             if (!bl3 && this.suggestion != null) {
-                this.textRenderer.drawWithShadow(this.suggestion, (float)(o - 1), (float)m, -8355712);
+                this.textRenderer.drawWithShadow(this.suggestion, (float) (o - 1), (float) m, -8355712);
             }
 
             int var10002;
@@ -416,7 +416,7 @@ public class MaskableTextFieldWidget extends AbstractButtonWidget implements Dra
                     var10003 = m + 1;
                     DrawableHelper.fill(o, var10001, var10002, var10003 + 9, -3092272);
                 } else {
-                    this.textRenderer.drawWithShadow("_", (float)o, (float)m, i);
+                    this.textRenderer.drawWithShadow("_", (float) o, (float) m, i);
                 }
             }
 
@@ -461,10 +461,10 @@ public class MaskableTextFieldWidget extends AbstractButtonWidget implements Dra
         RenderSystem.enableColorLogicOp();
         RenderSystem.logicOp(GlStateManager.LogicOp.OR_REVERSE);
         bufferBuilder.begin(7, VertexFormats.POSITION);
-        bufferBuilder.vertex((double)x1, (double)y2, 0.0D).next();
-        bufferBuilder.vertex((double)x2, (double)y2, 0.0D).next();
-        bufferBuilder.vertex((double)x2, (double)y1, 0.0D).next();
-        bufferBuilder.vertex((double)x1, (double)y1, 0.0D).next();
+        bufferBuilder.vertex((double) x1, (double) y2, 0.0D).next();
+        bufferBuilder.vertex((double) x2, (double) y2, 0.0D).next();
+        bufferBuilder.vertex((double) x2, (double) y1, 0.0D).next();
+        bufferBuilder.vertex((double) x1, (double) y1, 0.0D).next();
         tessellator.draw();
         RenderSystem.disableColorLogicOp();
         RenderSystem.enableTexture();
@@ -499,7 +499,7 @@ public class MaskableTextFieldWidget extends AbstractButtonWidget implements Dra
     }
 
     public boolean isMouseOver(double mouseX, double mouseY) {
-        return this.visible && mouseX >= (double)this.x && mouseX < (double)(this.x + this.width) && mouseY >= (double)this.y && mouseY < (double)(this.y + this.height);
+        return this.visible && mouseX >= (double) this.x && mouseX < (double) (this.x + this.width) && mouseY >= (double) this.y && mouseY < (double) (this.y + this.height);
     }
 
     protected void onFocusedChanged(boolean bl) {

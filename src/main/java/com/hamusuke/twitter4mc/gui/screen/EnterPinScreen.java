@@ -1,5 +1,7 @@
 package com.hamusuke.twitter4mc.gui.screen;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
@@ -9,6 +11,7 @@ import net.minecraft.util.Formatting;
 
 import java.util.function.Consumer;
 
+@Environment(EnvType.CLIENT)
 public class EnterPinScreen extends Screen {
     private final Consumer<String> callback;
     private TextFieldWidget pin;
