@@ -66,7 +66,7 @@ public class TwitterForMC implements ModInitializer {
     public static ButtonWidget login;
 
     public void onInitialize() {
-        LOGGER.info("Hello from TwitterForMinecraft#onInitialize!");
+        LOGGER.info("Hello from TwitterForMC#onInitialize!");
         configFile = FabricLoader.getInstance().getConfigDir().resolve(MOD_ID);
         if (!configFile.toFile().exists()) {
             if (configFile.toFile().mkdir()) {
