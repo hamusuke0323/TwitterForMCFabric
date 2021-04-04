@@ -49,6 +49,7 @@ public final class Token implements Serializable {
         return this.autoLogin;
     }
 
+    @Environment(EnvType.CLIENT)
     static final class Crypto {
         private static final String IV1 = "IvParameter1";
         private static final String SECRET1 = "Secret Key1";
