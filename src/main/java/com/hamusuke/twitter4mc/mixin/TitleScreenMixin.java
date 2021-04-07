@@ -18,12 +18,12 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 public class TitleScreenMixin extends Screen {
     private static final Identifier TWITTER_ICON = new Identifier(TwitterForMC.MOD_ID, "textures/twitter/icon/twbtn.png");
 
-    public TitleScreenMixin() {
+    private TitleScreenMixin() {
         super(NarratorManager.EMPTY);
     }
 
     @Inject(at = @At("RETURN"), method = "init()V")
-    public void init(CallbackInfo info) {
+    private void init(CallbackInfo info) {
         this.addButton(new ScalableImageButton(this.width / 2 + 104, this.height / 4 + 48, 20, 20, 40, 40, 0.5F, 0, 0, 40, TWITTER_ICON, 40, 80, (b) -> {
             TwitterForMC.twitterScreen.setParentScreen(this);
             this.minecraft.openScreen(TwitterForMC.twitterScreen);
@@ -31,7 +31,7 @@ public class TitleScreenMixin extends Screen {
     }
 
     @Inject(cancellable = true, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/TitleScreen;blit(IIFFIIII)V", shift = At.Shift.AFTER), method = "render(IIF)V")
-    public void render(CallbackInfo info) {
+    private void render(CallbackInfo info) {
         if (this.minecraft.currentScreen != this) {
             info.cancel();
         }

@@ -1,6 +1,8 @@
 package com.hamusuke.twitter4mc;
 
 import com.google.common.collect.Lists;
+import com.hamusuke.twitter4mc.emoji.Emoji;
+import com.hamusuke.twitter4mc.emoji.EmojiManager;
 import com.hamusuke.twitter4mc.gui.screen.TwitterScreen;
 import com.hamusuke.twitter4mc.gui.widget.MaskableTextFieldWidget;
 import com.hamusuke.twitter4mc.utils.TextureManager;
@@ -13,11 +15,15 @@ import net.fabricmc.api.Environment;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
+import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.loader.api.FabricLoader;
+import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.CheckboxWidget;
 import net.minecraft.client.options.KeyBinding;
 import net.minecraft.client.util.InputUtil;
+import net.minecraft.resource.ReloadableResourceManager;
+import net.minecraft.resource.ResourceType;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -37,6 +43,7 @@ public class TwitterForMC implements ModInitializer {
     public static final String MOD_ID = "twitter4mc";
     private static final Logger LOGGER = LogManager.getLogger();
     private static final TextureManager TEXTURE_MANAGER = new TextureManager();
+    private static final EmojiManager EMOJI_MANAGER = new EmojiManager();
     @Nullable
     private static Path configFile;
     @Nullable
@@ -82,6 +89,8 @@ public class TwitterForMC implements ModInitializer {
                 client.openScreen(twitterScreen);
             }
         });
+
+        ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(EMOJI_MANAGER);
 
         PlatformImpl.startup(() -> {
         });
@@ -193,5 +202,9 @@ public class TwitterForMC implements ModInitializer {
 
     public static TextureManager getTextureManager() {
         return TEXTURE_MANAGER;
+    }
+
+    public static EmojiManager getEmojiManager() {
+        return EMOJI_MANAGER;
     }
 }
