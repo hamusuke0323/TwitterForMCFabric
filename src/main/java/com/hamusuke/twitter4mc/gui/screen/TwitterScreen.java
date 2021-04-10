@@ -532,14 +532,14 @@ public class TwitterScreen extends Screen {
 							TwitterForMC.mctwitter.destroyFavorite(this.summary.getId());
 							this.summary.favorite(false);
 							this.fav.setImage(FAV);
-							this.fav.setWhenHovered(233);
-							this.fav.setSize(246, 466);
+							this.fav.setWhenHovered(16);
+							this.fav.setSize(16, 32);
 						} else {
 							TwitterForMC.mctwitter.createFavorite(this.summary.getId());
 							this.summary.favorite(true);
 							this.fav.setImage(FAVED);
 							this.fav.setWhenHovered(0);
-							this.fav.setSize(246, 233);
+							this.fav.setSize(16, 16);
 						}
 					} catch (TwitterException e) {
 						TwitterScreen.this.accept(I18n.translate("tw.failed.like", e.getErrorMessage()));
