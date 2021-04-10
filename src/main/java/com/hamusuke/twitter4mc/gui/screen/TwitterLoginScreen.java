@@ -34,29 +34,31 @@ public class TwitterLoginScreen extends ParentalScreen {
 
     protected void init() {
         super.init();
-        int i = this.width / 3;
+        int i = this.width / 2;
+        int j = this.width / 4;
+        int k = this.width / 3;
 
         boolean flag = TwitterForMC.consumer == null;
-        TwitterForMC.consumer = TwitterForMC.consumer != null ? TwitterForMC.consumer : new MaskableTextFieldWidget(this.font, i, 20, i, 20, I18n.translate("tw.consumer.key"), '●', 1000);
-        TwitterForMC.consumer.x = i;
+        TwitterForMC.consumer = TwitterForMC.consumer != null ? TwitterForMC.consumer : new MaskableTextFieldWidget(this.font, j, 20, i, 20, I18n.translate("tw.consumer.key"), '●', 1000);
+        TwitterForMC.consumer.x = j;
         TwitterForMC.consumer.setWidth(i);
         TwitterForMC.consumer.setMessage(I18n.translate("tw.consumer.key"));
         this.addButton(TwitterForMC.consumer);
 
-        TwitterForMC.consumerS = TwitterForMC.consumerS != null ? TwitterForMC.consumerS : new MaskableTextFieldWidget(this.font, i, 60, i, 20, I18n.translate("tw.consumer.secret"), '●', 1000);
-        TwitterForMC.consumerS.x = i;
+        TwitterForMC.consumerS = TwitterForMC.consumerS != null ? TwitterForMC.consumerS : new MaskableTextFieldWidget(this.font, j, 60, i, 20, I18n.translate("tw.consumer.secret"), '●', 1000);
+        TwitterForMC.consumerS.x = j;
         TwitterForMC.consumerS.setWidth(i);
         TwitterForMC.consumerS.setMessage(I18n.translate("tw.consumer.secret"));
         this.addButton(TwitterForMC.consumerS);
 
-        TwitterForMC.access = TwitterForMC.access != null ? TwitterForMC.access : new MaskableTextFieldWidget(this.font, i, 100, i, 20, I18n.translate("tw.access.token"), '●', 1000);
-        TwitterForMC.access.x = i;
+        TwitterForMC.access = TwitterForMC.access != null ? TwitterForMC.access : new MaskableTextFieldWidget(this.font, j, 100, i, 20, I18n.translate("tw.access.token"), '●', 1000);
+        TwitterForMC.access.x = j;
         TwitterForMC.access.setWidth(i);
         TwitterForMC.access.setMessage(I18n.translate("tw.access.token"));
         this.addButton(TwitterForMC.access);
 
-        TwitterForMC.accessS = TwitterForMC.accessS != null ? TwitterForMC.accessS : new MaskableTextFieldWidget(this.font, i, 140, i, 20, I18n.translate("tw.access.token.secret"), '●', 1000);
-        TwitterForMC.accessS.x = i;
+        TwitterForMC.accessS = TwitterForMC.accessS != null ? TwitterForMC.accessS : new MaskableTextFieldWidget(this.font, j, 140, i, 20, I18n.translate("tw.access.token.secret"), '●', 1000);
+        TwitterForMC.accessS.x = j;
         TwitterForMC.accessS.setWidth(i);
         TwitterForMC.accessS.setMessage(I18n.translate("tw.access.token.secret"));
         this.addButton(TwitterForMC.accessS);
@@ -65,9 +67,9 @@ public class TwitterLoginScreen extends ParentalScreen {
             TwitterForMC.update();
         }
 
-        TwitterForMC.save = this.addButton(new CheckboxWidget(i, 170, 20, 20, I18n.translate("tw.save.keys"), TwitterForMC.save != null ? TwitterForMC.save.isChecked() : TwitterForMC.readToken()));
+        TwitterForMC.save = this.addButton(new CheckboxWidget(j, 170, 20, 20, I18n.translate("tw.save.keys"), TwitterForMC.save != null ? TwitterForMC.save.isChecked() : TwitterForMC.readToken()));
 
-        TwitterForMC.autoLogin = this.addButton(new CheckboxWidget(i, 200, 20, 20, I18n.translate("tw.auto.login"), TwitterForMC.autoLogin != null ? TwitterForMC.autoLogin.isChecked() : TwitterForMC.readToken() && TwitterForMC.getToken().autoLogin()));
+        TwitterForMC.autoLogin = this.addButton(new CheckboxWidget(j, 200, 20, 20, I18n.translate("tw.auto.login"), TwitterForMC.autoLogin != null ? TwitterForMC.autoLogin.isChecked() : TwitterForMC.readToken() && TwitterForMC.getToken().autoLogin()));
 
         TwitterForMC.login = TwitterForMC.login != null ? TwitterForMC.login : new ButtonWidget(0, this.height - 20, this.width / 2, 20, this.title.asFormattedString(), (b) -> {
             this.active(false);
@@ -85,11 +87,15 @@ public class TwitterLoginScreen extends ParentalScreen {
             this.active(true);
         });
         TwitterForMC.login.y = this.height - 20;
-        TwitterForMC.login.setWidth(this.width / 2);
+        TwitterForMC.login.setWidth(k);
         TwitterForMC.login.setMessage(this.title.asFormattedString());
         this.addButton(TwitterForMC.login);
 
-        this.addButton(new ButtonWidget(this.width / 2, this.height - 20, this.width / 2, 20, I18n.translate("gui.done"), (b) -> {
+        this.addButton(new ButtonWidget(k, this.height - 20, k, 20, I18n.translate("tw.token.file.choose"), (b) -> {
+            TwitterForMC.tokenFileChooser.choose();
+        }));
+
+        this.addButton(new ButtonWidget(k * 2, this.height - 20, k, 20, I18n.translate("gui.done"), (b) -> {
             this.onClose();
         }));
     }
@@ -172,8 +178,6 @@ public class TwitterLoginScreen extends ParentalScreen {
                 var1 = new ObjectOutputStream(new FileOutputStream(TwitterForMC.getTokenFile()));
                 var1.writeObject(token);
                 var1.flush();
-            } catch (Throwable e) {
-                throw e;
             } finally {
                 IOUtils.closeQuietly(var1);
             }

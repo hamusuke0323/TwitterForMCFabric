@@ -10,6 +10,7 @@ import javax.crypto.spec.SecretKeySpec;
 import java.io.Serializable;
 import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
+import java.util.Objects;
 
 @Environment(EnvType.CLIENT)
 public final class Token implements Serializable {
@@ -49,14 +50,27 @@ public final class Token implements Serializable {
         return this.autoLogin;
     }
 
+    public boolean equals(Object o) {
+        if (o == null || this.getClass() != o.getClass()) {
+            return false;
+        }
+
+        Token token = (Token) o;
+        return autoLogin == token.autoLogin && Objects.equals(consumer, token.consumer) && Objects.equals(consumerS, token.consumerS) && Objects.equals(access, token.access) && Objects.equals(accessS, token.accessS);
+    }
+
+    public int hashCode() {
+        return Objects.hash(consumer, consumerS, access, accessS, autoLogin);
+    }
+
     @Environment(EnvType.CLIENT)
     static final class Crypto {
-        private static final String IV1 = "Iv1";
-        private static final String SECRET1 = "Secret key 1";
-        private static final String IV2 = "Iv2";
-        private static final String SECRET2 = "Secret key 2";
-        private static final String IV3 = "Iv3";
-        private static final String SECRET3 = "Secret key 3";
+        private static final String IV1 = "Ehg8489YE(83ghUheHUGherhgrepouwg89y('T('egh73BGbggUggGGgE8tg78fe";
+        private static final String SECRET1 = "Af8Lqen#t7sniaih";
+        private static final String IV2 = "AUGFH7(Fy4hjHGeugggUg37gfKkgii34yguhhg3478Giu4ghTG4hSIgh478uhks(";
+        private static final String SECRET2 = "IfnU8feeu8Hfg48i";
+        private static final String IV3 = "HF8439tKggk4jt4OJSg49yG4oghHLIO894jlG94y095OHGJ4yy0j4)YHh40$(7oo";
+        private static final String SECRET3 = "(TfHUEh7ehnbjUFe";
 
         public static String encrypt(String text) {
             return new String(Base64.encodeBase64(enDoFinal3(Base64.encodeBase64(text.getBytes(StandardCharsets.UTF_8)))));

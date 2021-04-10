@@ -1,8 +1,6 @@
 package com.hamusuke.twitter4mc.test;
 
 import com.hamusuke.twitter4mc.emoji.util.Fitzpatrick;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.apache.logging.log4j.LogManager;

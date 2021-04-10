@@ -30,7 +30,7 @@ public class TwitterButton extends ChangeableImageButton {
         }
 
         RenderSystem.translatef(this.x, this.y, 0.0F);
-        RenderSystem.scalef(0.04F, 0.04F, 0.04F);
+        RenderSystem.scalef(0.625F, 0.625F, 0.625F);
         blit(0, 0, (float) this.xTexStart, (float) i, this.sizex, this.sizey, this.textureSizeX, this.textureSizeY);
         RenderSystem.enableDepthTest();
         RenderSystem.popMatrix();

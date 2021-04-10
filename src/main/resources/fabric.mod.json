@@ -4,13 +4,13 @@
   "version": "$version",
   "license": "MIT",
   "name": "Twitter for MC",
-  "description": "You can browse the twitter on Minecraft!",
+  "description": "You can browse the twitter in Minecraft!",
   "authors": [
     "hamusuke2303"
   ],
   "environment": "client",
   "entrypoints": {
-    "main": [
+    "client": [
       "com.hamusuke.twitter4mc.TwitterForMC"
     ]
   },

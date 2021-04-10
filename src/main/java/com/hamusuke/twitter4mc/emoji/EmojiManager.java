@@ -92,9 +92,6 @@ public class EmojiManager implements SimpleSynchronousResourceReloadListener {
 
     public Emoji getEmoji(String hex) {
         Emoji e = this.emojiMap.get(hex);
-        if (e == null) {
-            return new Emoji(hex, MissingSprite.getMissingSpriteId(), 10);
-        }
-        return e;
+        return e == null ? new Emoji(hex, MissingSprite.getMissingSpriteId(), 10) : e;
     }
 }

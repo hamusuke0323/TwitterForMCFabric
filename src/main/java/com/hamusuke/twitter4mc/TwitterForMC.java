@@ -1,8 +1,8 @@
 package com.hamusuke.twitter4mc;
 
 import com.google.common.collect.Lists;
-import com.hamusuke.twitter4mc.emoji.Emoji;
 import com.hamusuke.twitter4mc.emoji.EmojiManager;
+import com.hamusuke.twitter4mc.filechooser.SFileChooser;
 import com.hamusuke.twitter4mc.gui.screen.TwitterScreen;
 import com.hamusuke.twitter4mc.gui.widget.MaskableTextFieldWidget;
 import com.hamusuke.twitter4mc.utils.TextureManager;
@@ -10,6 +10,7 @@ import com.hamusuke.twitter4mc.utils.TweetSummary;
 import com.hamusuke.twitter4mc.utils.TwitterThread;
 import com.sun.javafx.application.PlatformImpl;
 import javafx.application.Platform;
+import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.fabricmc.api.ModInitializer;
@@ -17,12 +18,10 @@ import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
 import net.fabricmc.loader.api.FabricLoader;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.CheckboxWidget;
 import net.minecraft.client.options.KeyBinding;
 import net.minecraft.client.util.InputUtil;
-import net.minecraft.resource.ReloadableResourceManager;
 import net.minecraft.resource.ResourceType;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
@@ -37,13 +36,14 @@ import twitter4j.auth.AccessToken;
 import java.io.*;
 import java.nio.file.Path;
 import java.util.List;
+import java.util.function.Consumer;
 
 @Environment(EnvType.CLIENT)
-public class TwitterForMC implements ModInitializer {
+public class TwitterForMC implements ClientModInitializer {
     public static final String MOD_ID = "twitter4mc";
     private static final Logger LOGGER = LogManager.getLogger();
-    private static final TextureManager TEXTURE_MANAGER = new TextureManager();
-    private static final EmojiManager EMOJI_MANAGER = new EmojiManager();
+    private static final TextureManager textureManager = new TextureManager();
+    private static final EmojiManager emojiManager = new EmojiManager();
     @Nullable
     private static Path configFile;
     @Nullable
@@ -71,9 +71,30 @@ public class TwitterForMC implements ModInitializer {
     public static CheckboxWidget autoLogin;
     @Nullable
     public static ButtonWidget login;
+    public static final SFileChooser tokenFileChooser = new SFileChooser((file) -> {
+        if (file != null) {
+            Token t = read(file);
+            if (t != null) {
+                token = t;
+                update();
+                if (token.autoLogin()) {
+                    if (!save.isChecked()) {
+                        save.onPress();
+                    }
+                    if (!autoLogin.isChecked()) {
+                        autoLogin.onPress();
+                    }
+                } else {
+                    if (autoLogin.isChecked()) {
+                        autoLogin.onPress();
+                    }
+                }
+            }
+        }
+    });
 
-    public void onInitialize() {
-        LOGGER.info("Hello from TwitterForMC#onInitialize!");
+    public void onInitializeClient() {
+        LOGGER.info("Hello from TwitterForMC#onInitializeClient!");
         configFile = FabricLoader.getInstance().getConfigDir().resolve(MOD_ID);
         if (!configFile.toFile().exists()) {
             if (configFile.toFile().mkdir()) {
@@ -90,7 +111,7 @@ public class TwitterForMC implements ModInitializer {
             }
         });
 
-        ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(EMOJI_MANAGER);
+        ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(emojiManager);
 
         PlatformImpl.startup(() -> {
         });
@@ -104,7 +125,7 @@ public class TwitterForMC implements ModInitializer {
         }).start();
 
         new TwitterThread(() -> {
-            token = read();
+            token = read(tokenFile);
             if (token != null) {
                 AccessToken var1 = new AccessToken(token.getAccessToken(), token.getAccessTokenSecret());
                 if (token.autoLogin()) {
@@ -148,7 +169,7 @@ public class TwitterForMC implements ModInitializer {
         try {
             ois = new ObjectInputStream(new FileInputStream(file));
             tweets = (List<Status>) ois.readObject();
-        } catch (IOException | ClassNotFoundException e) {
+        } catch (Throwable e) {
             LOGGER.error("Error occurred while reading timeline", e);
         } finally {
             IOUtils.closeQuietly(ois);
@@ -156,7 +177,7 @@ public class TwitterForMC implements ModInitializer {
     }
 
     @Nullable
-    private static synchronized Token read() {
+    private static synchronized Token read(File tokenFile) {
         if (!tokenFile.exists()) {
             return null;
         }
@@ -201,10 +222,10 @@ public class TwitterForMC implements ModInitializer {
     }
 
     public static TextureManager getTextureManager() {
-        return TEXTURE_MANAGER;
+        return textureManager;
     }
 
     public static EmojiManager getEmojiManager() {
-        return EMOJI_MANAGER;
+        return emojiManager;
     }
 }

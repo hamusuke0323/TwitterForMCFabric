@@ -199,7 +199,7 @@ public class TwitterScreen extends Screen {
 		super.render(p_230430_2_, p_230430_3_, p_230430_4_);
 		this.list.render(p_230430_2_, p_230430_3_, p_230430_4_);
 		for (AbstractButtonWidget b : this.buttons) {
-			if (!b.getMessage().equals(I18n.translate("tweet")) && !b.getMessage().equals(I18n.translate("tw.save.timeline"))) {
+			if (!b.getMessage().equals(I18n.translate("tw.settings")) && !b.getMessage().equals(I18n.translate("tweet")) && !b.getMessage().equals(I18n.translate("tw.save.timeline"))) {
 				b.render(p_230430_2_, p_230430_3_, p_230430_4_);
 			}
 		}
@@ -300,10 +300,14 @@ public class TwitterScreen extends Screen {
 			}
 		}
 
+		int yyy = i2;
+		boolean p = user.isProtected();
+		boolean v = user.isVerified();
+		int m = (p ? 10 : 0) + (v ? 10 : 0);
 		String name = new LiteralText(user.getName()).formatted(Formatting.BOLD).asFormattedString();
 		String three = new LiteralText("...").formatted(Formatting.BOLD).asFormattedString();
-		List<String> namef = this.font.wrapStringToWidthAsList(name, i - this.font.getStringWidth(three));
-		this.font.draw(namef.size() == 1 ? namef.get(0) : namef.get(0) + three, (float) l1, (float) i2 + 2, -1, true, matrix4f, irendertypebuffer$impl, false, 0, 15728880);
+		List<String> namef = this.font.wrapStringToWidthAsList(name, i - this.font.getStringWidth(three) - m);
+		int n = this.font.draw(namef.size() == 1 ? namef.get(0) : namef.get(0) + three, (float) l1, (float) i2 + 2, -1, true, matrix4f, irendertypebuffer$impl, false, 0, 15728880);
 		this.font.draw(new LiteralText(summary.getScreenName()).formatted(Formatting.GRAY).asFormattedString(), (float) l1, (float) i2 + 12, -1, true, matrix4f, irendertypebuffer$impl, false, 0, 15728880);
 
 		for (int k1 = 0; k1 < desc.size(); ++k1) {
@@ -324,6 +328,14 @@ public class TwitterScreen extends Screen {
 		}
 
 		irendertypebuffer$impl.draw();
+
+		if (p) {
+			n += this.renderProtected(n, yyy + 2);
+		}
+		if (v) {
+			this.renderVerified(n, yyy + 2);
+		}
+
 		RenderSystem.enableDepthTest();
 		RenderSystem.enableRescaleNormal();
 
@@ -357,22 +369,10 @@ public class TwitterScreen extends Screen {
 		this.font.drawWithShadow(formattedName, x, y, Formatting.WHITE.getColorValue());
 		x += fnamew;
 		if (p) {
-			this.minecraft.getTextureManager().bindTexture(PROTECTED);
-			RenderSystem.pushMatrix();
-			RenderSystem.translatef(x, y, 0.0F);
-			RenderSystem.scalef(0.035F, 0.035F, 0.035F);
-			blit(0, 0, 0, 0, 246, 246, 246, 246);
-			RenderSystem.popMatrix();
-			x += 10;
+			x += this.renderProtected(x, y);
 		}
 		if (v) {
-			this.minecraft.getTextureManager().bindTexture(VERIFIED);
-			RenderSystem.pushMatrix();
-			RenderSystem.translatef(x, y, 0.0F);
-			RenderSystem.scalef(0.035F, 0.035F, 0.035F);
-			blit(0, 0, 0, 0, 246, 246, 246, 246);
-			RenderSystem.popMatrix();
-			x += 10;
+			x += this.renderVerified(x, y);
 		}
 
 		List<String> snamef = this.font.wrapStringToWidthAsList(sname, width - fnamew - pvw - timew - threew);
@@ -384,19 +384,46 @@ public class TwitterScreen extends Screen {
 		this.font.drawWithShadow(time, x, y, Formatting.GRAY.getColorValue());
 	}
 
-	public int renderRetweetedUser(@Nullable TweetSummary retweetedSummary, int icox, int x, int y) {
+	public int renderProtected(int x, int y) {
+		this.minecraft.getTextureManager().bindTexture(PROTECTED);
+		RenderSystem.pushMatrix();
+		RenderSystem.translatef(x, y, 0.0F);
+		RenderSystem.scalef(0.625F, 0.625F, 0.625F);
+		blit(0, 0, 0, 0, 16, 16, 16, 16);
+		RenderSystem.popMatrix();
+		return 10;
+	}
+
+	public int renderVerified(int x, int y) {
+		this.minecraft.getTextureManager().bindTexture(VERIFIED);
+		RenderSystem.pushMatrix();
+		RenderSystem.translatef(x, y, 0.0F);
+		RenderSystem.scalef(0.625F, 0.625F, 0.625F);
+		blit(0, 0, 0, 0, 16, 16, 16, 16);
+		RenderSystem.popMatrix();
+		return 10;
+	}
+
+	public int renderRetweetedUser(@Nullable TweetSummary retweetedSummary, int icox, int x, int y, int width) {
 		if (retweetedSummary != null) {
 			this.minecraft.getTextureManager().bindTexture(RETUSR);
 			RenderSystem.pushMatrix();
 			RenderSystem.translatef(icox, y, 0.0F);
-			RenderSystem.scalef(0.04F, 0.04F, 0.04F);
-			blit(0, 0, 0, 0, 246, 186, 246, 186);
+			RenderSystem.scalef(0.625F, 0.625F, 0.625F);
+			blit(0, 0, 0, 0, 16, 16, 16, 16);
 			RenderSystem.popMatrix();
-			this.font.drawWithShadow(I18n.translate("tw.retweeted.user", retweetedSummary.getUser().getName()), x, y, Formatting.GRAY.getColorValue());
-			return y + 10;
+			List<String> names = this.getUserNameWrap(retweetedSummary, width);
+			for(int i = 0; i < names.size(); i++) {
+				this.font.drawWithShadow(names.get(i), x, y + i * 10, Formatting.GRAY.getColorValue());
+			}
+			return y + names.size() * 10;
 		}
 
 		return y;
+	}
+
+	public List<String> getUserNameWrap(TweetSummary summary, int width) {
+		return this.font.wrapStringToWidthAsList(I18n.translate("tw.retweeted.user", summary.getUser().getName()), width);
 	}
 
 	public TwitterScreen.TweetList getList() {
@@ -479,7 +506,7 @@ public class TwitterScreen extends Screen {
 				this.qsStrs = this.quoteSourceSummary != null ? TwitterScreen.this.font.wrapStringToWidthAsList(this.quoteSourceSummary.getText(), TweetList.this.getRowWidth() - 40) : Lists.newArrayList();
 				this.height = ((this.strs.size() - 1) * 10) + 10 + 30;
 				this.height += this.summary.isIncludeImages() || this.summary.isIncludeVideo() ? 120 : 0;
-				this.height += flag ? 10 : 0;
+				this.height += flag ? TwitterScreen.this.getUserNameWrap(this.retweetedSummary, TweetList.this.getRowWidth() - 24).size() * 10 : 0;
 				this.height += this.quoteSourceSummary != null ? 20 + this.qsStrs.size() * 10 : 0;
 				this.fourBtnHeightOffset = this.height - 14;
 			}
@@ -491,15 +518,15 @@ public class TwitterScreen extends Screen {
 			public void init() {
 				int i = TwitterScreen.TweetList.this.getRowLeft() + 24;
 
-				this.rep = this.addButton(new TwitterButton(i, this.fourBtnHeightOffset, 10, 10, 0, 0, 246, REP, 246, 492, 246, 246, (p) -> {
+				this.rep = this.addButton(new TwitterButton(i, this.fourBtnHeightOffset, 10, 10, 0, 0, 16, REP, 16, 32, 16, 16, (p) -> {
 
 				}));
 
-				this.ret = this.addButton(new TwitterButton(i + 60, this.fourBtnHeightOffset, 10, 10, 0, 0, 177, RET, 246, 354, 246, 177, (p) -> {
+				this.ret = this.addButton(new TwitterButton(i + 60, this.fourBtnHeightOffset, 10, 10, 0, 0, 16, RET, 16, 32, 16, 16, (p) -> {
 
 				}));
 
-				this.fav = this.addButton(new TwitterButton(i + 60 + 60, this.fourBtnHeightOffset, 10, 10, 0, 0, this.summary.isFavorited() ? 0 : 233, this.summary.isFavorited() ? FAVED : FAV, 246, this.summary.isFavorited() ? 233 : 466, 246, 233, (b) -> {
+				this.fav = this.addButton(new TwitterButton(i + 60 + 60, this.fourBtnHeightOffset, 10, 10, 0, 0, this.summary.isFavorited() ? 0 : 16, this.summary.isFavorited() ? FAVED : FAV, 16, this.summary.isFavorited() ? 16 : 32, 16, 16, (b) -> {
 					try {
 						if (this.summary.isFavorited()) {
 							TwitterForMC.mctwitter.destroyFavorite(this.summary.getId());
@@ -519,7 +546,7 @@ public class TwitterScreen extends Screen {
 					}
 				}));
 
-				this.sha = this.addButton(new TwitterButton(i + 60 + 60 + 60, this.fourBtnHeightOffset, 10, 10, 0, 0, 246, SHA, 246, 492, 246, 246, (p) -> {
+				this.sha = this.addButton(new TwitterButton(i + 60 + 60 + 60, this.fourBtnHeightOffset, 10, 10, 0, 0, 16, SHA, 16, 32, 16, 16, (p) -> {
 
 				}));
 			}
@@ -530,7 +557,7 @@ public class TwitterScreen extends Screen {
 				RenderSystem.enableBlend();
 
 				int nowy = rowTop;
-				nowy = TwitterScreen.this.renderRetweetedUser(this.retweetedSummary, rowLeft + 6, rowLeft + 24, nowy);
+				nowy = TwitterScreen.this.renderRetweetedUser(this.retweetedSummary, rowLeft + 6, rowLeft + 24, nowy, rowWidth - 24);
 
 				try {
 					if (icon != null) {
