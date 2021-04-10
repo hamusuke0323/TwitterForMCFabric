@@ -24,9 +24,7 @@ public class TextureManager {
 
     public void bindTexture(InputStream is) {
         if (!RenderSystem.isOnRenderThread()) {
-            RenderSystem.recordRenderCall(() -> {
-                this.bindTextureRaw(is);
-            });
+            RenderSystem.recordRenderCall(() -> this.bindTextureRaw(is));
         } else {
             this.bindTextureRaw(is);
         }
@@ -62,9 +60,7 @@ public class TextureManager {
         } catch (Throwable var8) {
             CrashReport crashReport = CrashReport.create(var8, "Registering texture");
             CrashReportSection crashReportSection = crashReport.addElement("Resource location being registered");
-            crashReportSection.add("Texture object class", () -> {
-                return texture.getClass().getName();
-            });
+            crashReportSection.add("Texture object class", () -> texture.getClass().getName());
             throw new CrashException(crashReport);
         }
     }

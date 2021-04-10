@@ -413,7 +413,7 @@ public class TwitterScreen extends Screen {
 			blit(0, 0, 0, 0, 16, 16, 16, 16);
 			RenderSystem.popMatrix();
 			List<String> names = this.getUserNameWrap(retweetedSummary, width);
-			for(int i = 0; i < names.size(); i++) {
+			for (int i = 0; i < names.size(); i++) {
 				this.font.drawWithShadow(names.get(i), x, y + i * 10, Formatting.GRAY.getColorValue());
 			}
 			return y + names.size() * 10;
