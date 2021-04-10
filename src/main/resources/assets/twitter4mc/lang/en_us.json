@@ -5,6 +5,7 @@
   "tw.save.keys": "save keys",
   "tw.save.keys.desc": "\u00A7cATTENTION\u00A7r: keys will be encrypted and save but may be decrypt by others, be careful.\u00A7cAT YOUR OWN RISK.",
   "tw.auto.login": "Auto login",
+  "tw.token.file.choose": "Type tokens from file",
   "tw.login.successful": "Login Successful!",
   "tw.save.timeline": "Save Timeline",
   "tw.settings": "Settings",
