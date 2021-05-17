@@ -54,6 +54,12 @@ java {
 }
 
 jar {
+	from("licenses") {
+		rename {
+			"${it}".replace(".txt", "")
+		}
+	}
+
 	from("LICENSE") {
 		rename { "${it}_${project.archivesBaseName}"}
 	}
