@@ -60,21 +60,16 @@ public class TwitterNotificationToast extends InputStreamToast implements IClick
 		}
 
 		if (this.image != null) {
-			try {
-				RenderSystem.pushMatrix();
-				RenderSystem.enableBlend();
-				RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-				RenderSystem.translatef(8.0F, 8.0F, 0.0F);
-				TwitterForMC.getTextureManager().bindTexture(this.image);
-				DrawableHelper.blit(0, 0, 0.0F, 0.0F, 16, 16, 16, 16);
-				RenderSystem.popMatrix();
-			} catch (Throwable t) {
-				return Toast.Visibility.HIDE;
-			}
+			RenderSystem.pushMatrix();
+			RenderSystem.enableBlend();
+			RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+			RenderSystem.translatef(8.0F, 8.0F, 0.0F);
+			TwitterForMC.getTextureManager().bindTexture(this.image);
+			DrawableHelper.blit(0, 0, 0.0F, 0.0F, 16, 16, 16, 16);
+			RenderSystem.popMatrix();
 		}
 
 		return delta < 5000L ? Toast.Visibility.SHOW : Toast.Visibility.HIDE;
-		//return IToast.Visibility.SHOW;
 	}
 
 	public void mouseClicked(int toastX, int toastY, double x, double y, int button) {

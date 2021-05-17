@@ -18,7 +18,6 @@ import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Overwrite;
 import org.spongepowered.asm.mixin.Shadow;
 
-import java.util.Iterator;
 import java.util.List;
 
 @Environment(EnvType.CLIENT)
@@ -58,7 +57,7 @@ public class TextRendererMixin {
         boolean bl5 = false;
         List<GlyphRenderer.Rectangle> list = Lists.newArrayList();
 
-        String emoji = "";
+        StringBuilder emoji = new StringBuilder();
         for (int o = 0; o < text.length(); ++o) {
             char c = text.charAt(o);
             if (c == 167 && o + 1 < text.length()) {
@@ -100,23 +99,23 @@ public class TextRendererMixin {
                 j += e.getEmojiWidth();
             } else if (Character.isHighSurrogate(c) && o + 1 < text.length() && Character.isLowSurrogate(text.charAt(o + 1))) {
                 char low = text.charAt(o + 1);
-                emoji += Integer.toHexString(Character.toCodePoint(c, low));
+                emoji.append(Integer.toHexString(Character.toCodePoint(c, low)));
                 o++;
                 if (o + 1 < text.length() && (text.charAt(o + 1) == 0x200d || (o + 2 < text.length() && Fitzpatrick.isFitzpatrick(Integer.toHexString(Character.toCodePoint(text.charAt(o + 1), text.charAt(o + 2))))))) {
-                    emoji += "-";
+                    emoji.append("-");
                 } else {
-                    Emoji e = getEmoji(emoji);
+                    Emoji e = getEmoji(emoji.toString());
                     e.renderEmoji(matrix, vertexConsumerProvider, j, y, n, light);
                     j += e.getEmojiWidth();
-                    emoji = "";
+                    emoji = new StringBuilder();
                 }
             } else if (c == 0x200d) {
-                emoji += Integer.toHexString(c) + "-";
-            } else if (!emoji.isEmpty()) {
+                emoji.append(Integer.toHexString(c)).append("-");
+            } else if (!emoji.toString().isEmpty()) {
                 Emoji e = getEmoji(emoji.substring(0, emoji.length() - 2));
                 e.renderEmoji(matrix, vertexConsumerProvider, j, y, n, light);
                 j += e.getEmojiWidth();
-                emoji = "";
+                emoji = new StringBuilder();
             } else {
                 Glyph glyph = this.fontStorage.getGlyph(c);
                 GlyphRenderer glyphRenderer = bl ? this.fontStorage.getObfuscatedGlyphRenderer(glyph) : this.fontStorage.getGlyphRenderer(c);
@@ -154,10 +153,8 @@ public class TextRendererMixin {
         if (!list.isEmpty()) {
             GlyphRenderer glyphRenderer2 = this.fontStorage.getRectangleRenderer();
             VertexConsumer vertexConsumer2 = vertexConsumerProvider.getBuffer(glyphRenderer2.method_24045(seeThrough));
-            Iterator var39 = list.iterator();
 
-            while (var39.hasNext()) {
-                GlyphRenderer.Rectangle rectangle = (GlyphRenderer.Rectangle) var39.next();
+            for (GlyphRenderer.Rectangle rectangle : list) {
                 glyphRenderer2.drawRectangle(rectangle, matrix, vertexConsumer2, light);
             }
         }
@@ -177,7 +174,7 @@ public class TextRendererMixin {
             float f = 0.0F;
             boolean bl = false;
 
-            String emoji = "";
+            StringBuilder emoji = new StringBuilder();
             for (int i = 0; i < text.length(); ++i) {
                 char c = text.charAt(i);
                 if (c == 167 && i < text.length() - 1) {
@@ -193,21 +190,21 @@ public class TextRendererMixin {
                     f += e.getEmojiWidth();
                 } else if (Character.isHighSurrogate(c) && i + 1 < text.length() && Character.isLowSurrogate(text.charAt(i + 1))) {
                     char low = text.charAt(i + 1);
-                    emoji += Integer.toHexString(Character.toCodePoint(c, low));
+                    emoji.append(Integer.toHexString(Character.toCodePoint(c, low)));
                     i++;
                     if (i + 1 < text.length() && (text.charAt(i + 1) == 0x200d || (i + 2 < text.length() && Fitzpatrick.isFitzpatrick(Integer.toHexString(Character.toCodePoint(text.charAt(i + 1), text.charAt(i + 2))))))) {
-                        emoji += "-";
+                        emoji.append("-");
                     } else {
-                        Emoji e = getEmoji(emoji);
+                        Emoji e = getEmoji(emoji.toString());
                         f += e.getEmojiWidth();
-                        emoji = "";
+                        emoji = new StringBuilder();
                     }
                 } else if (c == 0x200d) {
-                    emoji += Integer.toHexString(c) + "-";
-                } else if (!emoji.isEmpty()) {
+                    emoji.append(Integer.toHexString(c)).append("-");
+                } else if (!emoji.toString().isEmpty()) {
                     Emoji e = getEmoji(emoji.substring(0, emoji.length() - 2));
                     f += e.getEmojiWidth();
-                    emoji = "";
+                    emoji = new StringBuilder();
                 } else {
                     f += this.fontStorage.getGlyph(c).getAdvance(bl);
                 }

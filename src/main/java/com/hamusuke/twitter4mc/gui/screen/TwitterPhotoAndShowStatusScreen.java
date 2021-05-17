@@ -21,12 +21,12 @@ import com.mojang.blaze3d.systems.RenderSystem;
 public class TwitterPhotoAndShowStatusScreen extends ParentalScreen {
 	private static final Logger LOGGER = LogManager.getLogger();
 	private final TweetSummary summary;
-	private final int indexoffset;
+	private final int indexOffset;
 
 	public TwitterPhotoAndShowStatusScreen(TwitterScreen ts, TweetSummary summary, int index) {
 		super(NarratorManager.EMPTY, ts);
 		this.summary = summary;
-		this.indexoffset = index;
+		this.indexOffset = index;
 	}
 
 	protected void init() {
@@ -41,10 +41,10 @@ public class TwitterPhotoAndShowStatusScreen extends ParentalScreen {
 
 		try {
 			List<ITwitterPhotoMedia> p = this.summary.getPhotoMedias();
-			ITwitterPhotoMedia imedia = p.get(this.indexoffset);
-			InputStream data = imedia.getData();
+			ITwitterPhotoMedia media = p.get(this.indexOffset);
+			InputStream data = media.getData();
 			if (data != null) {
-				Dimension d = TwitterUtil.getScaledDimensionMinRatio(new Dimension(imedia.getWidth(), imedia.getHeight()), new Dimension(this.width, this.height));
+				Dimension d = TwitterUtil.getScaledDimensionMinRatio(new Dimension(media.getWidth(), media.getHeight()), new Dimension(this.width, this.height));
 				TwitterForMC.getTextureManager().bindTexture(data);
 				DrawableHelper.blit(0, 0, 0.0F, 0.0F, d.width, d.height, d.width, d.height);
 			}

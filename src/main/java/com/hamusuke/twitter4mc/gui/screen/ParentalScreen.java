@@ -16,6 +16,14 @@ public abstract class ParentalScreen extends Screen {
         this.parent = parent;
     }
 
+    protected void init() {
+        if (this.parent != null) {
+            this.parent.resize(this.minecraft, this.width, this.height);
+        }
+
+        super.init();
+    }
+
     public void onClose() {
         this.minecraft.openScreen(this.parent);
     }

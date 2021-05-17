@@ -33,6 +33,3 @@ bin/
 
 run/
 logs/
-
-#code
-src/main/java/com/hamusuke/twitter4mc/Token.java

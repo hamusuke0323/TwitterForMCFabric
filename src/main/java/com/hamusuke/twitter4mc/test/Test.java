@@ -15,12 +15,12 @@ public class Test {
 
 	private static String emojiToHex(String emoji) {
 		char[] chars = emoji.toCharArray();
-		String res = "";
-		for(char c : chars) {
-			res += Integer.toHexString(c);
-			res += chars[chars.length - 1] == c ? "" : ",";
+		StringBuilder res = new StringBuilder();
+		for (char c : chars) {
+			res.append(Integer.toHexString(c));
+			res.append(chars[chars.length - 1] == c ? "" : ",");
 		}
-		return res;
+		return res.toString();
 	}
 
 	private static String splitEmojiHex(String text) {

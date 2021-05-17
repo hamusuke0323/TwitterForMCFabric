@@ -8,6 +8,11 @@
   "authors": [
     "hamusuke2303"
   ],
+  "contact": {
+    "homepage": "https://www.curseforge.com/minecraft/mc-mods/twitter-for-mc-fabric",
+    "sources": "https://github.com/hamusuke0323/TwitterForMCFabric",
+    "issues": "https://github.com/hamusuke0323/TwitterForMCFabric/issues"
+  },
   "environment": "client",
   "entrypoints": {
     "client": [
@@ -21,5 +26,8 @@
     "fabricloader": ">=0.7.4",
     "fabric": "*",
     "minecraft": "1.15.x"
+  },
+  "custom": {
+    "updateJsonUrl": "https://raw.githubusercontent.com/hamusuke0323/TwitterForMCFabric/main/update.json"
   }
 }

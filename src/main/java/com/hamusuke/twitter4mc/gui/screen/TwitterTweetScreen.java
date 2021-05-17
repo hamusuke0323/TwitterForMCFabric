@@ -1,6 +1,7 @@
 package com.hamusuke.twitter4mc.gui.screen;
 
 import com.hamusuke.twitter4mc.TwitterForMC;
+import com.hamusuke.twitter4mc.gui.widget.TwitterTweetFieldWidget;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -12,7 +13,6 @@ import org.apache.logging.log4j.Logger;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 
-import net.minecraft.client.gui.widget.TextFieldWidget;
 import twitter4j.TwitterException;
 import twitter4j.util.CharacterUtil;
 
@@ -20,7 +20,7 @@ import twitter4j.util.CharacterUtil;
 @Environment(EnvType.CLIENT)
 public class TwitterTweetScreen extends ParentalScreen {
 	private static final Logger LOGGER = LogManager.getLogger();
-	private TextFieldWidget tweettext;
+	private TwitterTweetFieldWidget tweettext;
 
 	protected TwitterTweetScreen(TwitterScreen ts) {
 		super(NarratorManager.EMPTY, ts);
@@ -30,7 +30,7 @@ public class TwitterTweetScreen extends ParentalScreen {
 		super.init();
 		int i = this.width / 4;
 		this.minecraft.keyboard.enableRepeatEvents(true);
-		this.tweettext = new TextFieldWidget(this.font, i, this.height / 4, i * 2, this.height / 2, "");
+		this.tweettext = new TwitterTweetFieldWidget(this.font, i, this.height / 4, i * 2, this.height / 2, "");
 		this.tweettext.setEditableColor(-1);
 		this.tweettext.setMaxLength(CharacterUtil.MAX_TWEET_LENGTH);
 
@@ -43,7 +43,7 @@ public class TwitterTweetScreen extends ParentalScreen {
 				TwitterForMC.mctwitter.updateStatus(this.tweettext.getText());
 				((TwitterScreen) this.parent).accept(I18n.translate("sent.tweet"));
 			} catch (TwitterException e) {
-				LOGGER.error("Error occurred while sending tweet: {}", e);
+				LOGGER.error("Error occurred while sending tweet", e);
 				((TwitterScreen) this.parent).accept(I18n.translate("failed.send.tweet") + e.getErrorMessage());
 			}
 

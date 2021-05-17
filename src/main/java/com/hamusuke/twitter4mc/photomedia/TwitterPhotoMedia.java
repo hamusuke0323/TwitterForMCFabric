@@ -29,7 +29,8 @@ public class TwitterPhotoMedia implements ITwitterPhotoMedia {
 		if (this.data == null) {
 			LOGGER.warn("Failed to load photo data. return null");
 		}
-		int[] wh = TwitterUtil.getImageWidthHeight(this.url);
+
+		Integer[] wh = TwitterUtil.getImageWidthHeight(this.url);
 		int w = 0, h = 0;
 		if (wh != null) {
 			w = wh[0];

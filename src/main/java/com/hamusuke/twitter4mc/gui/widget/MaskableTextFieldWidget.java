@@ -39,7 +39,7 @@ public class MaskableTextFieldWidget extends AbstractButtonWidget implements Dra
     private int editableColor;
     private int uneditableColor;
     private String suggestion;
-    private BiFunction<String, Integer, String> renderTextProvider;
+    private final BiFunction<String, Integer, String> renderTextProvider;
 
     public MaskableTextFieldWidget(TextRenderer textRenderer, int x, int y, int width, int height, String message, char mask, int maxLength) {
         this(textRenderer, x, y, width, height, null, message, mask, maxLength);
@@ -66,6 +66,10 @@ public class MaskableTextFieldWidget extends AbstractButtonWidget implements Dra
         ++this.focusedTicks;
     }
 
+    public void setMaxLength(int maxLength) {
+        this.maxLength = maxLength;
+    }
+
     protected String getNarrationMessage() {
         String string = this.getMessage();
         return string.isEmpty() ? "" : I18n.translate("gui.narrate.editBox", string, this.mask(this.text));
@@ -88,24 +92,24 @@ public class MaskableTextFieldWidget extends AbstractButtonWidget implements Dra
     }
 
     public String getSelectedText() {
-        int i = this.selectionStart < this.selectionEnd ? this.selectionStart : this.selectionEnd;
-        int j = this.selectionStart < this.selectionEnd ? this.selectionEnd : this.selectionStart;
+        int i = Math.min(this.selectionStart, this.selectionEnd);
+        int j = Math.max(this.selectionStart, this.selectionEnd);
         return this.mask(this.text.substring(i, j));
     }
 
     private String mask(String text) {
-        String s = "";
+        StringBuilder s = new StringBuilder();
         for (int i = 0; i < text.length(); i++) {
-            s += String.valueOf(this.mask);
+            s.append(this.mask);
         }
-        return s;
+        return s.toString();
     }
 
     public void write(String text) {
         String string = "";
         String string2 = SharedConstants.stripInvalidChars(text);
-        int i = this.selectionStart < this.selectionEnd ? this.selectionStart : this.selectionEnd;
-        int j = this.selectionStart < this.selectionEnd ? this.selectionEnd : this.selectionStart;
+        int i = Math.min(this.selectionStart, this.selectionEnd);
+        int j = Math.max(this.selectionStart, this.selectionEnd);
         int k = this.maxLength - this.text.length() - (i - j);
         if (!this.text.isEmpty()) {
             string = string + this.text.substring(0, i);
@@ -387,7 +391,7 @@ public class MaskableTextFieldWidget extends AbstractButtonWidget implements Dra
 
             if (!string.isEmpty()) {
                 String string2 = bl ? string.substring(0, j) : string;
-                n = this.textRenderer.drawWithShadow((String) this.renderTextProvider.apply(string2, this.firstCharacterIndex), (float) l, (float) m, i);
+                n = this.textRenderer.drawWithShadow(this.renderTextProvider.apply(string2, this.firstCharacterIndex), (float) l, (float) m, i);
             }
 
             boolean bl3 = this.selectionStart < this.text.length() || this.text.length() >= this.getMaxLength();
@@ -400,7 +404,7 @@ public class MaskableTextFieldWidget extends AbstractButtonWidget implements Dra
             }
 
             if (!string.isEmpty() && bl && j < string.length()) {
-                this.textRenderer.drawWithShadow((String) this.renderTextProvider.apply(string.substring(j), this.selectionStart), (float) n, (float) m, i);
+                this.textRenderer.drawWithShadow(this.renderTextProvider.apply(string.substring(j), this.selectionStart), (float) n, (float) m, i);
             }
 
             if (!bl3 && this.suggestion != null) {
@@ -461,10 +465,10 @@ public class MaskableTextFieldWidget extends AbstractButtonWidget implements Dra
         RenderSystem.enableColorLogicOp();
         RenderSystem.logicOp(GlStateManager.LogicOp.OR_REVERSE);
         bufferBuilder.begin(7, VertexFormats.POSITION);
-        bufferBuilder.vertex((double) x1, (double) y2, 0.0D).next();
-        bufferBuilder.vertex((double) x2, (double) y2, 0.0D).next();
-        bufferBuilder.vertex((double) x2, (double) y1, 0.0D).next();
-        bufferBuilder.vertex((double) x1, (double) y1, 0.0D).next();
+        bufferBuilder.vertex(x1, y2, 0.0D).next();
+        bufferBuilder.vertex(x2, y2, 0.0D).next();
+        bufferBuilder.vertex(x2, y1, 0.0D).next();
+        bufferBuilder.vertex(x1, y1, 0.0D).next();
         tessellator.draw();
         RenderSystem.disableColorLogicOp();
         RenderSystem.enableTexture();
@@ -495,7 +499,7 @@ public class MaskableTextFieldWidget extends AbstractButtonWidget implements Dra
     }
 
     public boolean changeFocus(boolean bl) {
-        return this.visible && this.editable ? super.changeFocus(bl) : false;
+        return this.visible && this.editable && super.changeFocus(bl);
     }
 
     public boolean isMouseOver(double mouseX, double mouseY) {

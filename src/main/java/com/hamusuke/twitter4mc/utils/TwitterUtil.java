@@ -95,7 +95,7 @@ public class TwitterUtil {
 	}
 
 	@Nullable
-	public static List<String> getVideoURL(Twitter twitter, String url) throws TwitterException {
+	public static List<String> getVideoURL(Twitter twitter, String url) {
 		if (url.contains("status/")) {
 			try {
 				return TwitterUtil.getVideoURL(twitter, Long.parseLong(url.substring(url.indexOf("status/")).replace("status/", "").trim()));
@@ -173,13 +173,13 @@ public class TwitterUtil {
 	}
 
 	@Nullable
-	public static int[] getImageWidthHeight(@Nullable String imageURL) {
+	public static Integer[] getImageWidthHeight(@Nullable String imageURL) {
 		try {
 			if (imageURL == null) {
 				return null;
 			}
 			BufferedImage bi = ImageIO.read(TwitterUtil.getInputStream(imageURL));
-			return new int[]{bi.getWidth(), bi.getHeight()};
+			return new Integer[]{bi.getWidth(), bi.getHeight()};
 		} catch (Exception e) {
 			return null;
 		}

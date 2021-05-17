@@ -7,8 +7,6 @@ import net.minecraft.client.texture.AbstractTexture;
 import net.minecraft.client.texture.NativeImage;
 import net.minecraft.client.texture.TextureUtil;
 import net.minecraft.resource.ResourceManager;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
 import java.io.Closeable;
@@ -17,8 +15,6 @@ import java.io.InputStream;
 
 @Environment(EnvType.CLIENT)
 public class InputStreamTexture extends AbstractTexture {
-    private static final Logger LOGGER = LogManager.getLogger();
-
     public void load(ResourceManager manager) {
     }
 
@@ -48,12 +44,12 @@ public class InputStreamTexture extends AbstractTexture {
         @Nullable
         private final IOException exception;
 
-        public TextureData(IOException exception) {
+        public TextureData(@Nullable IOException exception) {
             this.exception = exception;
             this.image = null;
         }
 
-        public TextureData(NativeImage image) {
+        public TextureData(@Nullable NativeImage image) {
             this.exception = null;
             this.image = image;
         }

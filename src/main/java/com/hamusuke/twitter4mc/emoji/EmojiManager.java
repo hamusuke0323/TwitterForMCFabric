@@ -75,15 +75,18 @@ public class EmojiManager implements SimpleSynchronousResourceReloadListener {
     private void load(InputStream inputStream) {
         JsonArray jsonArray = GSON.fromJson(new InputStreamReader(inputStream, StandardCharsets.UTF_8), JsonArray.class);
         Iterator<JsonElement> iterator = jsonArray.iterator();
+        long time = System.currentTimeMillis();
 
         while (iterator.hasNext()) {
             JsonObject jsonObject = iterator.next().getAsJsonObject();
             String hex = jsonObject.get("hex").getAsString();
             Emoji emoji = new Emoji(hex, new Identifier(jsonObject.get("image").getAsString()), jsonObject.get("width").getAsInt());
             if (this.emojiMap.put(hex, emoji) == null) {
-                LOGGER.debug("Registering emoji: {}:{}", emoji.getId().getNamespace(), emoji.getHex());
+                LOGGER.info("Registering emoji: {}:{}", emoji.getId().getNamespace(), emoji.getHex());
             }
         }
+
+        LOGGER.info("Total loaded emoji(s): {}, Total load time: {}ms", this.emojiMap.size(), System.currentTimeMillis() - time);
     }
 
     public boolean isEmoji(String hex) {
@@ -93,5 +96,9 @@ public class EmojiManager implements SimpleSynchronousResourceReloadListener {
     public Emoji getEmoji(String hex) {
         Emoji e = this.emojiMap.get(hex);
         return e == null ? new Emoji(hex, MissingSprite.getMissingSpriteId(), 10) : e;
+    }
+
+    public Map<String, Emoji> getAllEmojis() {
+        return this.emojiMap;
     }
 }

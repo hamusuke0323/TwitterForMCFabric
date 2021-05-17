@@ -46,12 +46,12 @@ public class TweetSummary {
 	private final int favoriteCount;
 	private final String favoriteCountF;
 	private final HashtagEntity[] hashtags;
-	private final List<HashtagEntity> hashtaglist;
+	private final List<HashtagEntity> hashtagList;
 	private final long ID;
 	private final String lang;
 	private final MediaEntity[] medias;
-	private final List<MediaEntity> medialist;
-	private final List<ITwitterPhotoMedia> photolist = Lists.newArrayList();
+	private final List<MediaEntity> mediaList;
+	private final List<ITwitterPhotoMedia> photoList = Lists.newArrayList();
 	@Nullable
 	private final String videoURL;
 	@Nullable
@@ -66,7 +66,7 @@ public class TweetSummary {
 	private final String tweet;
 	//private final String formattedTweet;
 	private final URLEntity[] urls;
-	private final List<URLEntity> urllist;
+	private final List<URLEntity> urlList;
 	private boolean isFavorited;
 	private final boolean isRetweet;
 	private final boolean isRetweeted;
@@ -91,11 +91,11 @@ public class TweetSummary {
 		this.favoriteCount = status.getFavoriteCount();
 		this.favoriteCountF = TwitterUtil.chunkedNumber(this.favoriteCount);
 		this.hashtags = status.getHashtagEntities();
-		this.hashtaglist = Arrays.asList(this.hashtags);
+		this.hashtagList = Arrays.asList(this.hashtags);
 		this.ID = status.getId();
 		this.lang = status.getLang();
 		this.medias = status.getMediaEntities();
-		this.medialist = Arrays.asList(this.medias);
+		this.mediaList = Arrays.asList(this.medias);
 		this.isEmptyMedia = this.medias.length == 0;
 		this.isIncludeImages = !this.isEmptyMedia && this.medias[0].getType().equals("photo");
 		this.isIncludeVideo = !this.isEmptyMedia && this.medias[0].getType().equals("video");
@@ -104,7 +104,7 @@ public class TweetSummary {
 		this.photoMediaLength = this.isIncludeImages ? this.medias.length : 0;
 
 		for (int i = 0; i < this.photoMediaLength; i++) {
-			this.photolist.add(new TwitterPhotoMedia(this.medias[i]));
+			this.photoList.add(new TwitterPhotoMedia(this.medias[i]));
 		}
 
 		this.place = status.getPlace();
@@ -112,7 +112,7 @@ public class TweetSummary {
 		this.retweetCountF = TwitterUtil.chunkedNumber(this.retweetCount);
 		this.tweet = status.getText();
 		this.urls = status.getURLEntities();
-		this.urllist = Arrays.asList(this.urls);
+		this.urlList = Arrays.asList(this.urls);
 		this.isFavorited = status.isFavorited();
 		this.isRetweet = status.isRetweet();
 		this.isRetweeted = status.isRetweeted();
@@ -189,7 +189,7 @@ public class TweetSummary {
 	}
 
 	public List<HashtagEntity> getHashtagList() {
-		return this.hashtaglist;
+		return this.hashtagList;
 	}
 
 	public long getId() {
@@ -205,7 +205,7 @@ public class TweetSummary {
 	}
 
 	public List<MediaEntity> getMediaList() {
-		return this.medialist;
+		return this.mediaList;
 	}
 
 	public int getPhotoMediaLength() {
@@ -221,7 +221,7 @@ public class TweetSummary {
 	}
 
 	public List<ITwitterPhotoMedia> getPhotoMedias() {
-		return this.photolist;
+		return this.photoList;
 	}
 
 	@Nullable
@@ -263,7 +263,7 @@ public class TweetSummary {
 	}
 
 	public List<URLEntity> getURLList() {
-		return this.urllist;
+		return this.urlList;
 	}
 
 	public boolean isFavorited() {

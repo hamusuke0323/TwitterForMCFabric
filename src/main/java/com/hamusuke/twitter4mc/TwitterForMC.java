@@ -8,6 +8,8 @@ import com.hamusuke.twitter4mc.gui.widget.MaskableTextFieldWidget;
 import com.hamusuke.twitter4mc.utils.TextureManager;
 import com.hamusuke.twitter4mc.utils.TweetSummary;
 import com.hamusuke.twitter4mc.utils.TwitterThread;
+import com.hamusuke.twitter4mc.utils.VersionChecker;
+import com.hamusuke.twitter4mc.utils.license.LicenseManager;
 import com.sun.javafx.application.PlatformImpl;
 import javafx.application.Platform;
 import net.fabricmc.api.ClientModInitializer;
@@ -22,6 +24,7 @@ import net.minecraft.client.gui.widget.CheckboxWidget;
 import net.minecraft.client.options.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.resource.ResourceType;
+import net.minecraft.util.Identifier;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -93,6 +96,13 @@ public class TwitterForMC implements ClientModInitializer {
 
     public void onInitializeClient() {
         LOGGER.info("Hello from TwitterForMC#onInitializeClient!");
+
+        LicenseManager.registerLicense(new Identifier(TwitterForMC.MOD_ID, "license/mitlicense.txt"), 400, "tw.license.thismod");
+        LicenseManager.registerLicense(new Identifier(TwitterForMC.MOD_ID, "license/twitter4j_license.txt"), 270, "tw.license.twitter4j");
+        LicenseManager.registerLicense(new Identifier(TwitterForMC.MOD_ID, "license/twemoji_graphics_license.txt"), 320, "tw.license.twemoji.graphics");
+
+        VersionChecker.checkUpdate();
+
         configFile = FabricLoader.getInstance().getConfigDir().resolve(MOD_ID);
         if (!configFile.toFile().exists()) {
             if (configFile.toFile().mkdir()) {
@@ -116,13 +126,6 @@ public class TwitterForMC implements ClientModInitializer {
         Platform.setImplicitExit(false);
 
         new TwitterThread(() -> {
-            loadTimeline();
-            for (Status s : tweets) {
-                tweetSummaries.add(new TweetSummary(s));
-            }
-        }).start();
-
-        new TwitterThread(() -> {
             token = read(tokenFile);
             if (token != null) {
                 AccessToken var1 = new AccessToken(token.getAccessToken(), token.getAccessTokenSecret());
@@ -139,6 +142,13 @@ public class TwitterForMC implements ClientModInitializer {
                         loginTwitter = false;
                         LOGGER.error("Error occurred while logging in twitter", e);
                     }
+                }
+            }
+
+            if(loginTwitter) {
+                loadTimeline();
+                for (Status s : tweets) {
+                    tweetSummaries.add(new TweetSummary(s));
                 }
             }
         }).start();

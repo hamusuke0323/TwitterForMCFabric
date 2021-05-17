@@ -5,7 +5,6 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.AbstractButtonWidget;
 import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 
 @Environment(EnvType.CLIENT)
 public class TextWidget extends AbstractButtonWidget {
@@ -15,7 +14,7 @@ public class TextWidget extends AbstractButtonWidget {
 
     public void renderButton(int mouseX, int mouseY, float delta) {
         MinecraftClient client = MinecraftClient.getInstance();
-        this.drawCenteredString(client.textRenderer, this.getMessage(), this.x + this.width / 2, this.y + (this.height - 10) / 2, Formatting.WHITE.getColorValue());
+        this.drawCenteredString(client.textRenderer, this.getMessage(), this.x + this.width / 2, this.y + (this.height - 10) / 2, 16777215);
     }
 
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
