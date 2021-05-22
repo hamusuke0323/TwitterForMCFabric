@@ -1,4 +1,4 @@
-package com.hamusuke.twitter4mc.filechooser;
+package com.hamusuke.twitter4mc.gui.filechooser;
 
 import javafx.application.Platform;
 import javafx.stage.FileChooser;

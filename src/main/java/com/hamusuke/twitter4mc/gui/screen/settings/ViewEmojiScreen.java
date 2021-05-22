@@ -17,7 +17,7 @@ import net.minecraft.util.Formatting;
 
 @Environment(EnvType.CLIENT)
 public class ViewEmojiScreen extends ParentalScreen {
-    private EntryListWidget<EmojiList.EmojiEntry> entryListWidget;
+    private ViewEmojiScreen.EmojiList emojiList;
 
     public ViewEmojiScreen(Screen parent) {
         super(new TranslatableText("tw.view.emoji"), parent);
@@ -30,12 +30,12 @@ public class ViewEmojiScreen extends ParentalScreen {
             this.onClose();
         }));
 
-        this.entryListWidget = new EmojiList(TwitterForMC.getEmojiManager(), this.minecraft, this.width, this.height, 30, this.height - 20, 50);
-        this.children.add(this.entryListWidget);
+        this.emojiList = new EmojiList(TwitterForMC.getEmojiManager(), this.minecraft, this.width, this.height, 30, this.height - 20, 50);
+        this.children.add(this.emojiList);
     }
 
     public void render(int mouseX, int mouseY, float delta) {
-        this.entryListWidget.render(mouseX, mouseY, delta);
+        this.emojiList.render(mouseX, mouseY, delta);
         this.drawCenteredString(this.font, this.title.asFormattedString(), this.width / 2, 10, Formatting.WHITE.getColorValue());
         super.render(mouseX, mouseY, delta);
     }

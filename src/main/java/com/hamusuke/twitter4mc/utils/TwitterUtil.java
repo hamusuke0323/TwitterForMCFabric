@@ -10,23 +10,118 @@ import java.util.List;
 
 import javax.imageio.ImageIO;
 
+import com.hamusuke.twitter4mc.TwitterForMC;
+import com.hamusuke.twitter4mc.tweet.TweetSummary;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.MinecraftClient;
+import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.resource.language.I18n;
+import net.minecraft.text.LiteralText;
+import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.google.common.collect.Lists;
 
 import org.jetbrains.annotations.Nullable;
-import twitter4j.MediaEntity;
-import twitter4j.Status;
-import twitter4j.Twitter;
-import twitter4j.TwitterException;
+import twitter4j.*;
 
 @Environment(EnvType.CLIENT)
 public class TwitterUtil {
 	private static final Logger LOGGER = LogManager.getLogger();
+
+	public static final Identifier PROTECTED = new Identifier(TwitterForMC.MOD_ID, "textures/twitter/icon/protected.png");
+	public static final Identifier VERIFIED = new Identifier(TwitterForMC.MOD_ID, "textures/twitter/icon/verified.png");
+	public static final Identifier REP = new Identifier(TwitterForMC.MOD_ID, "textures/twitter/icon/reply.png");
+	public static final Identifier RET = new Identifier(TwitterForMC.MOD_ID, "textures/twitter/icon/retweet.png");
+	public static final Identifier RETED = new Identifier(TwitterForMC.MOD_ID, "textures/twitter/icon/retweeted.png");
+	public static final Identifier RETUSR = new Identifier(TwitterForMC.MOD_ID, "textures/twitter/icon/retweetuser.png");
+	public static final Identifier FAV = new Identifier(TwitterForMC.MOD_ID, "textures/twitter/icon/favorite.png");
+	public static final Identifier FAVED = new Identifier(TwitterForMC.MOD_ID, "textures/twitter/icon/favorited.png");
+	public static final Identifier SHA = new Identifier(TwitterForMC.MOD_ID, "textures/twitter/icon/share.png");
+
+	public static int renderRetweetedUser(MinecraftClient minecraft, @Nullable TweetSummary retweetedSummary, int iconX, int x, int y, int width) {
+		if (retweetedSummary != null) {
+			minecraft.getTextureManager().bindTexture(TwitterUtil.RETUSR);
+			RenderSystem.pushMatrix();
+			RenderSystem.translatef(iconX, y, 0.0F);
+			RenderSystem.scalef(0.625F, 0.625F, 0.625F);
+			DrawableHelper.blit(0, 0, 0.0F, 0.0F, 16, 16, 16, 16);
+			RenderSystem.popMatrix();
+			List<String> names = getUserNameWrap(minecraft, retweetedSummary, width);
+			for (int i = 0; i < names.size(); i++) {
+				minecraft.textRenderer.drawWithShadow(names.get(i), x, y + i * 10, Formatting.GRAY.getColorValue());
+			}
+			return y + names.size() * 10;
+		}
+
+		return y;
+	}
+
+	public static List<String> getUserNameWrap(MinecraftClient minecraft, TweetSummary summary, int width) {
+		return minecraft.textRenderer.wrapStringToWidthAsList(I18n.translate("tw.retweeted.user", summary.getUser().getName()), width);
+	}
+
+	public static void renderUserName(MinecraftClient minecraft, TweetSummary summary, int x, int y, int width) {
+		boolean p = summary.getUser().isProtected();
+		boolean v = summary.getUser().isVerified();
+
+		String threeBold = new LiteralText("...").formatted(Formatting.BOLD).asFormattedString();
+		int threeBoldWidth = minecraft.textRenderer.getStringWidth(threeBold);
+		String three = new LiteralText("...").formatted(Formatting.GRAY).asFormattedString();
+		int threeWidth = minecraft.textRenderer.getStringWidth(three);
+		String time = new LiteralText("・" + summary.getDifferenceTime()).formatted(Formatting.GRAY).asFormattedString();
+		int timeWidth = minecraft.textRenderer.getStringWidth(time);
+		String screenName = new LiteralText(summary.getScreenName()).formatted(Formatting.GRAY).asFormattedString();
+		String name = new LiteralText(summary.getUser().getName()).formatted(Formatting.BOLD).asFormattedString();
+
+		int pvw = (p ? 10 : 0) + (v ? 10 : 0);
+		List<String> nameFormatted = minecraft.textRenderer.wrapStringToWidthAsList(name, width - pvw - timeWidth);
+		boolean isOver = nameFormatted.size() > 1;
+		List<String> nameFormatted2 = isOver ? minecraft.textRenderer.wrapStringToWidthAsList(name, width - pvw - timeWidth - threeBoldWidth) : nameFormatted;
+
+		String formattedName = nameFormatted2.size() == 1 ? nameFormatted2.get(0) : nameFormatted2.get(0) + threeBold;
+		int formattedNameWidth = minecraft.textRenderer.getStringWidth(formattedName);
+		minecraft.textRenderer.drawWithShadow(formattedName, x, y, Formatting.WHITE.getColorValue());
+		x += formattedNameWidth;
+		if (p) {
+			x += renderProtected(minecraft, x, y);
+		}
+		if (v) {
+			x += renderVerified(minecraft, x, y);
+		}
+
+		List<String> screenNameFormatted = minecraft.textRenderer.wrapStringToWidthAsList(screenName, width - formattedNameWidth - pvw - timeWidth - threeWidth);
+		if (!isOver) {
+			String s = screenNameFormatted.size() == 1 ? screenNameFormatted.get(0) : screenNameFormatted.get(0) + three;
+			minecraft.textRenderer.drawWithShadow(s, x, y, Formatting.GRAY.getColorValue());
+			x += minecraft.textRenderer.getStringWidth(s);
+		}
+		minecraft.textRenderer.drawWithShadow(time, x, y, Formatting.GRAY.getColorValue());
+	}
+
+	public static int renderProtected(MinecraftClient minecraft, int x, int y) {
+		minecraft.getTextureManager().bindTexture(PROTECTED);
+		RenderSystem.pushMatrix();
+		RenderSystem.translatef(x, y, 0.0F);
+		RenderSystem.scalef(0.625F, 0.625F, 0.625F);
+		DrawableHelper.blit(0, 0, 0.0F, 0.0F, 16, 16, 16, 16);
+		RenderSystem.popMatrix();
+		return 10;
+	}
+
+	public static int renderVerified(MinecraftClient minecraft, int x, int y) {
+		minecraft.getTextureManager().bindTexture(VERIFIED);
+		RenderSystem.pushMatrix();
+		RenderSystem.translatef(x, y, 0.0F);
+		RenderSystem.scalef(0.625F, 0.625F, 0.625F);
+		DrawableHelper.blit(0, 0, 0, 0, 16, 16, 16, 16);
+		RenderSystem.popMatrix();
+		return 10;
+	}
 
 	public static String chunkedNumber(int number) {
 		return chunkedNumber("" + number);
@@ -178,7 +273,7 @@ public class TwitterUtil {
 			if (imageURL == null) {
 				return null;
 			}
-			BufferedImage bi = ImageIO.read(TwitterUtil.getInputStream(imageURL));
+			BufferedImage bi = ImageIO.read(new URL(imageURL));
 			return new Integer[]{bi.getWidth(), bi.getHeight()};
 		} catch (Exception e) {
 			return null;

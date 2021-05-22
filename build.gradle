@@ -54,14 +54,13 @@ java {
 }
 
 jar {
-	from("licenses") {
-		rename {
-			"${it}".replace(".txt", "")
-		}
+	from(".") {
+		include 'LICENSE_twemoji_graphics'
+		include 'LICENSE_Twitter4J'
 	}
 
 	from("LICENSE") {
-		rename { "${it}_${project.archivesBaseName}"}
+		rename { "${it}_${project.archivesBaseName}" }
 	}
 }
 

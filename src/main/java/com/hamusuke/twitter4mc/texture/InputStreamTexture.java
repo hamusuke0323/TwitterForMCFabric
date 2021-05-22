@@ -1,4 +1,4 @@
-package com.hamusuke.twitter4mc.photomedia;
+package com.hamusuke.twitter4mc.texture;
 
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;

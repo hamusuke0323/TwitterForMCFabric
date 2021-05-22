@@ -1,6 +1,6 @@
 package com.hamusuke.twitter4mc.gui.screen;
 
-import com.hamusuke.twitter4mc.utils.TweetSummary;
+import com.hamusuke.twitter4mc.tweet.TweetSummary;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.util.NarratorManager;

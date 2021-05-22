@@ -1,11 +1,11 @@
-package com.hamusuke.twitter4mc.photomedia;
-
-import java.io.InputStream;
+package com.hamusuke.twitter4mc.tweet.photomedia;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.Nullable;
 import twitter4j.MediaEntity;
+
+import java.io.InputStream;
 
 @Environment(EnvType.CLIENT)
 public interface ITwitterPhotoMedia {

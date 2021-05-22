@@ -3,7 +3,7 @@ package com.hamusuke.twitter4mc.mixin;
 import com.google.common.collect.Lists;
 import com.hamusuke.twitter4mc.TwitterForMC;
 import com.hamusuke.twitter4mc.emoji.Emoji;
-import com.hamusuke.twitter4mc.emoji.util.Fitzpatrick;
+import com.hamusuke.twitter4mc.emoji.Fitzpatrick;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.font.*;
@@ -117,7 +117,8 @@ public class TextRendererMixin {
                 j += e.getEmojiWidth();
                 emoji = new StringBuilder();
             } else {
-                Glyph glyph = this.fontStorage.getGlyph(c);
+                Glyph glyph = this.getGlyph(c);
+
                 GlyphRenderer glyphRenderer = bl ? this.fontStorage.getObfuscatedGlyphRenderer(glyph) : this.fontStorage.getGlyphRenderer(c);
                 float s;
                 float t;
@@ -206,11 +207,19 @@ public class TextRendererMixin {
                     f += e.getEmojiWidth();
                     emoji = new StringBuilder();
                 } else {
-                    f += this.fontStorage.getGlyph(c).getAdvance(bl);
+                    f += this.getGlyph(c).getAdvance(bl);
                 }
             }
 
             return MathHelper.ceil(f);
+        }
+    }
+
+    private Glyph getGlyph(char c) {
+        try {
+            return this.fontStorage.getGlyph(c);
+        } catch (ArrayIndexOutOfBoundsException e) {
+            return () -> 4.0F;
         }
     }
 

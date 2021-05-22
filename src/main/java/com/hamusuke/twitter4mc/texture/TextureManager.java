@@ -1,7 +1,6 @@
-package com.hamusuke.twitter4mc.utils;
+package com.hamusuke.twitter4mc.texture;
 
 import com.google.common.collect.Maps;
-import com.hamusuke.twitter4mc.photomedia.InputStreamTexture;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -55,7 +54,7 @@ public class TextureManager {
             ((InputStreamTexture) texture).load(inputStream);
             return texture;
         } catch (IOException var7) {
-            LOGGER.warn("Failed to load inputstream texture", var7);
+            LOGGER.warn("Failed to load InputStream texture", var7);
             return MissingSprite.getMissingSpriteTexture();
         } catch (Throwable var8) {
             CrashReport crashReport = CrashReport.create(var8, "Registering texture");

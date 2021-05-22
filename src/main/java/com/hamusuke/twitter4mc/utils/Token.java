@@ -1,4 +1,4 @@
-package com.hamusuke.twitter4mc;
+package com.hamusuke.twitter4mc.utils;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

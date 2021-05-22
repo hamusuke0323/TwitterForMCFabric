@@ -1,4 +1,4 @@
-package com.hamusuke.twitter4mc.videomedia;
+package com.hamusuke.twitter4mc.tweet.videomedia;
 
 import java.io.InputStream;
 

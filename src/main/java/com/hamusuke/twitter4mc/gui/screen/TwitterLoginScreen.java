@@ -1,6 +1,6 @@
 package com.hamusuke.twitter4mc.gui.screen;
 
-import com.hamusuke.twitter4mc.Token;
+import com.hamusuke.twitter4mc.utils.Token;
 import com.hamusuke.twitter4mc.TwitterForMC;
 import com.hamusuke.twitter4mc.gui.toasts.TwitterNotificationToast;
 import com.hamusuke.twitter4mc.gui.widget.MaskableTextFieldWidget;

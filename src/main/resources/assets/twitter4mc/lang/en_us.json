@@ -19,6 +19,8 @@
   "tw.license.twemoji.graphics": "License for twemoji(Graphics)",
   "tw.new.update.available": "New update available",
   "tw.view.emoji": "List of registered emoji",
+  "tw.statuses.count": "%s Tweets",
+  "tw.view.profile": "Profile",
   "tw.enter.pin": "Enter the PIN displayed on your browser.",
   "tw.login.failed": "\u00A7cLogin Failed.",
   "tw.failed.like": "Couldn't like the tweet: %s",

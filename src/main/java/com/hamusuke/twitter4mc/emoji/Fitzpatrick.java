@@ -1,4 +1,4 @@
-package com.hamusuke.twitter4mc.emoji.util;
+package com.hamusuke.twitter4mc.emoji;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

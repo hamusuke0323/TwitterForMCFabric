@@ -10,8 +10,8 @@ import com.hamusuke.twitter4mc.TwitterForMC;
 import com.hamusuke.twitter4mc.gui.screen.settings.TwitterSettingsScreen;
 import com.hamusuke.twitter4mc.gui.widget.TwitterButton;
 import com.hamusuke.twitter4mc.gui.widget.list.ExtendedTwitterTweetList;
-import com.hamusuke.twitter4mc.photomedia.ITwitterPhotoMedia;
-import com.hamusuke.twitter4mc.utils.TweetSummary;
+import com.hamusuke.twitter4mc.tweet.photomedia.ITwitterPhotoMedia;
+import com.hamusuke.twitter4mc.tweet.TweetSummary;
 import com.hamusuke.twitter4mc.utils.TwitterThread;
 import com.hamusuke.twitter4mc.utils.TwitterUtil;
 import com.hamusuke.twitter4mc.utils.VersionChecker;
@@ -33,10 +33,7 @@ import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
-import net.minecraft.util.Identifier;
 import net.minecraft.util.Util;
-import org.apache.logging.log4j.LogManager;
-import org.apache.logging.log4j.Logger;
 
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -49,17 +46,7 @@ import twitter4j.User;
 
 @Environment(EnvType.CLIENT)
 public class TwitterScreen extends Screen {
-	private static final Identifier PROTECTED = new Identifier(TwitterForMC.MOD_ID, "textures/twitter/icon/protected.png");
-	private static final Identifier VERIFIED = new Identifier(TwitterForMC.MOD_ID, "textures/twitter/icon/verified.png");
-	private static final Identifier REP = new Identifier(TwitterForMC.MOD_ID, "textures/twitter/icon/reply.png");
-	private static final Identifier RET = new Identifier(TwitterForMC.MOD_ID, "textures/twitter/icon/retweet.png");
-	private static final Identifier RETED = new Identifier(TwitterForMC.MOD_ID, "textures/twitter/icon/retweeted.png");
-	private static final Identifier RETUSR = new Identifier(TwitterForMC.MOD_ID, "textures/twitter/icon/retweetuser.png");
-	private static final Identifier FAV = new Identifier(TwitterForMC.MOD_ID, "textures/twitter/icon/favorite.png");
-	private static final Identifier FAVED = new Identifier(TwitterForMC.MOD_ID, "textures/twitter/icon/favorited.png");
-	private static final Identifier SHA = new Identifier(TwitterForMC.MOD_ID, "textures/twitter/icon/share.png");
 	private TwitterScreen.TweetList list;
-	private static final Logger LOGGER = LogManager.getLogger();
 	private ButtonWidget refreshTL;
 	@Nullable
 	private String message;
@@ -67,12 +54,13 @@ public class TwitterScreen extends Screen {
 	private boolean isFade;
 	@Nullable
 	private Screen parent;
-	@Nullable
-	private TwitterScreen.TweetList.TweetEntry hoveringEntry;
-	private boolean isHovering;
 
 	public TwitterScreen() {
 		super(NarratorManager.EMPTY);
+
+		if (TwitterForMC.twitterScreen != null) {
+			throw new IllegalStateException("TwitterScreen can be created only one");
+		}
 	}
 
 	public void setParentScreen(@Nullable Screen parent) {
@@ -80,9 +68,7 @@ public class TwitterScreen extends Screen {
 	}
 
 	public void tick() {
-		for (TweetList.TweetEntry te : this.list.children()) {
-			te.tick();
-		}
+		this.list.tick();
 
 		if (this.message != null) {
 			if (this.fade <= 0) {
@@ -127,8 +113,18 @@ public class TwitterScreen extends Screen {
 
 			j += i;
 		} else {
-			this.addButton(new ButtonWidget(0, this.height - 80, k - 10, 20, I18n.translate("tweet"), (press) -> {
+			this.addButton(new ButtonWidget(0, this.height - 110, k - 10, 20, I18n.translate("tweet"), (press) -> {
 				this.minecraft.openScreen(new TwitterTweetScreen(this));
+			}));
+
+			this.addButton(new ButtonWidget(0, this.height - 50, k - 10, 20, I18n.translate("tw.view.profile"), (press) -> {
+				press.active = false;
+				try {
+					this.minecraft.openScreen(new TwitterShowUserScreen(this, TwitterForMC.mctwitter.showUser(TwitterForMC.mctwitter.getId())));
+				} catch (TwitterException e) {
+					this.accept(e.getErrorMessage());
+					press.active = true;
+				}
 			}));
 
 			if (this.refreshTL != null) {
@@ -163,7 +159,7 @@ public class TwitterScreen extends Screen {
 
 			j += i;
 
-			this.addButton(new ButtonWidget(0, this.height - 50, k - 10, 20, I18n.translate("tw.save.timeline"), (b) -> {
+			this.addButton(new ButtonWidget(0, this.height - 80, k - 10, 20, I18n.translate("tw.save.timeline"), (b) -> {
 				b.active = false;
 				try {
 					TwitterForMC.saveTimeline();
@@ -176,7 +172,7 @@ public class TwitterScreen extends Screen {
 
 		this.addButton(new ButtonWidget(j, this.height - 20, i, 20, I18n.translate("gui.back"), (p_213034_1_) -> this.onClose()));
 
-		this.addButton(new ButtonWidget(0, this.height - 110, k - 10, 20, I18n.translate("tw.settings"), (b) -> {
+		this.addButton(new ButtonWidget(0, this.height - 140, k - 10, 20, I18n.translate("tw.settings"), (b) -> {
 			this.minecraft.openScreen(new TwitterSettingsScreen(this));
 		}));
 
@@ -194,12 +190,18 @@ public class TwitterScreen extends Screen {
 		super.init();
 	}
 
+	public boolean isInited() {
+		return this.minecraft != null;
+	}
+
 	public void render(int p_230430_2_, int p_230430_3_, float p_230430_4_) {
 		if (this.parent != null) {
 			this.parent.render(-1, -1, p_230430_4_);
 		}
 		if (this.minecraft.currentScreen == this) {
 			this.fillGradient(0, 0, this.width, this.height, -1072689136, -804253680);
+		} else {
+			return;
 		}
 		super.render(p_230430_2_, p_230430_3_, p_230430_4_);
 		this.list.render(p_230430_2_, p_230430_3_, p_230430_4_);
@@ -229,8 +231,11 @@ public class TwitterScreen extends Screen {
 	}
 
 	public boolean mouseClicked(double p_mouseClicked_1_, double p_mouseClicked_3_, int p_mouseClicked_5_) {
-		if (!this.isHovering) {
+		if (!this.list.isHovering) {
 			return super.mouseClicked(p_mouseClicked_1_, p_mouseClicked_3_, p_mouseClicked_5_);
+		} else if (this.list.hoveringEntry != null && this.list.hoveringEntry.mayClickIcon(p_mouseClicked_1_, p_mouseClicked_3_)) {
+			this.minecraft.openScreen(new TwitterShowUserScreen(this, this.list.hoveringEntry.summary.getUser()));
+			return true;
 		}
 
 		return false;
@@ -293,7 +298,7 @@ public class TwitterScreen extends Screen {
 		int yy = i2;
 		if (icon != null) {
 			TwitterForMC.getTextureManager().bindTexture(icon);
-			DrawableHelper.blit(x, i2, 0.0F, 0.0F, 20, 20, 20, 20);
+			blit(x, i2, 0.0F, 0.0F, 20, 20, 20, 20);
 			i2 += 20;
 		}
 
@@ -325,10 +330,10 @@ public class TwitterScreen extends Screen {
 		vertexConsumerProvider$immediate.draw();
 
 		if (p) {
-			n += this.renderProtected(n, yyy + 2);
+			n += TwitterUtil.renderProtected(this.minecraft, n, yyy + 2);
 		}
 		if (v) {
-			this.renderVerified(n, yyy + 2);
+			TwitterUtil.renderVerified(this.minecraft, n, yyy + 2);
 		}
 
 		RenderSystem.enableDepthTest();
@@ -337,92 +342,17 @@ public class TwitterScreen extends Screen {
 		return x - 4 < mouseX && x + i + 4 > mouseX && yy - 4 < mouseY && yy + k + 4 > mouseY;
 	}
 
-	public void renderUserName(TweetSummary summary, int x, int y, int width) {
-		boolean p = summary.getUser().isProtected();
-		boolean v = summary.getUser().isVerified();
-
-		String threeBold = new LiteralText("...").formatted(Formatting.BOLD).asFormattedString();
-		int threeBoldWidth = this.font.getStringWidth(threeBold);
-		String three = new LiteralText("...").formatted(Formatting.GRAY).asFormattedString();
-		int threeWidth = this.font.getStringWidth(three);
-		String time = new LiteralText("・" + summary.getDifferenceTime()).formatted(Formatting.GRAY).asFormattedString();
-		int timeWidth = this.font.getStringWidth(time);
-		String screenName = new LiteralText(summary.getScreenName()).formatted(Formatting.GRAY).asFormattedString();
-		String name = new LiteralText(summary.getUser().getName()).formatted(Formatting.BOLD).asFormattedString();
-
-		int pvw = (p ? 10 : 0) + (v ? 10 : 0);
-		List<String> nameFormatted = this.font.wrapStringToWidthAsList(name, width - pvw - timeWidth);
-		boolean isOver = nameFormatted.size() > 1;
-		List<String> nameFormatted2 = isOver ? this.font.wrapStringToWidthAsList(name, width - pvw - timeWidth - threeBoldWidth) : nameFormatted;
-
-		String formattedName = nameFormatted2.size() == 1 ? nameFormatted2.get(0) : nameFormatted2.get(0) + threeBold;
-		int formattedNameWidth = this.font.getStringWidth(formattedName);
-		this.font.drawWithShadow(formattedName, x, y, Formatting.WHITE.getColorValue());
-		x += formattedNameWidth;
-		if (p) {
-			x += this.renderProtected(x, y);
-		}
-		if (v) {
-			x += this.renderVerified(x, y);
-		}
-
-		List<String> screenNameFormatted = this.font.wrapStringToWidthAsList(screenName, width - formattedNameWidth - pvw - timeWidth - threeWidth);
-		if (!isOver) {
-			String s = screenNameFormatted.size() == 1 ? screenNameFormatted.get(0) : screenNameFormatted.get(0) + three;
-			this.font.drawWithShadow(s, x, y, Formatting.GRAY.getColorValue());
-			x += this.font.getStringWidth(s);
-		}
-		this.font.drawWithShadow(time, x, y, Formatting.GRAY.getColorValue());
-	}
-
-	public int renderProtected(int x, int y) {
-		this.minecraft.getTextureManager().bindTexture(PROTECTED);
-		RenderSystem.pushMatrix();
-		RenderSystem.translatef(x, y, 0.0F);
-		RenderSystem.scalef(0.625F, 0.625F, 0.625F);
-		blit(0, 0, 0, 0, 16, 16, 16, 16);
-		RenderSystem.popMatrix();
-		return 10;
-	}
-
-	public int renderVerified(int x, int y) {
-		this.minecraft.getTextureManager().bindTexture(VERIFIED);
-		RenderSystem.pushMatrix();
-		RenderSystem.translatef(x, y, 0.0F);
-		RenderSystem.scalef(0.625F, 0.625F, 0.625F);
-		blit(0, 0, 0, 0, 16, 16, 16, 16);
-		RenderSystem.popMatrix();
-		return 10;
-	}
-
-	public int renderRetweetedUser(@Nullable TweetSummary retweetedSummary, int iconX, int x, int y, int width) {
-		if (retweetedSummary != null) {
-			this.minecraft.getTextureManager().bindTexture(RETUSR);
-			RenderSystem.pushMatrix();
-			RenderSystem.translatef(iconX, y, 0.0F);
-			RenderSystem.scalef(0.625F, 0.625F, 0.625F);
-			blit(0, 0, 0, 0, 16, 16, 16, 16);
-			RenderSystem.popMatrix();
-			List<String> names = this.getUserNameWrap(retweetedSummary, width);
-			for (int i = 0; i < names.size(); i++) {
-				this.font.drawWithShadow(names.get(i), x, y + i * 10, Formatting.GRAY.getColorValue());
-			}
-			return y + names.size() * 10;
-		}
-
-		return y;
-	}
-
-	public List<String> getUserNameWrap(TweetSummary summary, int width) {
-		return this.font.wrapStringToWidthAsList(I18n.translate("tw.retweeted.user", summary.getUser().getName()), width);
-	}
-
 	public TwitterScreen.TweetList getList() {
 		return this.list;
 	}
 
 	@Environment(EnvType.CLIENT)
 	public class TweetList extends ExtendedTwitterTweetList<TweetList.TweetEntry> {
+		@Nullable
+		private TwitterScreen.TweetList.TweetEntry hoveringEntry;
+		private boolean isHovering;
+		private int fade;
+
 		public TweetList(MinecraftClient mcIn) {
 			super(mcIn, TwitterScreen.this.width, TwitterScreen.this.height, 0, TwitterScreen.this.height - 20);
 			for (int i = 0; i < TwitterForMC.tweetSummaries.size(); i++) {
@@ -434,6 +364,16 @@ public class TwitterScreen extends Screen {
 			}
 
 			this.setY(0);
+		}
+
+		public void tick() {
+			if (!this.isHovering) {
+				this.fade--;
+			}
+
+			this.children().forEach(TweetEntry::tick);
+
+			super.tick();
 		}
 
 		protected int getScrollbarPosition() {
@@ -451,14 +391,16 @@ public class TwitterScreen extends Screen {
 			super.render(p_render_1_, p_render_2_, p_render_3_);
 
 			TweetEntry e = this.getEntryAtPosition(p_render_1_, p_render_2_);
-			if (TwitterScreen.this.hoveringEntry != null) {
-				TwitterScreen.this.isHovering = TwitterScreen.this.renderTwitterUser(TwitterScreen.this.hoveringEntry.summary, this.getRowLeft() - 60, TwitterScreen.this.hoveringEntry.getY() + TwitterScreen.this.hoveringEntry.retweetedUserNameHeight + 2 + 22, p_render_1_, p_render_2_);
-				if (!TwitterScreen.this.isHovering) {
-					TwitterScreen.this.hoveringEntry = null;
+			if (this.hoveringEntry != null) {
+				this.isHovering = TwitterScreen.this.renderTwitterUser(this.hoveringEntry.summary, this.getRowLeft() - 60, this.hoveringEntry.getY() + this.hoveringEntry.retweetedUserNameHeight + 2 + 22, p_render_1_, p_render_2_);
+				if (!this.isHovering && this.fade < 0) {
+					this.hoveringEntry = null;
+					this.fade = 0;
 				}
 			} else if (e != null && this.getRowLeft() <= p_render_1_ && this.getRowLeft() + 16 >= p_render_1_ && e.getY() + e.retweetedUserNameHeight + 2 <= p_render_2_ && e.getY() + e.retweetedUserNameHeight + 2 + 16 >= p_render_2_) {
-				TwitterScreen.this.hoveringEntry = e;
-				TwitterScreen.this.isHovering = TwitterScreen.this.renderTwitterUser(e.summary, this.getRowLeft() - 60, e.getY() + e.retweetedUserNameHeight + 2 + 22, p_render_1_, p_render_2_);
+				this.hoveringEntry = e;
+				this.isHovering = TwitterScreen.this.renderTwitterUser(e.summary, this.getRowLeft() - 60, e.getY() + e.retweetedUserNameHeight + 2 + 22, p_render_1_, p_render_2_);
+				this.fade = 20;
 			}
 		}
 
@@ -494,7 +436,7 @@ public class TwitterScreen extends Screen {
 				this.quotedTweetStrings = this.quoteSourceSummary != null ? TwitterScreen.this.font.wrapStringToWidthAsList(this.quoteSourceSummary.getText(), TweetList.this.getRowWidth() - 40) : Lists.newArrayList();
 				this.height = ((this.strings.size() - 1) * 10) + 10 + 30;
 				this.height += this.summary.isIncludeImages() || this.summary.isIncludeVideo() ? 120 : 0;
-				this.retweetedUserNameHeight = flag ? TwitterScreen.this.getUserNameWrap(this.retweetedSummary, TweetList.this.getRowWidth() - 24).size() * 10 : 0;
+				this.retweetedUserNameHeight = flag ? TwitterUtil.getUserNameWrap(TwitterScreen.this.minecraft, this.retweetedSummary, TweetList.this.getRowWidth() - 24).size() * 10 : 0;
 				this.height += this.retweetedUserNameHeight;
 				this.height += this.quoteSourceSummary != null ? 20 + this.quotedTweetStrings.size() * 10 : 0;
 				this.fourBtnHeightOffset = this.height - 14;
@@ -507,26 +449,26 @@ public class TwitterScreen extends Screen {
 			public void init() {
 				int i = TwitterScreen.TweetList.this.getRowLeft() + 24;
 
-				this.rep = this.addButton(new TwitterButton(i, this.fourBtnHeightOffset, 10, 10, 0, 0, 16, REP, 16, 32, 16, 16, (p) -> {
+				this.rep = this.addButton(new TwitterButton(i, this.fourBtnHeightOffset, 10, 10, 0, 0, 16, TwitterUtil.REP, 16, 32, 16, 16, (p) -> {
 
 				}));
 
-				this.ret = this.addButton(new TwitterButton(i + 60, this.fourBtnHeightOffset, 10, 10, 0, 0, 16, RET, 16, 32, 16, 16, (p) -> {
+				this.ret = this.addButton(new TwitterButton(i + 60, this.fourBtnHeightOffset, 10, 10, 0, 0, 16, TwitterUtil.RET, 16, 32, 16, 16, (p) -> {
 
 				}));
 
-				this.fav = this.addButton(new TwitterButton(i + 60 + 60, this.fourBtnHeightOffset, 10, 10, 0, 0, this.summary.isFavorited() ? 0 : 16, this.summary.isFavorited() ? FAVED : FAV, 16, this.summary.isFavorited() ? 16 : 32, 16, 16, (b) -> {
+				this.fav = this.addButton(new TwitterButton(i + 60 + 60, this.fourBtnHeightOffset, 10, 10, 0, 0, this.summary.isFavorited() ? 0 : 16, this.summary.isFavorited() ? TwitterUtil.FAVED : TwitterUtil.FAV, 16, this.summary.isFavorited() ? 16 : 32, 16, 16, (b) -> {
 					try {
 						if (this.summary.isFavorited()) {
 							TwitterForMC.mctwitter.destroyFavorite(this.summary.getId());
 							this.summary.favorite(false);
-							this.fav.setImage(FAV);
+							this.fav.setImage(TwitterUtil.FAV);
 							this.fav.setWhenHovered(16);
 							this.fav.setSize(16, 32);
 						} else {
 							TwitterForMC.mctwitter.createFavorite(this.summary.getId());
 							this.summary.favorite(true);
-							this.fav.setImage(FAVED);
+							this.fav.setImage(TwitterUtil.FAVED);
 							this.fav.setWhenHovered(0);
 							this.fav.setSize(16, 16);
 						}
@@ -535,7 +477,7 @@ public class TwitterScreen extends Screen {
 					}
 				}));
 
-				this.sha = this.addButton(new TwitterButton(i + 60 + 60 + 60, this.fourBtnHeightOffset, 10, 10, 0, 0, 16, SHA, 16, 32, 16, 16, (p) -> {
+				this.sha = this.addButton(new TwitterButton(i + 60 + 60 + 60, this.fourBtnHeightOffset, 10, 10, 0, 0, 16, TwitterUtil.SHA, 16, 32, 16, 16, (p) -> {
 
 				}));
 			}
@@ -546,7 +488,7 @@ public class TwitterScreen extends Screen {
 				RenderSystem.enableBlend();
 
 				int nowY = rowTop;
-				nowY = TwitterScreen.this.renderRetweetedUser(this.retweetedSummary, rowLeft + 6, rowLeft + 24, nowY, rowWidth - 24);
+				nowY = TwitterUtil.renderRetweetedUser(TwitterScreen.this.minecraft, this.retweetedSummary, rowLeft + 6, rowLeft + 24, nowY, rowWidth - 24);
 
 				if (icon != null) {
 					TwitterForMC.getTextureManager().bindTexture(icon);
@@ -555,7 +497,7 @@ public class TwitterScreen extends Screen {
 
 				RenderSystem.disableBlend();
 
-				TwitterScreen.this.renderUserName(this.summary, rowLeft + 24, nowY, rowWidth - 24);
+				TwitterUtil.renderUserName(TwitterScreen.this.minecraft, this.summary, rowLeft + 24, nowY, rowWidth - 24);
 
 				for (int i = 0; i < this.strings.size(); i++) {
 					TwitterScreen.this.font.drawWithShadow(this.strings.get(i), (float) (rowLeft + 24), (float) (nowY + 10 + i * 10), 16777215);
@@ -576,14 +518,10 @@ public class TwitterScreen extends Screen {
 					nowY += 10;
 					InputStream qsIco = this.quoteSourceSummary.getUserIconData();
 					if (qsIco != null) {
-						try {
-							TwitterForMC.getTextureManager().bindTexture(qsIco);
-							blit(rowLeft + 24 + 5, nowY, 0.0F, 0.0F, 10, 10, 10, 10);
-						} catch (Throwable throwable) {
-							LOGGER.error("Could not render", throwable);
-						}
+						TwitterForMC.getTextureManager().bindTexture(qsIco);
+						blit(rowLeft + 24 + 5, nowY, 0.0F, 0.0F, 10, 10, 10, 10);
 					}
-					TwitterScreen.this.renderUserName(this.quoteSourceSummary, rowLeft + 24 + 5 + 10 + 4, nowY, TweetList.this.getRowWidth() - 24 - 5 - 10 - 4 - 10);
+					TwitterUtil.renderUserName(TwitterScreen.this.minecraft, this.quoteSourceSummary, rowLeft + 24 + 5 + 10 + 4, nowY, TweetList.this.getRowWidth() - 24 - 5 - 10 - 4 - 10);
 					for (int i = 0; i < this.quotedTweetStrings.size(); i++) {
 						TwitterScreen.this.font.drawWithShadow(this.quotedTweetStrings.get(i), rowLeft + 24 + 5, nowY + 10 + i * 10, Formatting.WHITE.getColorValue());
 					}
@@ -629,7 +567,7 @@ public class TwitterScreen extends Screen {
 							TwitterForMC.getTextureManager().bindTexture(data);
 							if (i == 0) {
 								d = TwitterUtil.getScaledDimensionMaxRatio(new Dimension(media.getWidth(), media.getHeight()), new Dimension(104, 117));
-								DrawableHelper.blit(rowLeft + 24, rowTop + 11 + this.strings.size() * 10, 0.0F, 0.0F, 104, 117, d.width, d.height);
+								DrawableHelper.blit(rowLeft + 24, rowTop, 0.0F, 0.0F, 104, 117, d.width, d.height);
 							} else {
 								d = TwitterUtil.getScaledDimensionMaxRatio(new Dimension(media.getWidth(), media.getHeight()), new Dimension(104, 58));
 								DrawableHelper.blit(rowLeft + 24 + 105, rowTop + ((i - 1) * 59), 0.0F, 0.0F, 104, 58, d.width, d.height);
@@ -714,6 +652,12 @@ public class TwitterScreen extends Screen {
 				} else {
 					return false;
 				}
+			}
+
+			private boolean mayClickIcon(double x, double y) {
+				int i = TwitterScreen.TweetList.this.getRowLeft();
+				int j = this.y + this.retweetedUserNameHeight;
+				return x > i && x < i + 16 && y > j && y < j + 16;
 			}
 
 			private boolean displayTwitterPhotoAndShowStatusScreen(int mouseButton, int index) {

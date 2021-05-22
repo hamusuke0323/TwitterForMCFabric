@@ -1,4 +1,4 @@
-package com.hamusuke.twitter4mc.utils;
+package com.hamusuke.twitter4mc.tweet;
 
 import java.io.InputStream;
 import java.util.Arrays;
@@ -7,9 +7,10 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import com.hamusuke.twitter4mc.photomedia.ITwitterPhotoMedia;
-import com.hamusuke.twitter4mc.photomedia.TwitterPhotoMedia;
-import com.hamusuke.twitter4mc.videomedia.TwitterVideoPlayer;
+import com.hamusuke.twitter4mc.tweet.photomedia.ITwitterPhotoMedia;
+import com.hamusuke.twitter4mc.tweet.photomedia.TwitterPhotoMedia;
+import com.hamusuke.twitter4mc.utils.TwitterUtil;
+import com.hamusuke.twitter4mc.tweet.videomedia.TwitterVideoPlayer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.apache.logging.log4j.LogManager;

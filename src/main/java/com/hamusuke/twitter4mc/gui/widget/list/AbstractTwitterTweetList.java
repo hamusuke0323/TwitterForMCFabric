@@ -67,6 +67,9 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 		}
 	}
 
+	public void tick() {
+	}
+
 	public int getRowWidth() {
 		return 220;
 	}
@@ -509,7 +512,7 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 
 	protected void setY(int topY) {
 		for (int i = 0; i < this.children().size(); i++) {
-			this.children().get(i).setY(topY + this.countBefore(i));
+			this.children().get(i).setY(this.top + topY + this.countBefore(i));
 		}
 	}
 
@@ -521,6 +524,9 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 		public final List<Element> children = Lists.newArrayList();
 
 		public void init() {
+		}
+
+		public void tick() {
 		}
 
 		public void render(int itemIndex, int rowTop, int rowLeft, int rowWidth, int height2, int mouseX, int mouseY, boolean isMouseOverAndObjectEquals, float p_render_9_) {

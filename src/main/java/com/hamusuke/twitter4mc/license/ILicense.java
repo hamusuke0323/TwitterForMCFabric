@@ -1,4 +1,4 @@
-package com.hamusuke.twitter4mc.utils.license;
+package com.hamusuke.twitter4mc.license;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
