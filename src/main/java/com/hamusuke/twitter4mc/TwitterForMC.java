@@ -7,7 +7,6 @@ import com.hamusuke.twitter4mc.gui.screen.TwitterScreen;
 import com.hamusuke.twitter4mc.gui.widget.MaskableTextFieldWidget;
 import com.hamusuke.twitter4mc.texture.TextureManager;
 import com.hamusuke.twitter4mc.tweet.TweetSummary;
-import com.hamusuke.twitter4mc.utils.Token;
 import com.hamusuke.twitter4mc.utils.TwitterThread;
 import com.hamusuke.twitter4mc.utils.VersionChecker;
 import com.hamusuke.twitter4mc.license.LicenseManager;
@@ -146,7 +145,7 @@ public class TwitterForMC implements ClientModInitializer {
                 }
             }
 
-            if(loginTwitter) {
+            if (loginTwitter) {
                 loadTimeline();
                 for (Status s : tweets) {
                     tweetSummaries.add(new TweetSummary(s));

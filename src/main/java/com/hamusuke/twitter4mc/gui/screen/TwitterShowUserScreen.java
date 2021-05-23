@@ -100,10 +100,11 @@ public class TwitterShowUserScreen extends ParentalScreen {
 
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
 		if (!this.list.isHovering) {
+			if (this.list.hoveringEntry != null && this.list.hoveringEntry.mayClickIcon(mouseX, mouseY)) {
+				this.minecraft.openScreen(new TwitterShowUserScreen(this, this.list.hoveringEntry.tweetSummary.getUser()));
+				return true;
+			}
 			return super.mouseClicked(mouseX, mouseY, button);
-		} else if (this.list.hoveringEntry != null && this.list.hoveringEntry.mayClickIcon(mouseX, mouseY)) {
-			this.minecraft.openScreen(new TwitterShowUserScreen(this, this.list.hoveringEntry.tweetSummary.getUser()));
-			return true;
 		}
 
 		return false;
