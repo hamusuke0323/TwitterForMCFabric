@@ -2,7 +2,7 @@ package com.hamusuke.twitter4mc;
 
 import com.google.common.collect.Lists;
 import com.hamusuke.twitter4mc.emoji.EmojiManager;
-import com.hamusuke.twitter4mc.gui.filechooser.SFileChooser;
+import com.hamusuke.twitter4mc.gui.filechooser.FileChooserOpen;
 import com.hamusuke.twitter4mc.gui.screen.TwitterScreen;
 import com.hamusuke.twitter4mc.gui.widget.MaskableTextFieldWidget;
 import com.hamusuke.twitter4mc.texture.TextureManager;
@@ -28,6 +28,7 @@ import net.minecraft.util.Identifier;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import twitter4j.Status;
@@ -40,7 +41,7 @@ import java.nio.file.Path;
 import java.util.List;
 
 @Environment(EnvType.CLIENT)
-public class TwitterForMC implements ClientModInitializer {
+public final class TwitterForMC implements ClientModInitializer {
     public static final String MOD_ID = "twitter4mc";
     private static final Logger LOGGER = LogManager.getLogger();
     private static final TextureManager textureManager = new TextureManager();
@@ -72,7 +73,7 @@ public class TwitterForMC implements ClientModInitializer {
     public static CheckboxWidget autoLogin;
     @Nullable
     public static ButtonWidget login;
-    public static final SFileChooser tokenFileChooser = new SFileChooser((file) -> {
+    public static final FileChooserOpen tokenFileChooser = new FileChooserOpen((file) -> {
         if (file != null) {
             Token t = read(file);
             if (t != null) {
@@ -201,6 +202,19 @@ public class TwitterForMC implements ClientModInitializer {
         return null;
     }
 
+    public static synchronized void store(@NotNull String consumer, @NotNull String consumerS, @NotNull AccessToken token, boolean autoLogin) throws Throwable {
+        if (TwitterForMC.save.isChecked()) {
+            ObjectOutputStream var1 = null;
+            try {
+                var1 = new ObjectOutputStream(new FileOutputStream(TwitterForMC.getTokenFile()));
+                var1.writeObject(new Token(consumer, consumerS, token, autoLogin));
+                var1.flush();
+            } finally {
+                IOUtils.closeQuietly(var1);
+            }
+        }
+    }
+
     @Nullable
     public static File getTokenFile() {
         return tokenFile;
@@ -214,6 +228,10 @@ public class TwitterForMC implements ClientModInitializer {
     @Nullable
     public static Token getToken() {
         return token;
+    }
+
+    public static boolean isAutoLogin() {
+        return readToken() && token.autoLogin();
     }
 
     public static boolean readToken() {

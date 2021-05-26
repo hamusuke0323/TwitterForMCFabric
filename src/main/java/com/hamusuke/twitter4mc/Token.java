@@ -13,7 +13,7 @@ import java.util.Arrays;
 import java.util.Objects;
 
 @Environment(EnvType.CLIENT)
-public final class Token implements Serializable {
+final class Token implements Serializable {
     private static final long serialVersionUID = 7308358373767907036L;
 
     private final String consumer;
@@ -64,7 +64,7 @@ public final class Token implements Serializable {
     }
 
     @Environment(EnvType.CLIENT)
-    static final class Crypto {
+    private static final class Crypto {
         private static final String IV1 = "Ehg8489YE(83ghUheHUGherhgrepouwg89y('T('egh73BGbggUggGGgE8tg78fe";
         private static final String SECRET1 = "Af8Lqen#t7sniaih";
         private static final String IV2 = "AUGFH7(Fy4hjHGeugggUg37gfKkgii34yguhhg3478Giu4ghTG4hSIgh478uhks(";
@@ -72,15 +72,15 @@ public final class Token implements Serializable {
         private static final String IV3 = "HF8439tKggk4jt4OJSg49yG4oghHLIO894jlG94y095OHGJ4yy0j4)YHh40$(7oo";
         private static final String SECRET3 = "(TfHUEh7ehnbjUFe";
 
-        public static String encrypt(String text) {
+        private static String encrypt(String text) {
             return new String(Base64.encodeBase64(enDoFinal3(Base64.encodeBase64(text.getBytes(StandardCharsets.UTF_8)))));
         }
 
-        public static String decrypt(String text) {
+        private static String decrypt(String text) {
             return new String(Base64.decodeBase64(deDoFinal3(Base64.decodeBase64(text.getBytes(StandardCharsets.UTF_8)))));
         }
 
-        static byte[] enDoFinal3(byte[] b) {
+        private static byte[] enDoFinal3(byte[] b) {
             try {
                 Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");
                 cipher.init(Cipher.ENCRYPT_MODE, new SecretKeySpec(SECRET1.getBytes(StandardCharsets.UTF_8), "AES"), new IvParameterSpec(Arrays.copyOfRange(IV1.getBytes(StandardCharsets.UTF_8), 0, 16)));
@@ -94,7 +94,7 @@ public final class Token implements Serializable {
             }
         }
 
-        static byte[] deDoFinal3(byte[] b) {
+        private static byte[] deDoFinal3(byte[] b) {
             try {
                 byte[] bytes = Arrays.copyOfRange(b, 0, b.length);
                 Cipher cipher = Cipher.getInstance("AES/CBC/PKCS5Padding");

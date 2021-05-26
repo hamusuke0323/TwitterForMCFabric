@@ -11,7 +11,7 @@ import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 @Environment(EnvType.CLIENT)
 @Mixin(MinecraftClient.class)
-public class MinecraftMixin {
+public class MinecraftClientMixin {
     @Inject(at = @At(target = "Ljava/lang/System;exit(I)V", value = "INVOKE"), method = "stop()V")
     private void stop(CallbackInfo info) {
         Platform.exit();

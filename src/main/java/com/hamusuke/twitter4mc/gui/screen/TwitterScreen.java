@@ -7,6 +7,7 @@ import java.util.Collections;
 import java.util.List;
 
 import com.hamusuke.twitter4mc.TwitterForMC;
+import com.hamusuke.twitter4mc.gui.screen.impl.IDisplayableMessage;
 import com.hamusuke.twitter4mc.gui.screen.settings.TwitterSettingsScreen;
 import com.hamusuke.twitter4mc.gui.widget.TwitterButton;
 import com.hamusuke.twitter4mc.gui.widget.list.ExtendedTwitterTweetList;
@@ -45,7 +46,7 @@ import twitter4j.TwitterException;
 import twitter4j.User;
 
 @Environment(EnvType.CLIENT)
-public class TwitterScreen extends Screen {
+public class TwitterScreen extends Screen implements IDisplayableMessage {
 	private TwitterScreen.TweetList list;
 	private ButtonWidget refreshTL;
 	@Nullable
@@ -215,7 +216,7 @@ public class TwitterScreen extends Screen {
 			RenderSystem.pushMatrix();
 			RenderSystem.enableAlphaTest();
 			RenderSystem.color4f(1.0F, 1.0F, 1.0F, this.isFade ? (float) this.fade / 20 : 1.0F);
-			this.renderTooltip(list, (this.width - this.font.getStringWidth(list.get(0))) / 2, this.height - list.size() * 10);
+			this.renderTooltip(list, (this.width - this.font.getStringWidth(list.get(0))) / 2, this.height - list.size() * this.minecraft.textRenderer.fontHeight);
 			RenderSystem.disableAlphaTest();
 			RenderSystem.popMatrix();
 		}
@@ -276,7 +277,7 @@ public class TwitterScreen extends Screen {
 		k += icon != null ? 22 : 0;
 		k += user.getName().isEmpty() ? 0 : 10;
 		k += user.getScreenName().isEmpty() ? 0 : 10;
-		k += 4 + (desc.size() * 10) + 4;
+		k += 4 + (desc.size() * this.minecraft.textRenderer.fontHeight) + 4;
 		k += ff.size() == 1 ? 10 : 20 + 2;
 
 		if (i2 + k + 6 > this.height - 20) {
@@ -435,11 +436,11 @@ public class TwitterScreen extends Screen {
 				this.quoteSourceSummary = this.summary.getQuotedTweetSummary();
 				this.strings = TwitterScreen.this.font.wrapStringToWidthAsList(this.summary.getText(), TweetList.this.getRowWidth() - 25);
 				this.quotedTweetStrings = this.quoteSourceSummary != null ? TwitterScreen.this.font.wrapStringToWidthAsList(this.quoteSourceSummary.getText(), TweetList.this.getRowWidth() - 40) : Lists.newArrayList();
-				this.height = ((this.strings.size() - 1) * 10) + 10 + 30;
+				this.height = ((this.strings.size() - 1) * TwitterScreen.this.minecraft.textRenderer.fontHeight) + 10 + 30;
 				this.height += this.summary.isIncludeImages() || this.summary.isIncludeVideo() ? 120 : 0;
-				this.retweetedUserNameHeight = flag ? TwitterUtil.getUserNameWrap(TwitterScreen.this.minecraft, this.retweetedSummary, TweetList.this.getRowWidth() - 24).size() * 10 : 0;
+				this.retweetedUserNameHeight = flag ? TwitterUtil.wrapUserNameToWidth(TwitterScreen.this.minecraft, this.retweetedSummary, TweetList.this.getRowWidth() - 24).size() * TwitterScreen.this.minecraft.textRenderer.fontHeight : 0;
 				this.height += this.retweetedUserNameHeight;
-				this.height += this.quoteSourceSummary != null ? 20 + this.quotedTweetStrings.size() * 10 : 0;
+				this.height += this.quoteSourceSummary != null ? 20 + this.quotedTweetStrings.size() * TwitterScreen.this.minecraft.textRenderer.fontHeight : 0;
 				this.fourBtnHeightOffset = this.height - 14;
 			}
 
@@ -501,9 +502,9 @@ public class TwitterScreen extends Screen {
 				TwitterUtil.renderUserName(TwitterScreen.this.minecraft, this.summary, rowLeft + 24, nowY, rowWidth - 24);
 
 				for (int i = 0; i < this.strings.size(); i++) {
-					TwitterScreen.this.font.drawWithShadow(this.strings.get(i), (float) (rowLeft + 24), (float) (nowY + 10 + i * 10), 16777215);
+					TwitterScreen.this.font.drawWithShadow(this.strings.get(i), (float) (rowLeft + 24), (float) (nowY + 10 + i * TwitterScreen.this.minecraft.textRenderer.fontHeight), 16777215);
 				}
-				nowY += 10 + this.strings.size() * 10;
+				nowY += 10 + this.strings.size() * TwitterScreen.this.minecraft.textRenderer.fontHeight;
 
 				if (this.summary.isIncludeVideo()) {
 					TwitterScreen.this.fillGradient(rowLeft + 24, nowY, rowLeft + 24 + 208, nowY + 117, -1072689136, -804253680);
@@ -524,9 +525,9 @@ public class TwitterScreen extends Screen {
 					}
 					TwitterUtil.renderUserName(TwitterScreen.this.minecraft, this.quoteSourceSummary, rowLeft + 24 + 5 + 10 + 4, nowY, TweetList.this.getRowWidth() - 24 - 5 - 10 - 4 - 10);
 					for (int i = 0; i < this.quotedTweetStrings.size(); i++) {
-						TwitterScreen.this.font.drawWithShadow(this.quotedTweetStrings.get(i), rowLeft + 24 + 5, nowY + 10 + i * 10, Formatting.WHITE.getColorValue());
+						TwitterScreen.this.font.drawWithShadow(this.quotedTweetStrings.get(i), rowLeft + 24 + 5, nowY + 10 + i * TwitterScreen.this.minecraft.textRenderer.fontHeight, Formatting.WHITE.getColorValue());
 					}
-					nowY += 10 + this.quotedTweetStrings.size() * 10;
+					nowY += 10 + this.quotedTweetStrings.size() * TwitterScreen.this.minecraft.textRenderer.fontHeight;
 				}
 
 				super.render(itemIndex, rowTop, rowLeft, rowWidth, height2, mouseX, mouseY, isMouseOverAndObjectEquals, p_render_9_);
@@ -596,7 +597,7 @@ public class TwitterScreen extends Screen {
 
 			public boolean mouseClicked(double x, double y, int button) {
 				int i = TweetList.this.getRowLeft() + 24;
-				int j = this.y + this.retweetedUserNameHeight + 11 + this.strings.size() * 10;
+				int j = this.y + this.retweetedUserNameHeight + 11 + this.strings.size() * TwitterScreen.this.minecraft.textRenderer.fontHeight;
 				int k = this.summary.getPhotoMediaLength();
 				boolean xMore = x >= i;
 				boolean yMore = y >= j;

@@ -24,10 +24,7 @@ public class EnterPinScreen extends Screen {
     protected void init() {
         super.init();
         int i = this.width / 3;
-        this.pin = this.pin != null ? this.pin : new TextFieldWidget(this.font, i, this.height / 2, i, 20, "");
-        this.pin.x = i;
-        this.pin.y = this.height / 2;
-        this.pin.setWidth(i);
+        this.pin = new TextFieldWidget(this.font, i, this.height / 2, i, 20, this.pin, "");
         this.addButton(this.pin);
 
         this.addButton(new ButtonWidget(i, this.height - 20, i, 20, I18n.translate("gui.done"), (b) -> {

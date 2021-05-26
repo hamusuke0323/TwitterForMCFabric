@@ -29,7 +29,7 @@ public class Emoji {
     }
 
     public int getEmojiWidth() {
-        return this.width;
+        return 9;
     }
 
     public void renderEmoji(Matrix4f matrix, VertexConsumerProvider vertexConsumerProvider, float x, float y, float alpha, int light) {

@@ -4,7 +4,6 @@ import com.hamusuke.twitter4mc.TwitterForMC;
 import com.hamusuke.twitter4mc.gui.widget.ScalableImageButton;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.util.NarratorManager;
@@ -25,7 +24,7 @@ public class TitleScreenMixin extends Screen {
 
     @Inject(at = @At("RETURN"), method = "init()V")
     private void init(CallbackInfo info) {
-        if(!TwitterForMC.twitterScreen.isInited()) {
+        if (!TwitterForMC.twitterScreen.isInited()) {
             TwitterForMC.twitterScreen.init(this.minecraft, this.width, this.height);
         }
 

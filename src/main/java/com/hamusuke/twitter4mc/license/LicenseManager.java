@@ -14,9 +14,13 @@ import java.nio.charset.StandardCharsets;
 import java.util.List;
 
 @Environment(EnvType.CLIENT)
-public class LicenseManager {
+public final class LicenseManager {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final List<ILicense> LICENSE_LIST = Lists.newArrayList();
+
+    private LicenseManager() {
+        throw new IllegalStateException();
+    }
 
     public static void registerLicense(Identifier location, int width, String translationKey) {
         try {

@@ -50,7 +50,7 @@ public class ViewLicenseScreen extends ParentalScreen {
         }
 
         for (int i = 0; i < this.lines.size(); i++) {
-            this.list.addEntry(new TextWidget((this.width - this.list.getRowWidth()) / 2, i * 10, this.list.getRowWidth(), 10, new LiteralText(this.lines.get(i))) {
+            this.list.addEntry(new TextWidget((this.width - this.list.getRowWidth()) / 2, i * this.minecraft.textRenderer.fontHeight, this.list.getRowWidth(), this.minecraft.textRenderer.fontHeight, new LiteralText(this.lines.get(i))) {
                 public void renderButton(int mouseX, int mouseY, float delta) {
                     ViewLicenseScreen.this.font.drawWithShadow(this.getMessage(), this.x, this.y, Formatting.WHITE.getColorValue());
                 }

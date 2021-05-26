@@ -26,7 +26,7 @@ import java.util.List;
 import java.util.Map;
 
 @Environment(EnvType.CLIENT)
-public class EmojiManager implements SimpleSynchronousResourceReloadListener {
+public final class EmojiManager implements SimpleSynchronousResourceReloadListener {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final Gson GSON = new Gson();
     private final Map<String, Emoji> emojiMap = Maps.newHashMap();

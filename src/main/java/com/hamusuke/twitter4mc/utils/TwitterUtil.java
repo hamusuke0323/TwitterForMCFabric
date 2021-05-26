@@ -43,6 +43,10 @@ public class TwitterUtil {
 	public static final Identifier FAVED = new Identifier(TwitterForMC.MOD_ID, "textures/twitter/icon/favorited.png");
 	public static final Identifier SHA = new Identifier(TwitterForMC.MOD_ID, "textures/twitter/icon/share.png");
 
+	private TwitterUtil() {
+		throw new IllegalStateException();
+	}
+
 	public static int renderRetweetedUser(MinecraftClient minecraft, @Nullable TweetSummary retweetedSummary, int iconX, int x, int y, int width) {
 		if (retweetedSummary != null) {
 			minecraft.getTextureManager().bindTexture(TwitterUtil.RETUSR);
@@ -51,17 +55,17 @@ public class TwitterUtil {
 			RenderSystem.scalef(0.625F, 0.625F, 0.625F);
 			DrawableHelper.blit(0, 0, 0.0F, 0.0F, 16, 16, 16, 16);
 			RenderSystem.popMatrix();
-			List<String> names = getUserNameWrap(minecraft, retweetedSummary, width);
+			List<String> names = wrapUserNameToWidth(minecraft, retweetedSummary, width);
 			for (int i = 0; i < names.size(); i++) {
-				minecraft.textRenderer.drawWithShadow(names.get(i), x, y + i * 10, Formatting.GRAY.getColorValue());
+				minecraft.textRenderer.drawWithShadow(names.get(i), x, y + i * minecraft.textRenderer.fontHeight, Formatting.GRAY.getColorValue());
 			}
-			return y + names.size() * 10;
+			return y + names.size() * minecraft.textRenderer.fontHeight;
 		}
 
 		return y;
 	}
 
-	public static List<String> getUserNameWrap(MinecraftClient minecraft, TweetSummary summary, int width) {
+	public static List<String> wrapUserNameToWidth(MinecraftClient minecraft, TweetSummary summary, int width) {
 		return minecraft.textRenderer.wrapStringToWidthAsList(I18n.translate("tw.retweeted.user", summary.getUser().getName()), width);
 	}
 

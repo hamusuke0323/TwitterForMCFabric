@@ -27,6 +27,10 @@ public class VersionChecker {
     private static String version = "";
     private static String url = "";
 
+    private VersionChecker() {
+        throw new IllegalStateException();
+    }
+
     public static void checkUpdate() {
         Optional<ModContainer> modContainerOptional = FabricLoader.getInstance().getModContainer(TwitterForMC.MOD_ID);
         if (modContainerOptional.isPresent()) {
