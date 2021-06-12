@@ -68,6 +68,7 @@ public class TwitterVideoPlayer {
 		} else {
 			LOGGER.error("Couldn't load icon");
 		}
+		this.stage.setTitle("TwitterVideoPlayer: " + this.url);
 		BorderPane root = new BorderPane();
 		Media Video = new Media(this.url);
 		MediaPlayer Play = new MediaPlayer(Video);
@@ -86,14 +87,9 @@ public class TwitterVideoPlayer {
 		Scene scene = new Scene(root, width, height);
 		this.stage.setX(x);
 		this.stage.setY(y);
-		this.stage.setTitle("TwitterVideoPlayer: " + this.url);
 		this.stage.setScene(scene);
-		this.stage.widthProperty().addListener((obs, ov, nv) -> {
-			mediaView.setFitWidth(nv.doubleValue());
-		});
-		this.stage.heightProperty().addListener((obs, ov, nv) -> {
-			mediaView.setFitHeight(nv.doubleValue() - 65.0D);
-		});
+		this.stage.widthProperty().addListener((obs, ov, nv) -> mediaView.setFitWidth(nv.doubleValue()));
+		this.stage.heightProperty().addListener((obs, ov, nv) -> mediaView.setFitHeight(nv.doubleValue() - 65.0D));
 		this.stage.show();
 		this.stage.centerOnScreen();
 		Play.play();
@@ -109,15 +105,9 @@ public class TwitterVideoPlayer {
 		root.getChildren().add(pauseButton);
 		root.getChildren().add(stopButton);
 		root.getChildren().add(repeatButton);
-		playButton.addEventHandler(ActionEvent.ACTION, (e) -> {
-			mp.play();
-		});
-		pauseButton.addEventHandler(ActionEvent.ACTION, (e) -> {
-			mp.pause();
-		});
-		stopButton.addEventHandler(ActionEvent.ACTION, (e) -> {
-			mp.stop();
-		});
+		playButton.addEventHandler(ActionEvent.ACTION, (e) -> mp.play());
+		pauseButton.addEventHandler(ActionEvent.ACTION, (e) -> mp.pause());
+		stopButton.addEventHandler(ActionEvent.ACTION, (e) -> mp.stop());
 		mp.setOnEndOfMedia(() -> {
 			if (repeatButton.isSelected()) {
 				mp.seek(mp.getStartTime());
@@ -151,9 +141,7 @@ public class TwitterVideoPlayer {
 			info.setText(infoStr);
 			slider.setValue(mp.getCurrentTime().toSeconds());
 		});
-		slider.addEventFilter(MouseEvent.MOUSE_RELEASED, (e) -> {
-			mp.seek(Duration.seconds(slider.getValue()));
-		});
+		slider.addEventFilter(MouseEvent.MOUSE_RELEASED, (e) -> mp.seek(Duration.seconds(slider.getValue())));
 		return root;
 	}
 

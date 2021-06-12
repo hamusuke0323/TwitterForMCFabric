@@ -54,8 +54,8 @@ public class VersionChecker {
                         if (jsonObject != null && jsonObject.has(version)) {
                             String newVersion = jsonObject.get(version).getAsString();
                             String current = modMetadata.getVersion().getFriendlyString();
-                            int cv = Integer.parseInt(collectNumber(current));
-                            int nv = Integer.parseInt(collectNumber(newVersion));
+                            int cv = collectNumber(current);
+                            int nv = collectNumber(newVersion);
 
                             VersionChecker.isUpdateAvailable = nv > cv;
                             VersionChecker.version = newVersion;
@@ -73,10 +73,10 @@ public class VersionChecker {
         }
     }
 
-    private static String collectNumber(String text) {
+    private static int collectNumber(String text) {
         StringBuilder stringBuilder = new StringBuilder();
-        text.chars().filter(Character::isDigit).forEach(value -> stringBuilder.append((char) value));
-        return stringBuilder.toString();
+        text.chars().filter(Character::isDigit).forEach(value -> stringBuilder.append(0xFF10 <= value && value <= 0xFF19 ? (char) (value - 0xFEE0) : (char) value));
+        return Integer.parseInt(stringBuilder.toString());
     }
 
     public static boolean isUpdateAvailable() {

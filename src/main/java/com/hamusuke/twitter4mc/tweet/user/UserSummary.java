@@ -25,6 +25,8 @@ public class UserSummary {
     @Nullable
     private final InputStream header;
     private final List<TweetSummary> userTimeline;
+    private final boolean isProtected;
+    private final boolean isVerified;
 
     public UserSummary(User user) {
         this.user = user;
@@ -45,6 +47,9 @@ public class UserSummary {
             } catch (Exception e) {
             }
         }
+
+        this.isProtected = this.user.isProtected();
+        this.isVerified = this.user.isVerified();
     }
 
     public User getUser() {
@@ -83,5 +88,13 @@ public class UserSummary {
 
     public List<TweetSummary> getUserTimeline() {
         return this.userTimeline;
+    }
+
+    public boolean isProtected() {
+        return this.isProtected;
+    }
+
+    public boolean isVerified() {
+        return this.isVerified;
     }
 }

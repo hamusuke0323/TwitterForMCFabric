@@ -206,10 +206,10 @@ public class TwitterShowUserScreen extends ParentalScreen implements IDisplayabl
 
 				int k = rowTop + (i - i / 3) + j;
 				int x = TwitterShowUserScreen.this.font.drawWithShadow(new LiteralText(this.summary.getName()).formatted(Formatting.BOLD).asFormattedString(), rowLeft + 10, k, Formatting.WHITE.getColorValue());
-				if (this.summary.getUser().isProtected()) {
+				if (this.summary.isProtected()) {
 					x += TwitterUtil.renderProtected(TwitterShowUserScreen.this.minecraft, x, k);
 				}
-				if (this.summary.getUser().isVerified()) {
+				if (this.summary.isVerified()) {
 					TwitterUtil.renderVerified(TwitterShowUserScreen.this.minecraft, x, k);
 				}
 

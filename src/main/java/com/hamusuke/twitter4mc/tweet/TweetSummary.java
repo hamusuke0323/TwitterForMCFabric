@@ -84,7 +84,7 @@ public class TweetSummary {
 		this.userIconData = TwitterUtil.getInputStream(url);
 		this.userIconFormat = url.contains(".png") ? "PNG" : "JPEG";
 		if (this.userIconData == null) {
-			LOGGER.warn("Failed load user icon. return null");
+			LOGGER.warn("Failed to get user icon data. return null");
 		}
 		this.createdAt = status.getCreatedAt();
 		this.createdAtC = Calendar.getInstance(Locale.ROOT);
