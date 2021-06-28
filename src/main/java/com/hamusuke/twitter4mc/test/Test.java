@@ -1,16 +1,22 @@
 package com.hamusuke.twitter4mc.test;
 
 import com.hamusuke.twitter4mc.emoji.Fitzpatrick;
+import com.hamusuke.twitter4mc.utils.TwitterUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import twitter4j.Twitter;
+import twitter4j.TwitterException;
+import twitter4j.TwitterFactory;
+import twitter4j.auth.AccessToken;
 
 @Environment(EnvType.CLIENT)
 final class Test {
 	private static final Logger LOGGER = LogManager.getLogger();
 
-	public static void main(String[] args) {
+	public static void main(String[] args) throws TwitterException {
+
 	}
 
 	private static String emojiToHex(String emoji) {

@@ -47,6 +47,26 @@ public class TwitterUtil {
 		throw new IllegalStateException();
 	}
 
+	public static JSONObject getReplyCount(Twitter twitter, long tweetId) throws TwitterException {
+		HttpResponse httpResponse = HttpClientFactory.getInstance().get("https://api.twitter.com/2/tweets", new HttpParameter[]{new HttpParameter("ids", tweetId), new HttpParameter("tweet.fields", "public_metrics,author_id,conversation_id,created_at,in_reply_to_user_id,referenced_tweets"), new HttpParameter("expansions", "author_id,in_reply_to_user_id,referenced_tweets.id"), new HttpParameter("user.fields", "name,username")}, twitter.getAuthorization(), null);
+
+		if(httpResponse != null) {
+			return httpResponse.asJSONObject();
+		}
+
+		return new JSONObject();
+	}
+
+	public static JSONObject getConversation(Twitter twitter, long conversationId) throws TwitterException {
+		HttpResponse httpResponse = HttpClientFactory.getInstance().get("https://api.twitter.com/2/tweets/search/recent", new HttpParameter[]{new HttpParameter("query", "conversation_id:" + conversationId), new HttpParameter("tweet.fields", "public_metrics,author_id,conversation_id,created_at,in_reply_to_user_id,referenced_tweets"), new HttpParameter("user.fields", "name,username")}, twitter.getAuthorization(), null);
+
+		if(httpResponse != null) {
+			return httpResponse.asJSONObject();
+		}
+
+		return new JSONObject();
+	}
+
 	public static int renderRetweetedUser(MinecraftClient minecraft, @Nullable TweetSummary retweetedSummary, int iconX, int x, int y, int width) {
 		if (retweetedSummary != null) {
 			minecraft.getTextureManager().bindTexture(TwitterUtil.RETUSR);
