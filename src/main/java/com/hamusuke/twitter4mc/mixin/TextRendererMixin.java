@@ -31,10 +31,6 @@ public class TextRendererMixin {
     private void drawGlyph(GlyphRenderer glyphRenderer, boolean bold, boolean italic, float weight, float x, float y, Matrix4f matrix, VertexConsumer vertexConsumer, float red, float green, float blue, float alpha, int light) {
     }
 
-    @Shadow
-    @Final
-    private TextureManager textureManager;
-
     /**
      * @reason render Emoji
      * @author hamusuke0323

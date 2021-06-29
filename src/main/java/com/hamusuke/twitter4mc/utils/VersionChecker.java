@@ -40,9 +40,9 @@ public class VersionChecker {
                 String urlString = customValue == null ? "" : customValue.getAsString();
                 ContactInformation contactInformation = modMetadata.getContact();
                 Optional<String> stringOptional = contactInformation == null ? Optional.empty() : contactInformation.get("homepage");
-                String updatePointUrl = stringOptional.orElse("");
+                String updateUrl = stringOptional.orElse("");
 
-                if (!urlString.isEmpty() && !updatePointUrl.isEmpty()) {
+                if (!urlString.isEmpty() && !updateUrl.isEmpty()) {
                     URL url = new URL(urlString);
                     InputStream inputStream = url.openStream();
 
@@ -54,12 +54,9 @@ public class VersionChecker {
                         if (jsonObject != null && jsonObject.has(version)) {
                             String newVersion = jsonObject.get(version).getAsString();
                             String current = modMetadata.getVersion().getFriendlyString();
-                            int cv = collectNumber(current);
-                            int nv = collectNumber(newVersion);
-
-                            VersionChecker.isUpdateAvailable = nv > cv;
+                            VersionChecker.isUpdateAvailable = current.equalsIgnoreCase(newVersion);
                             VersionChecker.version = newVersion;
-                            VersionChecker.url = updatePointUrl;
+                            VersionChecker.url = updateUrl;
 
                             LOGGER.info("current TwitterForMC version: {}, new version: {}", current, VersionChecker.isUpdateAvailable ? newVersion : "NONE");
                         }
@@ -71,12 +68,6 @@ public class VersionChecker {
         } else {
             throw new IllegalStateException();
         }
-    }
-
-    private static int collectNumber(String text) {
-        StringBuilder stringBuilder = new StringBuilder();
-        text.chars().filter(Character::isDigit).forEach(value -> stringBuilder.append(0xFF10 <= value && value <= 0xFF19 ? (char) (value - 0xFEE0) : (char) value));
-        return Integer.parseInt(stringBuilder.toString());
     }
 
     public static boolean isUpdateAvailable() {

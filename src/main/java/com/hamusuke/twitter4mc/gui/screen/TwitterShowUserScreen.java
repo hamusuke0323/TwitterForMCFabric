@@ -7,6 +7,7 @@ import com.hamusuke.twitter4mc.gui.widget.TwitterButton;
 import com.hamusuke.twitter4mc.gui.widget.list.ExtendedTwitterTweetList;
 import com.hamusuke.twitter4mc.tweet.photomedia.ITwitterPhotoMedia;
 import com.hamusuke.twitter4mc.tweet.TweetSummary;
+import com.hamusuke.twitter4mc.utils.TwitterThread;
 import com.hamusuke.twitter4mc.utils.TwitterUtil;
 import com.hamusuke.twitter4mc.tweet.user.UserSummary;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -125,16 +126,18 @@ public class TwitterShowUserScreen extends ParentalScreen implements IDisplayabl
 
 		public TweetList(MinecraftClient mcIn, UserSummary userSummary, List<TweetSummary> summaries) {
 			super(mcIn, TwitterShowUserScreen.this.width, TwitterShowUserScreen.this.height, 18, TwitterShowUserScreen.this.height - 20);
-			this.addEntry(new TwitterShowUserScreen.TweetList.UserProfile(userSummary));
-			for (TweetSummary summary : summaries) {
-				this.addEntry(new TwitterShowUserScreen.TweetList.TweetEntry(summary));
-			}
+			new TwitterThread(() -> {
+				this.addEntry(new TwitterShowUserScreen.TweetList.UserProfile(userSummary));
+				this.setY(0);
+				for (TweetSummary summary : summaries) {
+					this.addEntry(new TwitterShowUserScreen.TweetList.TweetEntry(summary));
+					this.setY(0);
+				}
+			}).start();
 
 			if (this.getSelected() != null) {
 				this.centerScrollOn(this.getSelected());
 			}
-
-			this.setY(0);
 		}
 
 		public void tick() {

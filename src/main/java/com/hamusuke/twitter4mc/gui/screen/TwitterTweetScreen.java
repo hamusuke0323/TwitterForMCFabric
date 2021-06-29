@@ -14,7 +14,6 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 
 import com.mojang.blaze3d.systems.RenderSystem;
-import org.jetbrains.annotations.NotNull;
 import twitter4j.TwitterException;
 import twitter4j.util.CharacterUtil;
 
@@ -23,7 +22,7 @@ public class TwitterTweetScreen extends ParentalScreen {
 	private static final Logger LOGGER = LogManager.getLogger();
 	private TwitterTweetFieldWidget tweetText;
 
-	public TwitterTweetScreen(@NotNull Screen parent) {
+	public TwitterTweetScreen(Screen parent) {
 		super(NarratorManager.EMPTY, parent);
 	}
 
@@ -80,7 +79,9 @@ public class TwitterTweetScreen extends ParentalScreen {
 	}
 
 	public void render(int p_render_1_, int p_render_2_, float p_render_3_) {
-		this.parent.render(-1, -1, p_render_3_);
+		if (this.parent != null) {
+			this.parent.render(-1, -1, p_render_3_);
+		}
 		this.fillGradient(0, 0, this.width, this.height, -1072689136, -804253680);
 		RenderSystem.disableBlend();
 		this.tweetText.render(p_render_1_, p_render_2_, p_render_3_);

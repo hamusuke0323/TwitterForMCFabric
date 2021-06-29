@@ -24,7 +24,7 @@ public class TitleScreenMixin extends Screen {
 
     @Inject(at = @At("RETURN"), method = "init()V")
     private void init(CallbackInfo info) {
-        if (!TwitterForMC.twitterScreen.isInited()) {
+        if (!TwitterForMC.twitterScreen.isInitialized()) {
             TwitterForMC.twitterScreen.init(this.minecraft, this.width, this.height);
         }
 

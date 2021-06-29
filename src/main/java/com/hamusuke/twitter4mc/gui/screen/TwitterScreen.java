@@ -191,7 +191,7 @@ public class TwitterScreen extends Screen implements IDisplayableMessage {
 		super.init();
 	}
 
-	public boolean isInited() {
+	public boolean isInitialized() {
 		return this.minecraft != null;
 	}
 
@@ -206,8 +206,9 @@ public class TwitterScreen extends Screen implements IDisplayableMessage {
 		}
 		super.render(p_230430_2_, p_230430_3_, p_230430_4_);
 		this.list.render(p_230430_2_, p_230430_3_, p_230430_4_);
+
 		for (AbstractButtonWidget b : this.buttons) {
-			if (!b.getMessage().equals(I18n.translate("tw.settings")) && !b.getMessage().equals(I18n.translate("tweet")) && !b.getMessage().equals(I18n.translate("tw.save.timeline"))) {
+			if (!b.getMessage().equals(I18n.translate("tw.settings")) && !b.getMessage().equals(I18n.translate("tweet")) && !b.getMessage().equals(I18n.translate("tw.save.timeline")) && !b.getMessage().equals(I18n.translate("tw.view.profile")) && !b.getMessage().equals(I18n.translate("tw.new.update.available"))) {
 				b.render(p_230430_2_, p_230430_3_, p_230430_4_);
 			}
 		}
@@ -277,7 +278,7 @@ public class TwitterScreen extends Screen implements IDisplayableMessage {
 		k += icon != null ? 22 : 0;
 		k += user.getName().isEmpty() ? 0 : 10;
 		k += user.getScreenName().isEmpty() ? 0 : 10;
-		k += 4 + (desc.size() * this.minecraft.textRenderer.fontHeight) + 4;
+		k += 4 + (desc.size() * (this.minecraft.textRenderer.fontHeight + 1)) + 4;
 		k += ff.size() == 1 ? 10 : 20 + 2;
 
 		if (i2 + k + 6 > this.height - 20) {
@@ -369,9 +370,7 @@ public class TwitterScreen extends Screen implements IDisplayableMessage {
 		}
 
 		public void tick() {
-			if (!this.isHovering) {
-				this.fade--;
-			}
+			this.fade = !this.isHovering ? this.fade - 1 : 20;
 
 			this.children().forEach(TweetEntry::tick);
 

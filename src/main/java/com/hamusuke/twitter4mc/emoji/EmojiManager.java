@@ -80,7 +80,7 @@ public final class EmojiManager implements SimpleSynchronousResourceReloadListen
         while (iterator.hasNext()) {
             JsonObject jsonObject = iterator.next().getAsJsonObject();
             String hex = jsonObject.get("hex").getAsString();
-            Emoji emoji = new Emoji(hex, new Identifier(jsonObject.get("image").getAsString()), jsonObject.get("width").getAsInt());
+            Emoji emoji = new Emoji(hex, new Identifier(jsonObject.get("image").getAsString()));
             if (this.emojiMap.put(hex, emoji) == null) {
                 LOGGER.info("Registering emoji: {}:{}", emoji.getId().getNamespace(), emoji.getHex());
             }
@@ -95,7 +95,7 @@ public final class EmojiManager implements SimpleSynchronousResourceReloadListen
 
     public Emoji getEmoji(String hex) {
         Emoji e = this.emojiMap.get(hex);
-        return e == null ? new Emoji(hex, MissingSprite.getMissingSpriteId(), 10) : e;
+        return e == null ? new Emoji(hex, MissingSprite.getMissingSpriteId()) : e;
     }
 
     public Map<String, Emoji> getAllEmojis() {

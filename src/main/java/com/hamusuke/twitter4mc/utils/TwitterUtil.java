@@ -77,7 +77,7 @@ public class TwitterUtil {
 			RenderSystem.popMatrix();
 			List<String> names = wrapUserNameToWidth(minecraft, retweetedSummary, width);
 			for (int i = 0; i < names.size(); i++) {
-				minecraft.textRenderer.drawWithShadow(names.get(i), x, y + i * minecraft.textRenderer.fontHeight, Formatting.GRAY.getColorValue());
+				minecraft.textRenderer.drawWithShadow(names.get(i), x, y + i * minecraft.textRenderer.fontHeight, 11184810);
 			}
 			return y + names.size() * minecraft.textRenderer.fontHeight;
 		}
@@ -109,7 +109,7 @@ public class TwitterUtil {
 
 		String formattedName = nameFormatted2.size() == 1 ? nameFormatted2.get(0) : nameFormatted2.get(0) + threeBold;
 		int formattedNameWidth = minecraft.textRenderer.getStringWidth(formattedName);
-		minecraft.textRenderer.drawWithShadow(formattedName, x, y, Formatting.WHITE.getColorValue());
+		minecraft.textRenderer.drawWithShadow(formattedName, x, y, 16777215);
 		x += formattedNameWidth;
 		if (p) {
 			x += renderProtected(minecraft, x, y);
@@ -121,10 +121,10 @@ public class TwitterUtil {
 		List<String> screenNameFormatted = minecraft.textRenderer.wrapStringToWidthAsList(screenName, width - formattedNameWidth - pvw - timeWidth - threeWidth);
 		if (!isOver) {
 			String s = screenNameFormatted.size() == 1 ? screenNameFormatted.get(0) : screenNameFormatted.get(0) + three;
-			minecraft.textRenderer.drawWithShadow(s, x, y, Formatting.GRAY.getColorValue());
+			minecraft.textRenderer.drawWithShadow(s, x, y, 11184810);
 			x += minecraft.textRenderer.getStringWidth(s);
 		}
-		minecraft.textRenderer.drawWithShadow(time, x, y, Formatting.GRAY.getColorValue());
+		minecraft.textRenderer.drawWithShadow(time, x, y, 11184810);
 	}
 
 	public static int renderProtected(MinecraftClient minecraft, int x, int y) {

@@ -12,12 +12,10 @@ import net.minecraft.util.Identifier;
 public class Emoji {
     private final String hex;
     private final Identifier id;
-    private final int width;
 
-    public Emoji(String hex, Identifier location, int width) {
+    public Emoji(String hex, Identifier location) {
         this.hex = hex;
         this.id = location;
-        this.width = width;
     }
 
     public String getHex() {
