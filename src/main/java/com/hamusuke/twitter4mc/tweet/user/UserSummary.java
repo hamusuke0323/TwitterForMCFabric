@@ -1,19 +1,27 @@
 package com.hamusuke.twitter4mc.tweet.user;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.hamusuke.twitter4mc.TwitterForMC;
 import com.hamusuke.twitter4mc.tweet.TweetSummary;
+import com.hamusuke.twitter4mc.utils.TweetSummaryCreator;
 import com.hamusuke.twitter4mc.utils.TwitterUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
+import twitter4j.Status;
 import twitter4j.User;
 
 import java.io.InputStream;
+import java.util.Collections;
 import java.util.List;
+import java.util.TreeSet;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Environment(EnvType.CLIENT)
 public class UserSummary {
+    private static final Logger LOGGER = LogManager.getLogger();
     private final User user;
     private final long id;
     private final String name;
@@ -24,7 +32,9 @@ public class UserSummary {
     private final InputStream icon;
     @Nullable
     private final InputStream header;
-    private final List<TweetSummary> userTimeline;
+    private final TreeSet<TweetSummary> userTimeline = Sets.newTreeSet(Collections.reverseOrder());
+    private final AtomicBoolean isGettingUserTimeline = new AtomicBoolean();
+    private final AtomicBoolean isAlreadyGotUserTimeline = new AtomicBoolean();
     private final boolean isProtected;
     private final boolean isVerified;
 
@@ -37,19 +47,39 @@ public class UserSummary {
         this.statusesCount = this.user.getStatusesCount();
         this.icon = TwitterUtil.getInputStream(this.user.get400x400ProfileImageURLHttps());
         this.header = TwitterUtil.getInputStream(this.user.getProfileBanner1500x500URL());
-
-        this.userTimeline = Lists.newArrayList();
-        if (TwitterForMC.mctwitter != null) {
-            try {
-                TwitterForMC.mctwitter.getUserTimeline(this.user.getId()).forEach(status -> {
-                    this.userTimeline.add(new TweetSummary(status));
-                });
-            } catch (Exception e) {
-            }
-        }
-
         this.isProtected = this.user.isProtected();
         this.isVerified = this.user.isVerified();
+    }
+
+    public synchronized void startGettingUserTimeline(Runnable onPush) {
+        if (TwitterForMC.mctwitter != null && !this.isGettingUserTimeline()) {
+            this.isGettingUserTimeline.set(true);
+            try {
+                List<Status> statuses = TwitterForMC.mctwitter.getUserTimeline(this.user.getId());
+                Collections.reverse(statuses);
+                new TweetSummaryCreator(statuses, (tweetSummary) -> {
+                    if (this.userTimeline.add(tweetSummary)) {
+                        onPush.run();
+                    }
+                }, () -> {
+                    this.isGettingUserTimeline.set(false);
+                    this.isAlreadyGotUserTimeline.set(true);
+                }).createAll();
+            } catch (Throwable e) {
+                LOGGER.error("Error occurred while getting user timeline", e);
+                this.isGettingUserTimeline.set(false);
+                this.isAlreadyGotUserTimeline.set(false);
+                this.userTimeline.clear();
+            }
+        }
+    }
+    
+    public boolean isGettingUserTimeline() {
+        return this.isGettingUserTimeline.get();
+    }
+
+    public boolean isAlreadyGotUserTimeline() {
+        return this.isAlreadyGotUserTimeline.get();
     }
 
     public User getUser() {
@@ -86,7 +116,7 @@ public class UserSummary {
         return this.header;
     }
 
-    public List<TweetSummary> getUserTimeline() {
+    public TreeSet<TweetSummary> getUserTimeline() {
         return this.userTimeline;
     }
 

@@ -267,6 +267,7 @@ public class TwitterUtil {
 		return null;
 	}
 
+	@Deprecated
 	public static List<Status> getNonDuplicateStatuses(List<Status> old, List<Status> homeTimeline) {
 		List<Status> t = Lists.newArrayList(homeTimeline);
 		for (Status o : old) {

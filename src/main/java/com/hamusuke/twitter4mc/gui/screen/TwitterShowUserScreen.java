@@ -7,7 +7,6 @@ import com.hamusuke.twitter4mc.gui.widget.TwitterButton;
 import com.hamusuke.twitter4mc.gui.widget.list.ExtendedTwitterTweetList;
 import com.hamusuke.twitter4mc.tweet.photomedia.ITwitterPhotoMedia;
 import com.hamusuke.twitter4mc.tweet.TweetSummary;
-import com.hamusuke.twitter4mc.utils.TwitterThread;
 import com.hamusuke.twitter4mc.utils.TwitterUtil;
 import com.hamusuke.twitter4mc.tweet.user.UserSummary;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -35,6 +34,7 @@ import java.util.List;
 @Environment(EnvType.CLIENT)
 public class TwitterShowUserScreen extends ParentalScreen implements IDisplayableMessage {
 	private final UserSummary user;
+	@Nullable
 	private TwitterShowUserScreen.TweetList list;
 	@Nullable
 	private String message;
@@ -47,7 +47,9 @@ public class TwitterShowUserScreen extends ParentalScreen implements IDisplayabl
 	}
 
 	public void tick() {
-		this.list.tick();
+		if (this.list != null) {
+			this.list.tick();
+		}
 
 		if (this.message != null) {
 			if (this.fade <= 0) {
@@ -64,10 +66,26 @@ public class TwitterShowUserScreen extends ParentalScreen implements IDisplayabl
 	}
 
 	protected void init() {
-		double scroll = this.list != null ? this.list.getScrollAmount() : 0.0D;
-		this.list = new TweetList(this.minecraft, this.user, this.user.getUserTimeline());
-		this.list.setScrollAmount(scroll);
-		this.children.add(this.list);
+		if (!this.user.isGettingUserTimeline()) {
+			if (!this.user.isAlreadyGotUserTimeline()) {
+				this.user.startGettingUserTimeline(() -> {
+					double scroll = 0.0D;
+					if (this.list != null) {
+						scroll = this.list.getScrollAmount();
+						this.children.remove(this.list);
+					}
+
+					this.list = new TweetList(this.minecraft, this.user);
+					this.list.setScrollAmount(scroll);
+					this.children.add(this.list);
+				});
+			} else {
+				double scroll = this.list != null ? this.list.getScrollAmount() : 0.0D;
+				this.list = new TweetList(this.minecraft, this.user);
+				this.list.setScrollAmount(scroll);
+				this.children.add(this.list);
+			}
+		}
 
 		super.init();
 	}
@@ -82,12 +100,14 @@ public class TwitterShowUserScreen extends ParentalScreen implements IDisplayabl
 			return;
 		}
 
-		this.list.render(mouseX, mouseY, delta);
+		if (this.list != null) {
+			this.list.render(mouseX, mouseY, delta);
+		}
 		super.render(mouseX, mouseY, delta);
 
 		float left = (float) (this.width / 2 - this.width / 4 + 2);
-		this.font.drawWithShadow(this.title.asFormattedString(), left + 20, 0.0F, Formatting.WHITE.getColorValue());
-		this.font.drawWithShadow(new TranslatableText("tw.statuses.count", this.user.getStatusesCount()).formatted(Formatting.GRAY).asFormattedString(), left + 20, 9.0F, Formatting.WHITE.getColorValue());
+		this.font.drawWithShadow(this.title.asFormattedString(), left + 20, 0.0F, 16777215);
+		this.font.drawWithShadow(new TranslatableText("tw.statuses.count", this.user.getStatusesCount()).formatted(Formatting.GRAY).asFormattedString(), left + 20, 9.0F, 16777215);
 
 		if (this.message != null) {
 			List<String> list = this.font.wrapStringToWidthAsList(this.message, this.width / 2);
@@ -101,7 +121,7 @@ public class TwitterShowUserScreen extends ParentalScreen implements IDisplayabl
 	}
 
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
-		if (!this.list.isHovering) {
+		if (this.list != null && !this.list.isHovering) {
 			if (this.list.hoveringEntry != null && this.list.hoveringEntry.mayClickIcon(mouseX, mouseY)) {
 				this.minecraft.openScreen(new TwitterShowUserScreen(this, this.list.hoveringEntry.tweetSummary.getUser()));
 				return true;
@@ -124,29 +144,23 @@ public class TwitterShowUserScreen extends ParentalScreen implements IDisplayabl
 		private boolean isHovering;
 		private int fade;
 
-		public TweetList(MinecraftClient mcIn, UserSummary userSummary, List<TweetSummary> summaries) {
+		public TweetList(MinecraftClient mcIn, UserSummary userSummary) {
 			super(mcIn, TwitterShowUserScreen.this.width, TwitterShowUserScreen.this.height, 18, TwitterShowUserScreen.this.height - 20);
-			new TwitterThread(() -> {
-				this.addEntry(new TwitterShowUserScreen.TweetList.UserProfile(userSummary));
-				this.setY(0);
-				for (TweetSummary summary : summaries) {
-					this.addEntry(new TwitterShowUserScreen.TweetList.TweetEntry(summary));
-					this.setY(0);
-				}
-			}).start();
+			this.addEntry(new TwitterShowUserScreen.TweetList.UserProfile(userSummary));
+			for (TweetSummary summary : userSummary.getUserTimeline()) {
+				this.addEntry(new TwitterShowUserScreen.TweetList.TweetEntry(summary));
+			}
 
 			if (this.getSelected() != null) {
 				this.centerScrollOn(this.getSelected());
 			}
+
+			this.setY(0);
 		}
 
 		public void tick() {
-			if (!this.isHovering) {
-				this.fade--;
-			}
-
+			this.fade = this.isHovering ? 20 : this.fade - 1;
 			this.children().forEach(TweetEntry::tick);
-
 			super.tick();
 		}
 
@@ -208,7 +222,7 @@ public class TwitterShowUserScreen extends ParentalScreen implements IDisplayabl
 				blit(rowLeft + 10, rowTop + (i - i / 3), 0.0F, 0.0F, j, j, j, j);
 
 				int k = rowTop + (i - i / 3) + j;
-				int x = TwitterShowUserScreen.this.font.drawWithShadow(new LiteralText(this.summary.getName()).formatted(Formatting.BOLD).asFormattedString(), rowLeft + 10, k, Formatting.WHITE.getColorValue());
+				int x = TwitterShowUserScreen.this.font.drawWithShadow(new LiteralText(this.summary.getName()).formatted(Formatting.BOLD).asFormattedString(), rowLeft + 10, k, 16777215);
 				if (this.summary.isProtected()) {
 					x += TwitterUtil.renderProtected(TwitterShowUserScreen.this.minecraft, x, k);
 				}
@@ -219,7 +233,7 @@ public class TwitterShowUserScreen extends ParentalScreen implements IDisplayabl
 				TwitterShowUserScreen.this.font.drawWithShadow(new LiteralText(this.summary.getScreenName()).formatted(Formatting.GRAY).asFormattedString(), rowLeft + 10, k + 9, 0);
 
 				for (int index = 0; index < this.desc.size(); index++) {
-					TwitterShowUserScreen.this.font.drawWithShadow(this.desc.get(index), rowLeft + 10, k + 27 + index * TwitterShowUserScreen.this.minecraft.textRenderer.fontHeight, Formatting.WHITE.getColorValue());
+					TwitterShowUserScreen.this.font.drawWithShadow(this.desc.get(index), rowLeft + 10, k + 27 + index * TwitterShowUserScreen.this.minecraft.textRenderer.fontHeight, 16777215);
 				}
 
 				super.render(itemIndex, rowTop, rowLeft, rowWidth, height2, mouseX, mouseY, isMouseOverAndObjectEquals, p_render_9_);
@@ -239,14 +253,9 @@ public class TwitterShowUserScreen extends ParentalScreen implements IDisplayabl
 			private final int retweetedUserNameHeight;
 			protected int height;
 			protected int y;
-
-			@Nullable
 			private TwitterButton rep;
-			@Nullable
 			private TwitterButton ret;
-			@Nullable
 			private TwitterButton fav;
-			@Nullable
 			private TwitterButton sha;
 			private final int fourBtnHeightOffset;
 
@@ -277,13 +286,13 @@ public class TwitterShowUserScreen extends ParentalScreen implements IDisplayabl
 			}
 
 			public void tick() {
-				if (!this.isNull()) {
+				if (this.isNotNull()) {
 					this.rep.y = this.ret.y = this.fav.y = this.sha.y = this.fourBtnHeightOffset + this.y;
 				}
 			}
 
 			public void init() {
-				if (!this.isNull()) {
+				if (this.isNotNull()) {
 					int i = TwitterShowUserScreen.TweetList.this.getRowLeft() + 24;
 
 					this.rep = this.addButton(new TwitterButton(i, this.fourBtnHeightOffset, 10, 10, 0, 0, 16, TwitterUtil.REP, 16, 32, 16, 16, (p) -> {
@@ -321,7 +330,7 @@ public class TwitterShowUserScreen extends ParentalScreen implements IDisplayabl
 			}
 
 			public void render(int itemIndex, int rowTop, int rowLeft, int rowWidth, int height2, int mouseX, int mouseY, boolean isMouseOverAndObjectEquals, float p_render_9_) {
-				if (!this.isNull()) {
+				if (this.isNotNull()) {
 					InputStream icon = this.tweetSummary.getUserIconData();
 					RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 					RenderSystem.enableBlend();
@@ -362,7 +371,7 @@ public class TwitterShowUserScreen extends ParentalScreen implements IDisplayabl
 						}
 						TwitterUtil.renderUserName(TwitterShowUserScreen.this.minecraft, this.quoteSourceSummary, rowLeft + 24 + 5 + 10 + 4, nowY, TwitterShowUserScreen.TweetList.this.getRowWidth() - 24 - 5 - 10 - 4 - 10);
 						for (int i = 0; i < this.quotedTweetStrings.size(); i++) {
-							TwitterShowUserScreen.this.font.drawWithShadow(this.quotedTweetStrings.get(i), rowLeft + 24 + 5, nowY + 10 + i * TwitterShowUserScreen.this.minecraft.textRenderer.fontHeight, Formatting.WHITE.getColorValue());
+							TwitterShowUserScreen.this.font.drawWithShadow(this.quotedTweetStrings.get(i), rowLeft + 24 + 5, nowY + 10 + i * TwitterShowUserScreen.this.minecraft.textRenderer.fontHeight, 16777215);
 						}
 						nowY += 10 + this.quotedTweetStrings.size() * TwitterShowUserScreen.this.minecraft.textRenderer.fontHeight;
 					}
@@ -370,10 +379,10 @@ public class TwitterShowUserScreen extends ParentalScreen implements IDisplayabl
 					super.render(itemIndex, rowTop, rowLeft, rowWidth, height2, mouseX, mouseY, isMouseOverAndObjectEquals, p_render_9_);
 
 					if (this.tweetSummary.getRetweetCount() != 0) {
-						TwitterShowUserScreen.this.font.drawWithShadow("" + this.tweetSummary.getRetweetCountF(), this.ret.x + 16.0F, this.ret.y, Formatting.GRAY.getColorValue());
+						TwitterShowUserScreen.this.font.drawWithShadow("" + this.tweetSummary.getRetweetCountF(), this.ret.x + 16.0F, this.ret.y, 11184810);
 					}
 					if (this.tweetSummary.getFavoriteCount() != 0) {
-						TwitterShowUserScreen.this.font.drawWithShadow("" + this.tweetSummary.getFavoriteCountF(), this.fav.x + 16.0F, this.fav.y, Formatting.GRAY.getColorValue());
+						TwitterShowUserScreen.this.font.drawWithShadow("" + this.tweetSummary.getFavoriteCountF(), this.fav.x + 16.0F, this.fav.y, 11184810);
 					}
 				} else {
 					super.render(itemIndex, rowTop, rowLeft, rowWidth, height2, mouseX, mouseY, isMouseOverAndObjectEquals, p_render_9_);
@@ -381,7 +390,7 @@ public class TwitterShowUserScreen extends ParentalScreen implements IDisplayabl
 			}
 
 			public int renderPhotos(int rowLeft, int rowTop) {
-				if (!this.isNull()) {
+				if (this.isNotNull()) {
 					List<ITwitterPhotoMedia> p = this.tweetSummary.getPhotoMedias();
 					if (p.size() == 1) {
 						ITwitterPhotoMedia media = p.get(0);
@@ -440,7 +449,7 @@ public class TwitterShowUserScreen extends ParentalScreen implements IDisplayabl
 			}
 
 			public boolean mouseClicked(double x, double y, int button) {
-				if (!this.isNull()) {
+				if (this.isNotNull()) {
 					int i = TwitterShowUserScreen.TweetList.this.getRowLeft() + 24;
 					int j = this.y + this.retweetedUserNameHeight + 11 + this.strings.size() * TwitterShowUserScreen.this.minecraft.textRenderer.fontHeight;
 					int k = this.tweetSummary.getPhotoMediaLength();
@@ -511,7 +520,7 @@ public class TwitterShowUserScreen extends ParentalScreen implements IDisplayabl
 			}
 
 			private boolean displayTwitterPhotoAndShowStatusScreen(int mouseButton, int index) {
-				if (!this.isNull()) {
+				if (this.isNotNull()) {
 					TwitterShowUserScreen.this.minecraft.getSoundManager().play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
 					if (mouseButton == 0) {
 						TwitterShowUserScreen.this.minecraft.openScreen(new TwitterPhotoAndShowStatusScreen(TwitterShowUserScreen.this, this.tweetSummary, index));
@@ -524,7 +533,7 @@ public class TwitterShowUserScreen extends ParentalScreen implements IDisplayabl
 			}
 
 			private boolean videoClicked(int mouseButton) {
-				if (!this.isNull() && !this.tweetSummary.isVideoNull()) {
+				if (this.isNotNull() && !this.tweetSummary.isVideoNull()) {
 					if (mouseButton == 0) {
 						this.tweetSummary.getPlayer().play(TwitterShowUserScreen.this.minecraft.getWindow().getX(), TwitterShowUserScreen.this.minecraft.getWindow().getY(), TwitterShowUserScreen.this.minecraft.getWindow().getWidth() / 2, TwitterShowUserScreen.this.minecraft.getWindow().getHeight() / 2);
 					} else if (mouseButton == 1) {
@@ -546,13 +555,13 @@ public class TwitterShowUserScreen extends ParentalScreen implements IDisplayabl
 			public void setY(int y) {
 				this.y = y;
 
-				if (!this.isNull()) {
+				if (this.isNotNull()) {
 					this.rep.y = this.ret.y = this.fav.y = this.sha.y = this.fourBtnHeightOffset + this.y;
 				}
 			}
 
-			private boolean isNull() {
-				return this.tweetSummary == null;
+			private boolean isNotNull() {
+				return this.tweetSummary != null;
 			}
 		}
 	}

@@ -140,14 +140,14 @@ public class TwitterScreen extends Screen implements IDisplayableMessage {
 					new TwitterThread(() -> {
 						List<Status> t = Lists.newArrayList();
 						try {
-							t = TwitterUtil.getNonDuplicateStatuses(TwitterForMC.tweets, TwitterForMC.mctwitter.getHomeTimeline());
+							t.addAll(TwitterForMC.mctwitter.getHomeTimeline());
 						} catch (TwitterException e) {
 							this.accept(e.getErrorMessage());
 						}
 						Collections.reverse(t);
 						for (Status s : t) {
-							TwitterForMC.tweets.add(0, s);
-							TwitterForMC.tweetSummaries.add(0, new TweetSummary(s));
+							TwitterForMC.tweets.add(s);
+							TwitterForMC.tweetSummaries.add(new TweetSummary(s));
 							this.children.remove(this.list);
 							this.list = new TwitterScreen.TweetList(this.minecraft);
 							this.children.add(this.list);
@@ -233,11 +233,10 @@ public class TwitterScreen extends Screen implements IDisplayableMessage {
 	}
 
 	public boolean mouseClicked(double p_mouseClicked_1_, double p_mouseClicked_3_, int p_mouseClicked_5_) {
-		if (!this.list.isHovering) {
-			if (this.list.hoveringEntry != null && this.list.hoveringEntry.mayClickIcon(p_mouseClicked_1_, p_mouseClicked_3_)) {
-				this.minecraft.openScreen(new TwitterShowUserScreen(this, this.list.hoveringEntry.summary.getUser()));
-				return true;
-			}
+		if (this.list.hoveringEntry != null && this.list.hoveringEntry.mayClickIcon(p_mouseClicked_1_, p_mouseClicked_3_)) {
+			this.minecraft.openScreen(new TwitterShowUserScreen(this, this.list.hoveringEntry.summary.getUser()));
+			return true;
+		} else if (!this.list.isHovering) {
 			return super.mouseClicked(p_mouseClicked_1_, p_mouseClicked_3_, p_mouseClicked_5_);
 		}
 
@@ -358,8 +357,8 @@ public class TwitterScreen extends Screen implements IDisplayableMessage {
 
 		public TweetList(MinecraftClient mcIn) {
 			super(mcIn, TwitterScreen.this.width, TwitterScreen.this.height, 0, TwitterScreen.this.height - 20);
-			for (int i = 0; i < TwitterForMC.tweetSummaries.size(); i++) {
-				this.addEntry(new TweetEntry(TwitterForMC.tweetSummaries.get(i)));
+			for (TweetSummary tweetSummary : TwitterForMC.tweetSummaries) {
+				this.addEntry(new TweetEntry(tweetSummary));
 			}
 
 			if (this.getSelected() != null) {
@@ -370,10 +369,8 @@ public class TwitterScreen extends Screen implements IDisplayableMessage {
 		}
 
 		public void tick() {
-			this.fade = !this.isHovering ? this.fade - 1 : 20;
-
+			this.fade = this.isHovering ? 10 : this.fade - 1;
 			this.children().forEach(TweetEntry::tick);
-
 			super.tick();
 		}
 
@@ -398,10 +395,10 @@ public class TwitterScreen extends Screen implements IDisplayableMessage {
 					this.hoveringEntry = null;
 					this.fade = 0;
 				}
-			} else if (e != null && this.getRowLeft() <= p_render_1_ && this.getRowLeft() + 16 >= p_render_1_ && e.getY() + e.retweetedUserNameHeight + 2 <= p_render_2_ && e.getY() + e.retweetedUserNameHeight + 2 + 16 >= p_render_2_) {
+			} else if (e != null && e.mayClickIcon(p_render_1_, p_render_2_)) {
 				this.hoveringEntry = e;
 				this.isHovering = TwitterScreen.this.renderTwitterUser(e.summary, this.getRowLeft() - 60, e.getY() + e.retweetedUserNameHeight + 2 + 22, p_render_1_, p_render_2_);
-				this.fade = 20;
+				this.fade = 10;
 			}
 		}
 
@@ -695,6 +692,14 @@ public class TwitterScreen extends Screen implements IDisplayableMessage {
 			public void setY(int y) {
 				this.y = y;
 				this.rep.y = this.ret.y = this.fav.y = this.sha.y = this.fourBtnHeightOffset + this.y;
+			}
+
+			public boolean equals(Object obj) {
+				return this.summary.equals(obj);
+			}
+
+			public int hashCode() {
+				return this.summary.hashCode();
 			}
 		}
 	}

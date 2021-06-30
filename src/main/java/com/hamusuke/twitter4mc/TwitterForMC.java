@@ -1,6 +1,6 @@
 package com.hamusuke.twitter4mc;
 
-import com.google.common.collect.Lists;
+import com.google.common.collect.Sets;
 import com.hamusuke.twitter4mc.emoji.EmojiManager;
 import com.hamusuke.twitter4mc.gui.filechooser.FileChooserOpen;
 import com.hamusuke.twitter4mc.gui.screen.TwitterScreen;
@@ -32,14 +32,15 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import org.lwjgl.glfw.GLFW;
 import twitter4j.Status;
-import twitter4j.StatusUpdate;
 import twitter4j.Twitter;
 import twitter4j.TwitterFactory;
 import twitter4j.auth.AccessToken;
 
 import java.io.*;
 import java.nio.file.Path;
+import java.util.Collections;
 import java.util.List;
+import java.util.TreeSet;
 
 @Environment(EnvType.CLIENT)
 public final class TwitterForMC implements ClientModInitializer {
@@ -57,8 +58,8 @@ public final class TwitterForMC implements ClientModInitializer {
     private static Token token;
     public static final TwitterScreen twitterScreen = new TwitterScreen();
     public static boolean loginTwitter;
-    public static List<Status> tweets = Lists.newArrayList();
-    public static List<TweetSummary> tweetSummaries = Lists.newArrayList();
+    public static final TreeSet<Status> tweets = Sets.newTreeSet(Collections.reverseOrder());
+    public static final TreeSet<TweetSummary> tweetSummaries = Sets.newTreeSet(Collections.reverseOrder());
     public static KeyBinding openTwitter;
     @Nullable
     public static MaskableTextFieldWidget consumer;
@@ -178,7 +179,16 @@ public final class TwitterForMC implements ClientModInitializer {
         ObjectInputStream ois = null;
         try {
             ois = new ObjectInputStream(new FileInputStream(file));
-            tweets = (List<Status>) ois.readObject();
+            Object object = ois.readObject();
+            if (object instanceof List) {
+                List<Status> statuses = (List<Status>) object;
+                tweets.clear();
+                tweets.addAll(statuses);
+            } else {
+                TreeSet<Status> statuses = (TreeSet<Status>) object;
+                tweets.clear();
+                tweets.addAll(statuses);
+            }
         } catch (Throwable e) {
             LOGGER.error("Error occurred while reading timeline", e);
         } finally {

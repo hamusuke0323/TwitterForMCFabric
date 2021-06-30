@@ -7,13 +7,18 @@ import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.Matrix4f;
 import net.minecraft.util.Identifier;
+import org.jetbrains.annotations.NotNull;
+
+import java.util.Objects;
 
 @Environment(EnvType.CLIENT)
-public class Emoji {
+public final class Emoji {
     private final String hex;
     private final Identifier id;
 
-    public Emoji(String hex, Identifier location) {
+    public Emoji(@NotNull String hex, @NotNull Identifier location) {
+        Objects.requireNonNull(hex, "hex cannot be null.");
+        Objects.requireNonNull(location, "location cannot be null.");
         this.hex = hex;
         this.id = location;
     }
@@ -45,5 +50,9 @@ public class Emoji {
         } else {
             return false;
         }
+    }
+
+    public int hashCode() {
+        return Objects.hash(this.hex, this.id);
     }
 }

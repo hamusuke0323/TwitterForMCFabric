@@ -18,6 +18,7 @@ import org.apache.logging.log4j.Logger;
 
 import com.google.common.collect.Lists;
 
+import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import twitter4j.HashtagEntity;
 import twitter4j.MediaEntity;
@@ -27,7 +28,7 @@ import twitter4j.URLEntity;
 import twitter4j.User;
 
 @Environment(EnvType.CLIENT)
-public class TweetSummary {
+public class TweetSummary implements Comparable<TweetSummary> {
 	private static final Logger LOGGER = LogManager.getLogger();
 	private final Status status;
 	@Nullable
@@ -287,11 +288,15 @@ public class TweetSummary {
 		return this.isRetweetedByMe;
 	}
 
-	public boolean equals(Object var1) {
-		if (var1 instanceof TweetSummary) {
-			return this.getId() == ((TweetSummary) var1).getId();
-		} else {
-			return false;
-		}
+	public boolean equals(Object obj) {
+		return this.status.equals(obj);
+	}
+
+	public int hashCode() {
+		return this.status.hashCode();
+	}
+
+	public int compareTo(@NotNull TweetSummary that) {
+		return this.status.compareTo(that.status);
 	}
 }
