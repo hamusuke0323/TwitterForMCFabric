@@ -7,11 +7,10 @@ import java.util.Collections;
 import java.util.List;
 
 import com.hamusuke.twitter4mc.TwitterForMC;
-import com.hamusuke.twitter4mc.gui.screen.impl.IDisplayableMessage;
 import com.hamusuke.twitter4mc.gui.screen.settings.TwitterSettingsScreen;
 import com.hamusuke.twitter4mc.gui.widget.TwitterButton;
 import com.hamusuke.twitter4mc.gui.widget.list.ExtendedTwitterTweetList;
-import com.hamusuke.twitter4mc.tweet.photomedia.ITwitterPhotoMedia;
+import com.hamusuke.twitter4mc.tweet.TwitterPhotoMedia;
 import com.hamusuke.twitter4mc.tweet.TweetSummary;
 import com.hamusuke.twitter4mc.utils.TwitterThread;
 import com.hamusuke.twitter4mc.utils.TwitterUtil;
@@ -46,7 +45,7 @@ import twitter4j.TwitterException;
 import twitter4j.User;
 
 @Environment(EnvType.CLIENT)
-public class TwitterScreen extends Screen implements IDisplayableMessage {
+public class TwitterScreen extends Screen implements DisplayableMessage {
 	private TwitterScreen.TweetList list;
 	private ButtonWidget refreshTL;
 	@Nullable
@@ -537,9 +536,9 @@ public class TwitterScreen extends Screen implements IDisplayableMessage {
 			}
 
 			public int renderPhotos(int rowLeft, int rowTop) {
-				List<ITwitterPhotoMedia> p = this.summary.getPhotoMedias();
+				List<TwitterPhotoMedia> p = this.summary.getPhotoMedias();
 				if (p.size() == 1) {
-					ITwitterPhotoMedia media = p.get(0);
+					TwitterPhotoMedia media = p.get(0);
 					InputStream data = media.getData();
 					if (data != null) {
 						Dimension d = TwitterUtil.getScaledDimensionMaxRatio(new Dimension(media.getWidth(), media.getHeight()), new Dimension(208, 117));
@@ -548,7 +547,7 @@ public class TwitterScreen extends Screen implements IDisplayableMessage {
 					}
 				} else if (p.size() == 2) {
 					for (int i = 0; i < 2; i++) {
-						ITwitterPhotoMedia media = p.get(i);
+						TwitterPhotoMedia media = p.get(i);
 						InputStream data = media.getData();
 						if (data != null) {
 							Dimension d = TwitterUtil.getScaledDimensionMaxRatio(new Dimension(media.getWidth(), media.getHeight()), new Dimension(104, 117));
@@ -558,7 +557,7 @@ public class TwitterScreen extends Screen implements IDisplayableMessage {
 					}
 				} else if (p.size() == 3) {
 					for (int i = 0; i < 3; i++) {
-						ITwitterPhotoMedia media = p.get(i);
+						TwitterPhotoMedia media = p.get(i);
 						InputStream data = media.getData();
 						if (data != null) {
 							Dimension d;
@@ -574,7 +573,7 @@ public class TwitterScreen extends Screen implements IDisplayableMessage {
 					}
 				} else if (p.size() == 4) {
 					for (int i = 0; i < 4; i++) {
-						ITwitterPhotoMedia media = p.get(i);
+						TwitterPhotoMedia media = p.get(i);
 						InputStream data = media.getData();
 						if (data != null) {
 							Dimension d = TwitterUtil.getScaledDimensionMaxRatio(new Dimension(media.getWidth(), media.getHeight()), new Dimension(104, 58));

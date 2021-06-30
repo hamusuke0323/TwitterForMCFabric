@@ -7,10 +7,7 @@ import java.util.Date;
 import java.util.List;
 import java.util.Locale;
 
-import com.hamusuke.twitter4mc.tweet.photomedia.ITwitterPhotoMedia;
-import com.hamusuke.twitter4mc.tweet.photomedia.TwitterPhotoMedia;
 import com.hamusuke.twitter4mc.utils.TwitterUtil;
-import com.hamusuke.twitter4mc.tweet.videomedia.TwitterVideoPlayer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.apache.logging.log4j.LogManager;
@@ -53,7 +50,7 @@ public class TweetSummary implements Comparable<TweetSummary> {
 	private final String lang;
 	private final MediaEntity[] medias;
 	private final List<MediaEntity> mediaList;
-	private final List<ITwitterPhotoMedia> photoList = Lists.newArrayList();
+	private final List<TwitterPhotoMedia> photoList = Lists.newArrayList();
 	@Nullable
 	private final String videoURL;
 	@Nullable
@@ -222,7 +219,7 @@ public class TweetSummary implements Comparable<TweetSummary> {
 		return this.isIncludeImages;
 	}
 
-	public List<ITwitterPhotoMedia> getPhotoMedias() {
+	public List<TwitterPhotoMedia> getPhotoMedias() {
 		return this.photoList;
 	}
 

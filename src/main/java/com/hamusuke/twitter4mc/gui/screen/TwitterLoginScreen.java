@@ -80,7 +80,7 @@ public class TwitterLoginScreen extends ParentalScreen {
 
         this.addButton(new ButtonWidget(k, this.height - 20, k, 20, I18n.translate("tw.token.file.choose"), (b) -> TwitterForMC.tokenFileChooser.choose()));
 
-        this.addButton(new ButtonWidget(k * 2, this.height - 20, k, 20, I18n.translate("gui.done"), (b) -> this.onClose()));
+        this.addButton(new ButtonWidget(k * 2, this.height - 20, k, 20, I18n.translate("gui.back"), (b) -> this.onClose()));
     }
 
     private void addToast(Twitter twitter) {

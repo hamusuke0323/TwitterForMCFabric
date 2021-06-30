@@ -17,7 +17,7 @@ import net.minecraft.util.math.MathHelper;
 import org.jetbrains.annotations.Nullable;
 
 @Environment(EnvType.CLIENT)
-public class TwitterNotificationToast extends InputStreamToast implements IClickableToast {
+public class TwitterNotificationToast extends InputStreamToast implements ClickableToast {
 	private final String title;
 	@Nullable
 	private final String subtitle;

@@ -5,7 +5,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.toast.Toast;
 
 @Environment(EnvType.CLIENT)
-public interface IClickableToast extends Toast {
+public interface ClickableToast extends Toast {
     default void mouseClicked(int toastX, int toastY, double x, double y, int button) {
     }
 

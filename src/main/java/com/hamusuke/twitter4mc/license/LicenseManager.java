@@ -1,5 +1,6 @@
 package com.hamusuke.twitter4mc.license;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -16,7 +17,7 @@ import java.util.List;
 @Environment(EnvType.CLIENT)
 public final class LicenseManager {
     private static final Logger LOGGER = LogManager.getLogger();
-    private static final List<ILicense> LICENSE_LIST = Lists.newArrayList();
+    private static final List<License> LICENSE_LIST = Lists.newArrayList();
 
     private LicenseManager() {
         throw new IllegalStateException();
@@ -31,13 +32,13 @@ public final class LicenseManager {
         }
     }
 
-    public static void registerLicense(ILicense license) {
+    public static void registerLicense(License license) {
         LOGGER.info("Registering License: {}:{}", license.getTextLocation().getNamespace(), license.getTextLocation().getPath());
         LICENSE_LIST.add(license);
     }
 
-    public static List<ILicense> getLicenseList() {
-        return LICENSE_LIST;
+    public static List<License> getLicenseList() {
+        return ImmutableList.copyOf(LICENSE_LIST);
     }
 
     private static List<String> getLicenseTextList(Identifier location) throws IOException {

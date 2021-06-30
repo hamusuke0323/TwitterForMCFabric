@@ -1,7 +1,6 @@
 package com.hamusuke.twitter4mc.gui.screen;
 
 import com.hamusuke.twitter4mc.TwitterForMC;
-import com.hamusuke.twitter4mc.gui.screen.impl.IDisplayableMessage;
 import com.hamusuke.twitter4mc.gui.widget.TwitterTweetFieldWidget;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -54,8 +53,8 @@ public class TwitterTweetScreen extends ParentalScreen {
 	}
 
 	private void accept(String msg) {
-		if (this.parent instanceof IDisplayableMessage) {
-			((IDisplayableMessage) this.parent).accept(msg);
+		if (this.parent instanceof DisplayableMessage) {
+			((DisplayableMessage) this.parent).accept(msg);
 		}
 	}
 

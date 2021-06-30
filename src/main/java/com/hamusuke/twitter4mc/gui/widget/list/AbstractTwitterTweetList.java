@@ -5,7 +5,7 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
-import com.hamusuke.twitter4mc.gui.widget.list.entry.ITwitterListEntry;
+import com.hamusuke.twitter4mc.gui.widget.list.entry.TwitterListEntry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -517,7 +517,7 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 	}
 
 	@Environment(EnvType.CLIENT)
-	public abstract static class AbstractTwitterListEntry<E extends AbstractTwitterTweetList.AbstractTwitterListEntry<E>> implements ITwitterListEntry {
+	public abstract static class AbstractTwitterListEntry<E extends AbstractTwitterTweetList.AbstractTwitterListEntry<E>> implements TwitterListEntry {
 		@Deprecated
 		AbstractTwitterTweetList<E> list;
 		public final List<AbstractButtonWidget> buttons = Lists.newArrayList();

@@ -15,6 +15,7 @@ import javafx.application.Platform;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
@@ -127,6 +128,8 @@ public final class TwitterForMC implements ClientModInitializer {
         PlatformImpl.startup(() -> {
         });
         Platform.setImplicitExit(false);
+
+        ClientLifecycleEvents.CLIENT_STOPPING.register((client) -> Platform.exit());
 
         new TwitterThread(() -> {
             token = read(tokenFile);

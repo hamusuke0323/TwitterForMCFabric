@@ -5,7 +5,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.Element;
 
 @Environment(EnvType.CLIENT)
-public interface ITwitterListEntry extends Element {
+public interface TwitterListEntry extends Element {
 	int getHeight();
 
 	int getY();

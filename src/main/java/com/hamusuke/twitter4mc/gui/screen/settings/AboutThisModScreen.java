@@ -4,7 +4,7 @@ import com.hamusuke.twitter4mc.TwitterForMC;
 import com.hamusuke.twitter4mc.gui.screen.ParentalScreen;
 import com.hamusuke.twitter4mc.gui.widget.TextWidget;
 import com.hamusuke.twitter4mc.gui.widget.list.WidgetList;
-import com.hamusuke.twitter4mc.license.ILicense;
+import com.hamusuke.twitter4mc.license.License;
 import com.hamusuke.twitter4mc.license.LicenseManager;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -54,9 +54,9 @@ public class AboutThisModScreen extends ParentalScreen {
 
         this.list.addEntry(new TextWidget(j, 90, i, 20, new TranslatableText("tw.open.source.license")));
 
-        List<ILicense> licenses = LicenseManager.getLicenseList();
+        List<License> licenses = LicenseManager.getLicenseList();
         for (int index = 0; index < licenses.size(); index++) {
-            ILicense license = licenses.get(index);
+            License license = licenses.get(index);
             this.list.addEntry(new ButtonWidget(j, 120 + index * 30, i, 20, I18n.translate(license.getTranslationKey()), (b) -> {
                 this.minecraft.openScreen(new ViewLicenseScreen(license.getTranslationText(), this, license));
             }));

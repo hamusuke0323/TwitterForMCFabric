@@ -9,7 +9,6 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.font.*;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.texture.TextureManager;
 import net.minecraft.client.util.math.Matrix4f;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.math.MathHelper;

@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.hamusuke.twitter4mc.gui.screen.ParentalScreen;
 import com.hamusuke.twitter4mc.gui.widget.TextWidget;
 import com.hamusuke.twitter4mc.gui.widget.list.WidgetList;
-import com.hamusuke.twitter4mc.license.ILicense;
+import com.hamusuke.twitter4mc.license.License;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.screen.Screen;
@@ -18,11 +18,11 @@ import java.util.List;
 
 @Environment(EnvType.CLIENT)
 public class ViewLicenseScreen extends ParentalScreen {
-    protected final ILicense license;
+    protected final License license;
     protected List<String> lines = Lists.newArrayList();
     protected WidgetList list;
 
-    public ViewLicenseScreen(Text title, Screen parent, ILicense license) {
+    public ViewLicenseScreen(Text title, Screen parent, License license) {
         super(title, parent);
         this.license = license;
     }

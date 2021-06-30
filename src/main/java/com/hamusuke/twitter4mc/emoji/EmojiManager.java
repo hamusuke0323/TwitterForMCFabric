@@ -82,7 +82,7 @@ public final class EmojiManager implements SimpleSynchronousResourceReloadListen
             String hex = jsonObject.get("hex").getAsString();
             Emoji emoji = new Emoji(hex, new Identifier(jsonObject.get("image").getAsString()));
             if (this.emojiMap.put(hex, emoji) == null) {
-                LOGGER.info("Registering emoji: {}:{}", emoji.getId().getNamespace(), emoji.getHex());
+                LOGGER.debug("Registering emoji: {}:{}", emoji.getId().getNamespace(), emoji.getHex());
             }
         }
 

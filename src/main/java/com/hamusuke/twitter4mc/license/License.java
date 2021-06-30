@@ -8,7 +8,7 @@ import net.minecraft.util.Identifier;
 import java.util.List;
 
 @Environment(EnvType.CLIENT)
-public class License implements ILicense {
+public final class License {
     private final Identifier textLocation;
     private final List<String> text;
     private final int width;

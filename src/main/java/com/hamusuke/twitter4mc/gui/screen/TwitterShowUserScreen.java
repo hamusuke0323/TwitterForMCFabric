@@ -2,13 +2,12 @@ package com.hamusuke.twitter4mc.gui.screen;
 
 import com.google.common.collect.Lists;
 import com.hamusuke.twitter4mc.TwitterForMC;
-import com.hamusuke.twitter4mc.gui.screen.impl.IDisplayableMessage;
 import com.hamusuke.twitter4mc.gui.widget.TwitterButton;
 import com.hamusuke.twitter4mc.gui.widget.list.ExtendedTwitterTweetList;
-import com.hamusuke.twitter4mc.tweet.photomedia.ITwitterPhotoMedia;
+import com.hamusuke.twitter4mc.tweet.TwitterPhotoMedia;
 import com.hamusuke.twitter4mc.tweet.TweetSummary;
 import com.hamusuke.twitter4mc.utils.TwitterUtil;
-import com.hamusuke.twitter4mc.tweet.user.UserSummary;
+import com.hamusuke.twitter4mc.tweet.UserSummary;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -32,7 +31,7 @@ import java.util.List;
 
 //TODO
 @Environment(EnvType.CLIENT)
-public class TwitterShowUserScreen extends ParentalScreen implements IDisplayableMessage {
+public class TwitterShowUserScreen extends ParentalScreen implements DisplayableMessage {
 	private final UserSummary user;
 	@Nullable
 	private TwitterShowUserScreen.TweetList list;
@@ -121,11 +120,10 @@ public class TwitterShowUserScreen extends ParentalScreen implements IDisplayabl
 	}
 
 	public boolean mouseClicked(double mouseX, double mouseY, int button) {
-		if (this.list != null && !this.list.isHovering) {
-			if (this.list.hoveringEntry != null && this.list.hoveringEntry.mayClickIcon(mouseX, mouseY)) {
-				this.minecraft.openScreen(new TwitterShowUserScreen(this, this.list.hoveringEntry.tweetSummary.getUser()));
-				return true;
-			}
+		if (this.list != null && this.list.hoveringEntry != null && this.list.hoveringEntry.mayClickIcon(mouseX, mouseY)) {
+			this.minecraft.openScreen(new TwitterShowUserScreen(this, this.list.hoveringEntry.tweetSummary.getUser()));
+			return true;
+		} else if (this.list != null && !this.list.isHovering) {
 			return super.mouseClicked(mouseX, mouseY, button);
 		}
 
@@ -391,9 +389,9 @@ public class TwitterShowUserScreen extends ParentalScreen implements IDisplayabl
 
 			public int renderPhotos(int rowLeft, int rowTop) {
 				if (this.isNotNull()) {
-					List<ITwitterPhotoMedia> p = this.tweetSummary.getPhotoMedias();
+					List<TwitterPhotoMedia> p = this.tweetSummary.getPhotoMedias();
 					if (p.size() == 1) {
-						ITwitterPhotoMedia media = p.get(0);
+						TwitterPhotoMedia media = p.get(0);
 						InputStream data = media.getData();
 						if (data != null) {
 							Dimension d = TwitterUtil.getScaledDimensionMaxRatio(new Dimension(media.getWidth(), media.getHeight()), new Dimension(208, 117));
@@ -402,7 +400,7 @@ public class TwitterShowUserScreen extends ParentalScreen implements IDisplayabl
 						}
 					} else if (p.size() == 2) {
 						for (int i = 0; i < 2; i++) {
-							ITwitterPhotoMedia media = p.get(i);
+							TwitterPhotoMedia media = p.get(i);
 							InputStream data = media.getData();
 							if (data != null) {
 								Dimension d = TwitterUtil.getScaledDimensionMaxRatio(new Dimension(media.getWidth(), media.getHeight()), new Dimension(104, 117));
@@ -412,7 +410,7 @@ public class TwitterShowUserScreen extends ParentalScreen implements IDisplayabl
 						}
 					} else if (p.size() == 3) {
 						for (int i = 0; i < 3; i++) {
-							ITwitterPhotoMedia media = p.get(i);
+							TwitterPhotoMedia media = p.get(i);
 							InputStream data = media.getData();
 							if (data != null) {
 								Dimension d;
@@ -428,7 +426,7 @@ public class TwitterShowUserScreen extends ParentalScreen implements IDisplayabl
 						}
 					} else if (p.size() == 4) {
 						for (int i = 0; i < 4; i++) {
-							ITwitterPhotoMedia media = p.get(i);
+							TwitterPhotoMedia media = p.get(i);
 							InputStream data = media.getData();
 							if (data != null) {
 								Dimension d = TwitterUtil.getScaledDimensionMaxRatio(new Dimension(media.getWidth(), media.getHeight()), new Dimension(104, 58));

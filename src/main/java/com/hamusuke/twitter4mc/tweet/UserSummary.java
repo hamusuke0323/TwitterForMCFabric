@@ -1,8 +1,7 @@
-package com.hamusuke.twitter4mc.tweet.user;
+package com.hamusuke.twitter4mc.tweet;
 
 import com.google.common.collect.Sets;
 import com.hamusuke.twitter4mc.TwitterForMC;
-import com.hamusuke.twitter4mc.tweet.TweetSummary;
 import com.hamusuke.twitter4mc.utils.TweetSummaryCreator;
 import com.hamusuke.twitter4mc.utils.TwitterUtil;
 import net.fabricmc.api.EnvType;
@@ -73,7 +72,7 @@ public class UserSummary {
             }
         }
     }
-    
+
     public boolean isGettingUserTimeline() {
         return this.isGettingUserTimeline.get();
     }

@@ -11,7 +11,7 @@ import java.util.Collection;
 public class TweetSummaryCreator {
     private final TwitterThread twitterThread;
 
-    public TweetSummaryCreator(Collection<Status> statuses, ITweetSummaryPusher pusher, Runnable onFinishCreating) {
+    public TweetSummaryCreator(Collection<Status> statuses, TweetSummaryPusher pusher, Runnable onFinishCreating) {
         this.twitterThread = new TwitterThread(() -> {
             statuses.forEach((status) -> pusher.push(new TweetSummary(status)));
             onFinishCreating.run();
@@ -24,7 +24,7 @@ public class TweetSummaryCreator {
         }
     }
 
-    public interface ITweetSummaryPusher {
+    public interface TweetSummaryPusher {
         void push(TweetSummary tweetSummary);
     }
 }

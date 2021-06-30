@@ -1,4 +1,4 @@
-package com.hamusuke.twitter4mc.tweet.photomedia;
+package com.hamusuke.twitter4mc.tweet;
 
 import com.hamusuke.twitter4mc.utils.TwitterUtil;
 import net.fabricmc.api.EnvType;
@@ -12,7 +12,7 @@ import twitter4j.MediaEntity;
 import java.io.InputStream;
 
 @Environment(EnvType.CLIENT)
-public class TwitterPhotoMedia implements ITwitterPhotoMedia {
+public class TwitterPhotoMedia {
 	private final MediaEntity entity;
 	private final String url;
 	@Nullable

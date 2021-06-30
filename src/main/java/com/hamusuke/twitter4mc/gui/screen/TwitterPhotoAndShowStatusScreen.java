@@ -5,7 +5,7 @@ import java.io.InputStream;
 import java.util.List;
 
 import com.hamusuke.twitter4mc.TwitterForMC;
-import com.hamusuke.twitter4mc.tweet.photomedia.ITwitterPhotoMedia;
+import com.hamusuke.twitter4mc.tweet.TwitterPhotoMedia;
 import com.hamusuke.twitter4mc.tweet.TweetSummary;
 import com.hamusuke.twitter4mc.utils.TwitterUtil;
 import net.fabricmc.api.EnvType;
@@ -37,8 +37,8 @@ public class TwitterPhotoAndShowStatusScreen extends ParentalScreen {
 		RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 		RenderSystem.enableBlend();
 
-		List<ITwitterPhotoMedia> p = this.summary.getPhotoMedias();
-		ITwitterPhotoMedia media = p.get(this.indexOffset);
+		List<TwitterPhotoMedia> p = this.summary.getPhotoMedias();
+		TwitterPhotoMedia media = p.get(this.indexOffset);
 		InputStream data = media.getData();
 		if (data != null) {
 			Dimension d = TwitterUtil.getScaledDimensionMinRatio(new Dimension(media.getWidth(), media.getHeight()), new Dimension(this.width, this.height));

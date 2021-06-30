@@ -30,7 +30,7 @@ import org.jetbrains.annotations.Nullable;
 import twitter4j.*;
 
 @Environment(EnvType.CLIENT)
-public class TwitterUtil {
+public final class TwitterUtil {
 	private static final Logger LOGGER = LogManager.getLogger();
 
 	public static final Identifier PROTECTED = new Identifier(TwitterForMC.MOD_ID, "textures/twitter/icon/protected.png");
