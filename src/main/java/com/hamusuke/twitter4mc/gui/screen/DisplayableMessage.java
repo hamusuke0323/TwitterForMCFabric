@@ -6,4 +6,6 @@ import net.fabricmc.api.Environment;
 @Environment(EnvType.CLIENT)
 public interface DisplayableMessage {
     void accept(String msg);
+
+    void renderMessage();
 }

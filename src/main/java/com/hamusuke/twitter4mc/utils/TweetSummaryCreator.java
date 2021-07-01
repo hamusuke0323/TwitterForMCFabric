@@ -11,9 +11,9 @@ import java.util.Collection;
 public class TweetSummaryCreator {
     private final TwitterThread twitterThread;
 
-    public TweetSummaryCreator(Collection<Status> statuses, TweetSummaryPusher pusher, Runnable onFinishCreating) {
+    public TweetSummaryCreator(Collection<Status> statuses, TweetSummarySender pusher, Runnable onFinishCreating) {
         this.twitterThread = new TwitterThread(() -> {
-            statuses.forEach((status) -> pusher.push(new TweetSummary(status)));
+            statuses.forEach((status) -> pusher.send(new TweetSummary(status)));
             onFinishCreating.run();
         });
     }
@@ -24,7 +24,8 @@ public class TweetSummaryCreator {
         }
     }
 
-    public interface TweetSummaryPusher {
-        void push(TweetSummary tweetSummary);
+    @Environment(EnvType.CLIENT)
+    public interface TweetSummarySender {
+        void send(TweetSummary tweetSummary);
     }
 }

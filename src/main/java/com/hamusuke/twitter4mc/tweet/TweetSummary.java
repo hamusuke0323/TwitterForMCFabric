@@ -73,9 +73,9 @@ public class TweetSummary implements Comparable<TweetSummary> {
 
 	public TweetSummary(Status status) {
 		this.status = status;
-		this.retweetedStatus = this.status.getRetweetedStatus();
+		this.retweetedStatus = status.getRetweetedStatus();
 		this.retweetedSummary = this.retweetedStatus != null ? new TweetSummary(this.retweetedStatus) : null;
-		this.quotedTweet = this.status.getQuotedStatus();
+		this.quotedTweet = status.getQuotedStatus();
 		this.quotedTweetSummary = this.quotedTweet != null ? new TweetSummary(this.quotedTweet) : null;
 		this.user = status.getUser();
 		String url = this.user.get400x400ProfileImageURLHttps();

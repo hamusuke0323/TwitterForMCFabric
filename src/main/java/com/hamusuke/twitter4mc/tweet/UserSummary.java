@@ -1,6 +1,6 @@
 package com.hamusuke.twitter4mc.tweet;
 
-import com.google.common.collect.Sets;
+import com.google.common.collect.*;
 import com.hamusuke.twitter4mc.TwitterForMC;
 import com.hamusuke.twitter4mc.utils.TweetSummaryCreator;
 import com.hamusuke.twitter4mc.utils.TwitterUtil;

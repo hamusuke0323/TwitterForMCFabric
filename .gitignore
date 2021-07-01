@@ -33,3 +33,4 @@ bin/
 
 run/
 logs/
+src/main/java/com/hamusuke/twitter4mc/test/Test.java
