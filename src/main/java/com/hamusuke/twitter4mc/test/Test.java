@@ -16,10 +16,7 @@ final class Test {
 	private static final Logger LOGGER = LogManager.getLogger();
 
 	public static void main(String[] args) throws TwitterException {
-		Twitter twitter = new TwitterFactory().getInstance();
-		twitter.setOAuthConsumer("iY5qrvBhsi2u9yaumAtQOV3fu", "WXd4IGKlluqMZVlJpgdCdE4yqIAJ36sU0u3j1X5heeZctvWzXC");
-		twitter.setOAuthAccessToken(new AccessToken("981811509859794945-ybhzDzSZq1oX1xq9WXFMSB8P95Yb7rh", "2f12ykTYsh0441BfPcGdUkBxF25AcEq7PBYg69rdGdk3I"));
-		System.out.println(TwitterUtil.getConversation(twitter, 1409041128154796037L).toString(4));
+
 	}
 
 	private static String emojiToHex(String emoji) {

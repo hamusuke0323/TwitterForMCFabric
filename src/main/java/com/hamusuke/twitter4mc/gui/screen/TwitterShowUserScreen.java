@@ -22,8 +22,6 @@ public class TwitterShowUserScreen extends AbstractTwitterScreen implements Disp
 	@Nullable
 	private final Screen parent;
 	private final UserSummary user;
-	@Nullable
-	private TwitterShowUserScreen.TweetList list;
 
 	public TwitterShowUserScreen(@Nullable Screen parent, User user) {
 		super(new LiteralText(user.getName()).formatted(Formatting.BOLD));
@@ -40,6 +38,10 @@ public class TwitterShowUserScreen extends AbstractTwitterScreen implements Disp
 	}
 
 	protected void init() {
+		if(this.parent != null) {
+			this.parent.init(this.minecraft, this.width, this.height);
+		}
+
 		if (!this.user.isGettingUserTimeline()) {
 			if (!this.user.isAlreadyGotUserTimeline()) {
 				this.user.startGettingUserTimeline(() -> {
@@ -92,6 +94,10 @@ public class TwitterShowUserScreen extends AbstractTwitterScreen implements Disp
 			RenderSystem.disableAlphaTest();
 			RenderSystem.popMatrix();
 		}
+	}
+
+	public void onClose() {
+		this.minecraft.openScreen(this.parent);
 	}
 
 	@Environment(EnvType.CLIENT)
@@ -148,6 +154,10 @@ public class TwitterShowUserScreen extends AbstractTwitterScreen implements Disp
 				for (int index = 0; index < this.desc.size(); index++) {
 					TwitterShowUserScreen.this.font.drawWithShadow(this.desc.get(index), rowLeft + 10, k + 27 + index * TwitterShowUserScreen.this.minecraft.textRenderer.fontHeight, 16777215);
 				}
+			}
+
+			protected boolean mayClickIcon(double x, double y) {
+				return false;
 			}
 		}
 
@@ -213,6 +223,22 @@ public class TwitterShowUserScreen extends AbstractTwitterScreen implements Disp
 				if (this.isNotNull()) {
 					this.rep.y = this.ret.y = this.fav.y = this.sha.y = this.fourBtnHeightOffset + this.y;
 				}
+			}
+
+			public boolean equals(Object obj) {
+				if (this.isNotNull()) {
+					return super.equals(obj);
+				}
+
+				return false;
+			}
+
+			public int hashCode() {
+				if (this.isNotNull()) {
+					return super.hashCode();
+				}
+
+				return 0;
 			}
 
 			private boolean isNotNull() {
