@@ -57,14 +57,20 @@ public final class TwitterUtil {
 		return new JSONObject();
 	}
 
-	public static JSONObject getConversation(Twitter twitter, long conversationId) throws TwitterException {
-		HttpResponse httpResponse = HttpClientFactory.getInstance().get("https://api.twitter.com/2/tweets/search/recent", new HttpParameter[]{new HttpParameter("query", "conversation_id:" + conversationId), new HttpParameter("tweet.fields", "public_metrics,author_id,conversation_id,created_at,in_reply_to_user_id,referenced_tweets"), new HttpParameter("user.fields", "name,username")}, twitter.getAuthorization(), null);
+	@Nullable
+	public static ReplyObject getReplies(Twitter twitter, long tweetId) throws TwitterException {
+		return getReplies(twitter, tweetId, 10);
+	}
 
-		if(httpResponse != null) {
-			return httpResponse.asJSONObject();
+	@Nullable
+	public static ReplyObject getReplies(Twitter twitter, long tweetId, int maxResult) throws TwitterException {
+		HttpResponse httpResponse = HttpClientFactory.getInstance().get("https://api.twitter.com/2/tweets/search/recent", new HttpParameter[]{new HttpParameter("query", "conversation_id:" + tweetId), new HttpParameter("tweet.fields", "public_metrics,author_id,conversation_id,in_reply_to_user_id,referenced_tweets"), new HttpParameter("max_results", maxResult)}, twitter.getAuthorization(), null);
+
+		if (httpResponse != null) {
+			return new ReplyObject(httpResponse.asJSONObject());
 		}
 
-		return new JSONObject();
+		return null;
 	}
 
 	public static int renderRetweetedUser(MinecraftClient minecraft, @Nullable TweetSummary retweetedSummary, int iconX, int x, int y, int width) {

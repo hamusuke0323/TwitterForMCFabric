@@ -1,6 +1,8 @@
 package com.hamusuke.twitter4mc.test;
 
 import com.hamusuke.twitter4mc.emoji.Fitzpatrick;
+import com.hamusuke.twitter4mc.tweet.ReplyTweet;
+import com.hamusuke.twitter4mc.utils.ReplyObject;
 import com.hamusuke.twitter4mc.utils.TwitterUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -16,7 +18,19 @@ final class Test {
 	private static final Logger LOGGER = LogManager.getLogger();
 
 	public static void main(String[] args) throws TwitterException {
+		//oAuth2Authorization.setOAuth2Token(new OAuth2Token("", "AAAAAAAAAAAAAAAAAAAAAJu5IwEAAAAA%2FDD36S0uJpUQkw%2B3rlQ0%2BAJ%2BLC8%3DSUuGmOIv9hT37yvpAwSro8AEteeAyww4HSleFGG8yaXSNXUzV5"));
+		Twitter twitter = new TwitterFactory().getInstance();
+		twitter.setOAuthConsumer("lMaVpz8i1WP9A7xlt5BTzqWDr", "awYsyhxVXwoEQZpj7s8E40Z1kUrfQCl4KfiyqWEdpCnO7OBorK");
+		twitter.setOAuthAccessToken(new AccessToken("981811509859794945-lhU6eHQdQ0fZgbNsOCe7wjO9ZyUfeVl", "Kypuf0Rp5jwWG5jBchMZZEmtCUSIvsuntdfVPwURHxJ5f"));
 
+		ReplyObject replyObject = TwitterUtil.getReplies(twitter, 1410498680340172802L);
+		if (replyObject != null) {
+			LOGGER.info("result count: {}", replyObject.getResultCount());
+
+			for (ReplyTweet replyTweet : replyObject.getReplyTweets()) {
+				LOGGER.info("text: {}", replyTweet.getText());
+			}
+		}
 	}
 
 	private static String emojiToHex(String emoji) {
