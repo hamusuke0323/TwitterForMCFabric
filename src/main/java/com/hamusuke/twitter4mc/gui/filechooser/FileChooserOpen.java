@@ -19,7 +19,7 @@ public class FileChooserOpen extends AbstractFileChooser {
         Platform.runLater(() -> {
             this.stage = new Stage();
             this.onChose.accept(new FileChooser().showOpenDialog(this.stage));
-            this.choosing = false;
+            this.choosing.set(false);
         });
     }
 }

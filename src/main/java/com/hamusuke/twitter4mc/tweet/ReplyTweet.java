@@ -1,8 +1,13 @@
 package com.hamusuke.twitter4mc.tweet;
 
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import twitter4j.JSONArray;
 import twitter4j.JSONObject;
 
+import java.util.Objects;
+
+@Environment(EnvType.CLIENT)
 public class ReplyTweet {
     private final long conversationId;
     private final long tweetId;
@@ -63,5 +68,22 @@ public class ReplyTweet {
 
     public String getText() {
         return this.text;
+    }
+
+    public boolean equals(Object obj) {
+        if (this == obj) {
+            return true;
+        }
+
+        if (obj == null || getClass() != obj.getClass()) {
+            return false;
+        }
+
+        ReplyTweet that = (ReplyTweet) obj;
+        return this.tweetId == that.tweetId;
+    }
+
+    public int hashCode() {
+        return Objects.hash(this.tweetId);
     }
 }

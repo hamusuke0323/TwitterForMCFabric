@@ -7,7 +7,7 @@ import net.minecraft.client.util.NarratorManager;
 
 //TODO
 @Environment(EnvType.CLIENT)
-public class TwitterShowStatusScreen extends ParentalScreen {
+public class TwitterShowStatusScreen extends AbstractTwitterScreen {
 	private final TweetSummary summary;
 
 	public TwitterShowStatusScreen(TwitterScreen ts, TweetSummary summary) {

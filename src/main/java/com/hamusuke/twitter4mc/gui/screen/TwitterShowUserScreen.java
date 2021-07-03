@@ -2,7 +2,6 @@ package com.hamusuke.twitter4mc.gui.screen;
 
 import com.hamusuke.twitter4mc.TwitterForMC;
 import com.hamusuke.twitter4mc.tweet.TweetSummary;
-import com.hamusuke.twitter4mc.utils.TwitterUtil;
 import com.hamusuke.twitter4mc.tweet.UserSummary;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
@@ -19,13 +18,10 @@ import java.util.List;
 
 @Environment(EnvType.CLIENT)
 public class TwitterShowUserScreen extends AbstractTwitterScreen implements DisplayableMessage {
-	@Nullable
-	private final Screen parent;
 	private final UserSummary user;
 
 	public TwitterShowUserScreen(@Nullable Screen parent, User user) {
-		super(new LiteralText(user.getName()).formatted(Formatting.BOLD));
-		this.parent = parent;
+		super(new LiteralText(user.getName()).formatted(Formatting.BOLD), parent);
 		this.user = new UserSummary(user);
 	}
 
@@ -38,10 +34,6 @@ public class TwitterShowUserScreen extends AbstractTwitterScreen implements Disp
 	}
 
 	protected void init() {
-		if(this.parent != null) {
-			this.parent.init(this.minecraft, this.width, this.height);
-		}
-
 		if (!this.user.isGettingUserTimeline()) {
 			if (!this.user.isAlreadyGotUserTimeline()) {
 				this.user.startGettingUserTimeline(() -> {
@@ -96,10 +88,6 @@ public class TwitterShowUserScreen extends AbstractTwitterScreen implements Disp
 		}
 	}
 
-	public void onClose() {
-		this.minecraft.openScreen(this.parent);
-	}
-
 	@Environment(EnvType.CLIENT)
 	private class TweetList extends AbstractTwitterScreen.TweetList {
 		private TweetList(MinecraftClient mcIn, UserSummary userSummary) {
@@ -143,10 +131,10 @@ public class TwitterShowUserScreen extends AbstractTwitterScreen implements Disp
 				int k = rowTop + (i - i / 3) + j;
 				int x = TwitterShowUserScreen.this.font.drawWithShadow(new LiteralText(this.summary.getName()).formatted(Formatting.BOLD).asFormattedString(), rowLeft + 10, k, 16777215);
 				if (this.summary.isProtected()) {
-					x += TwitterUtil.renderProtected(TwitterShowUserScreen.this.minecraft, x, k);
+					x += TwitterShowUserScreen.this.renderProtected(x, k);
 				}
 				if (this.summary.isVerified()) {
-					TwitterUtil.renderVerified(TwitterShowUserScreen.this.minecraft, x, k);
+					TwitterShowUserScreen.this.renderVerified(x, k);
 				}
 
 				TwitterShowUserScreen.this.font.drawWithShadow(new LiteralText(this.summary.getScreenName()).formatted(Formatting.GRAY).asFormattedString(), rowLeft + 10, k + 9, 0);

@@ -5,21 +5,22 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
 import java.io.File;
+import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.function.Consumer;
 
 @Environment(EnvType.CLIENT)
 public abstract class AbstractFileChooser {
     protected final Consumer<File> onChose;
-    protected boolean choosing;
+    protected final AtomicBoolean choosing = new AtomicBoolean();
     protected Stage stage;
 
-    public AbstractFileChooser(Consumer<File> onChose) {
+    protected AbstractFileChooser(Consumer<File> onChose) {
         this.onChose = onChose;
     }
 
     public void choose() {
-        if (!this.choosing) {
-            this.choosing = true;
+        if (!this.choosing.get()) {
+            this.choosing.set(true);
             this.onChoose();
         } else {
             //Doesn't work

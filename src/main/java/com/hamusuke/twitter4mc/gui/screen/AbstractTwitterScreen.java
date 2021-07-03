@@ -25,6 +25,7 @@ import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
+import net.minecraft.util.Identifier;
 import org.jetbrains.annotations.Nullable;
 import twitter4j.TwitterException;
 import twitter4j.User;
@@ -34,7 +35,17 @@ import java.io.InputStream;
 import java.util.List;
 
 @Environment(EnvType.CLIENT)
-public abstract class AbstractTwitterScreen extends Screen implements DisplayableMessage {
+public abstract class AbstractTwitterScreen extends ParentalScreen implements DisplayableMessage {
+    protected static final Identifier PROTECTED = new Identifier(TwitterForMC.MOD_ID, "textures/twitter/icon/protected.png");
+    protected static final Identifier VERIFIED = new Identifier(TwitterForMC.MOD_ID, "textures/twitter/icon/verified.png");
+    protected static final Identifier REPLY = new Identifier(TwitterForMC.MOD_ID, "textures/twitter/icon/reply.png");
+    protected static final Identifier RETWEET = new Identifier(TwitterForMC.MOD_ID, "textures/twitter/icon/retweet.png");
+    protected static final Identifier RETWEETED = new Identifier(TwitterForMC.MOD_ID, "textures/twitter/icon/retweeted.png");
+    protected static final Identifier RETWEET_USER = new Identifier(TwitterForMC.MOD_ID, "textures/twitter/icon/retweetuser.png");
+    protected static final Identifier FAVORITE = new Identifier(TwitterForMC.MOD_ID, "textures/twitter/icon/favorite.png");
+    protected static final Identifier FAVORITED = new Identifier(TwitterForMC.MOD_ID, "textures/twitter/icon/favorited.png");
+    protected static final Identifier SHARE = new Identifier(TwitterForMC.MOD_ID, "textures/twitter/icon/share.png");
+
     @Nullable
     protected AbstractTwitterScreen.TweetList list;
     @Nullable
@@ -42,8 +53,8 @@ public abstract class AbstractTwitterScreen extends Screen implements Displayabl
     protected int fade;
     protected boolean isFade;
 
-    protected AbstractTwitterScreen(Text title) {
-        super(title);
+    protected AbstractTwitterScreen(Text title, @Nullable Screen parent) {
+        super(title, parent);
     }
 
     public void tick() {
@@ -179,16 +190,96 @@ public abstract class AbstractTwitterScreen extends Screen implements Displayabl
         vertexConsumerProvider$immediate.draw();
 
         if (p) {
-            n += TwitterUtil.renderProtected(this.minecraft, n, yyy + 2);
+            n += this.renderProtected(n, yyy + 2);
         }
         if (v) {
-            TwitterUtil.renderVerified(this.minecraft, n, yyy + 2);
+            this.renderVerified(n, yyy + 2);
         }
 
         RenderSystem.enableDepthTest();
         RenderSystem.enableRescaleNormal();
 
         return x - 4 < mouseX && x + i + 4 > mouseX && yy - 4 < mouseY && yy + k + 4 > mouseY;
+    }
+
+    public int renderRetweetedUser(@Nullable TweetSummary retweetedSummary, int iconX, int x, int y, int width) {
+        if (retweetedSummary != null) {
+            this.minecraft.getTextureManager().bindTexture(RETWEET_USER);
+            RenderSystem.pushMatrix();
+            RenderSystem.translatef(iconX, y, 0.0F);
+            RenderSystem.scalef(0.625F, 0.625F, 0.625F);
+            DrawableHelper.blit(0, 0, 0.0F, 0.0F, 16, 16, 16, 16);
+            RenderSystem.popMatrix();
+            List<String> names = this.wrapUserNameToWidth(retweetedSummary, width);
+            for (int i = 0; i < names.size(); i++) {
+                this.minecraft.textRenderer.drawWithShadow(names.get(i), x, y + i * this.minecraft.textRenderer.fontHeight, 11184810);
+            }
+            return y + names.size() * this.minecraft.textRenderer.fontHeight;
+        }
+
+        return y;
+    }
+
+    public List<String> wrapUserNameToWidth(TweetSummary summary, int width) {
+        return this.minecraft.textRenderer.wrapStringToWidthAsList(I18n.translate("tw.retweeted.user", summary.getUser().getName()), width);
+    }
+
+    public void renderUserName(TweetSummary summary, int x, int y, int width) {
+        boolean p = summary.getUser().isProtected();
+        boolean v = summary.getUser().isVerified();
+
+        String threeBold = new LiteralText("...").formatted(Formatting.BOLD).asFormattedString();
+        int threeBoldWidth = this.minecraft.textRenderer.getStringWidth(threeBold);
+        String three = new LiteralText("...").formatted(Formatting.GRAY).asFormattedString();
+        int threeWidth = this.minecraft.textRenderer.getStringWidth(three);
+        String time = new LiteralText("・" + summary.getDifferenceTime()).formatted(Formatting.GRAY).asFormattedString();
+        int timeWidth = this.minecraft.textRenderer.getStringWidth(time);
+        String screenName = new LiteralText(summary.getScreenName()).formatted(Formatting.GRAY).asFormattedString();
+        String name = new LiteralText(summary.getUser().getName()).formatted(Formatting.BOLD).asFormattedString();
+
+        int pvw = (p ? 10 : 0) + (v ? 10 : 0);
+        List<String> nameFormatted = this.minecraft.textRenderer.wrapStringToWidthAsList(name, width - pvw - timeWidth);
+        boolean isOver = nameFormatted.size() > 1;
+        List<String> nameFormatted2 = isOver ? this.minecraft.textRenderer.wrapStringToWidthAsList(name, width - pvw - timeWidth - threeBoldWidth) : nameFormatted;
+
+        String formattedName = nameFormatted2.size() == 1 ? nameFormatted2.get(0) : nameFormatted2.get(0) + threeBold;
+        int formattedNameWidth = this.minecraft.textRenderer.getStringWidth(formattedName);
+        this.minecraft.textRenderer.drawWithShadow(formattedName, x, y, 16777215);
+        x += formattedNameWidth;
+        if (p) {
+            x += this.renderProtected(x, y);
+        }
+        if (v) {
+            x += this.renderVerified(x, y);
+        }
+
+        List<String> screenNameFormatted = this.minecraft.textRenderer.wrapStringToWidthAsList(screenName, width - formattedNameWidth - pvw - timeWidth - threeWidth);
+        if (!isOver) {
+            String s = screenNameFormatted.size() == 1 ? screenNameFormatted.get(0) : screenNameFormatted.get(0) + three;
+            this.minecraft.textRenderer.drawWithShadow(s, x, y, 11184810);
+            x += this.minecraft.textRenderer.getStringWidth(s);
+        }
+        this.minecraft.textRenderer.drawWithShadow(time, x, y, 11184810);
+    }
+
+    public int renderProtected(int x, int y) {
+        this.minecraft.getTextureManager().bindTexture(PROTECTED);
+        RenderSystem.pushMatrix();
+        RenderSystem.translatef(x, y, 0.0F);
+        RenderSystem.scalef(0.625F, 0.625F, 0.625F);
+        DrawableHelper.blit(0, 0, 0.0F, 0.0F, 16, 16, 16, 16);
+        RenderSystem.popMatrix();
+        return 10;
+    }
+
+    public int renderVerified(int x, int y) {
+        this.minecraft.getTextureManager().bindTexture(VERIFIED);
+        RenderSystem.pushMatrix();
+        RenderSystem.translatef(x, y, 0.0F);
+        RenderSystem.scalef(0.625F, 0.625F, 0.625F);
+        DrawableHelper.blit(0, 0, 0, 0, 16, 16, 16, 16);
+        RenderSystem.popMatrix();
+        return 10;
     }
 
     @Nullable
@@ -274,7 +365,7 @@ public abstract class AbstractTwitterScreen extends Screen implements Displayabl
                     this.quotedTweetStrings = this.quoteSourceSummary != null ? AbstractTwitterScreen.this.font.wrapStringToWidthAsList(this.quoteSourceSummary.getText(), AbstractTwitterScreen.TweetList.this.getRowWidth() - 40) : Lists.newArrayList();
                     this.height = ((this.strings.size() - 1) * AbstractTwitterScreen.this.minecraft.textRenderer.fontHeight) + 10 + 30;
                     this.height += this.summary.isIncludeImages() || this.summary.isIncludeVideo() ? 120 : 0;
-                    this.retweetedUserNameHeight = flag ? TwitterUtil.wrapUserNameToWidth(AbstractTwitterScreen.this.minecraft, this.retweetedSummary, AbstractTwitterScreen.TweetList.this.getRowWidth() - 24).size() * AbstractTwitterScreen.this.minecraft.textRenderer.fontHeight : 0;
+                    this.retweetedUserNameHeight = flag ? AbstractTwitterScreen.this.wrapUserNameToWidth(this.retweetedSummary, AbstractTwitterScreen.TweetList.this.getRowWidth() - 24).size() * AbstractTwitterScreen.this.minecraft.textRenderer.fontHeight : 0;
                     this.height += this.retweetedUserNameHeight;
                     this.height += this.quoteSourceSummary != null ? 20 + this.quotedTweetStrings.size() * AbstractTwitterScreen.this.minecraft.textRenderer.fontHeight : 0;
                     this.fourBtnHeightOffset = this.height - 14;
@@ -297,26 +388,26 @@ public abstract class AbstractTwitterScreen extends Screen implements Displayabl
             public void init() {
                 int i = AbstractTwitterScreen.TweetList.this.getRowLeft() + 24;
 
-                this.rep = this.addButton(new TwitterButton(i, this.fourBtnHeightOffset, 10, 10, 0, 0, 16, TwitterUtil.REP, 16, 32, 16, 16, (p) -> {
+                this.rep = this.addButton(new TwitterButton(i, this.fourBtnHeightOffset, 10, 10, 0, 0, 16, REPLY, 16, 32, 16, 16, (p) -> {
 
                 }));
 
-                this.ret = this.addButton(new TwitterButton(i + 60, this.fourBtnHeightOffset, 10, 10, 0, 0, 16, TwitterUtil.RET, 16, 32, 16, 16, (p) -> {
+                this.ret = this.addButton(new TwitterButton(i + 60, this.fourBtnHeightOffset, 10, 10, 0, 0, 16, RETWEET, 16, 32, 16, 16, (p) -> {
 
                 }));
 
-                this.fav = this.addButton(new TwitterButton(i + 60 + 60, this.fourBtnHeightOffset, 10, 10, 0, 0, this.summary.isFavorited() ? 0 : 16, this.summary.isFavorited() ? TwitterUtil.FAVED : TwitterUtil.FAV, 16, this.summary.isFavorited() ? 16 : 32, 16, 16, (b) -> {
+                this.fav = this.addButton(new TwitterButton(i + 60 + 60, this.fourBtnHeightOffset, 10, 10, 0, 0, this.summary.isFavorited() ? 0 : 16, this.summary.isFavorited() ? FAVORITED : FAVORITE, 16, this.summary.isFavorited() ? 16 : 32, 16, 16, (b) -> {
                     try {
                         if (this.summary.isFavorited()) {
                             TwitterForMC.mctwitter.destroyFavorite(this.summary.getId());
                             this.summary.favorite(false);
-                            this.fav.setImage(TwitterUtil.FAV);
+                            this.fav.setImage(FAVORITE);
                             this.fav.setWhenHovered(16);
                             this.fav.setSize(16, 32);
                         } else {
                             TwitterForMC.mctwitter.createFavorite(this.summary.getId());
                             this.summary.favorite(true);
-                            this.fav.setImage(TwitterUtil.FAVED);
+                            this.fav.setImage(FAVORITED);
                             this.fav.setWhenHovered(0);
                             this.fav.setSize(16, 16);
                         }
@@ -325,7 +416,7 @@ public abstract class AbstractTwitterScreen extends Screen implements Displayabl
                     }
                 }));
 
-                this.sha = this.addButton(new TwitterButton(i + 60 + 60 + 60, this.fourBtnHeightOffset, 10, 10, 0, 0, 16, TwitterUtil.SHA, 16, 32, 16, 16, (p) -> {
+                this.sha = this.addButton(new TwitterButton(i + 60 + 60 + 60, this.fourBtnHeightOffset, 10, 10, 0, 0, 16, SHARE, 16, 32, 16, 16, (p) -> {
 
                 }));
             }
@@ -336,7 +427,7 @@ public abstract class AbstractTwitterScreen extends Screen implements Displayabl
                 RenderSystem.enableBlend();
 
                 int nowY = rowTop;
-                nowY = TwitterUtil.renderRetweetedUser(AbstractTwitterScreen.this.minecraft, this.retweetedSummary, rowLeft + 6, rowLeft + 24, nowY, rowWidth - 24);
+                nowY = AbstractTwitterScreen.this.renderRetweetedUser(this.retweetedSummary, rowLeft + 6, rowLeft + 24, nowY, rowWidth - 24);
 
                 if (icon != null) {
                     TwitterForMC.getTextureManager().bindTexture(icon);
@@ -345,7 +436,7 @@ public abstract class AbstractTwitterScreen extends Screen implements Displayabl
 
                 RenderSystem.disableBlend();
 
-                TwitterUtil.renderUserName(AbstractTwitterScreen.this.minecraft, this.summary, rowLeft + 24, nowY, rowWidth - 24);
+                AbstractTwitterScreen.this.renderUserName(this.summary, rowLeft + 24, nowY, rowWidth - 24);
 
                 for (int i = 0; i < this.strings.size(); i++) {
                     AbstractTwitterScreen.this.font.drawWithShadow(this.strings.get(i), (float) (rowLeft + 24), (float) (nowY + 10 + i * AbstractTwitterScreen.this.minecraft.textRenderer.fontHeight), 16777215);
@@ -369,7 +460,7 @@ public abstract class AbstractTwitterScreen extends Screen implements Displayabl
                         TwitterForMC.getTextureManager().bindTexture(qsIco);
                         blit(rowLeft + 24 + 5, nowY, 0.0F, 0.0F, 10, 10, 10, 10);
                     }
-                    TwitterUtil.renderUserName(AbstractTwitterScreen.this.minecraft, this.quoteSourceSummary, rowLeft + 24 + 5 + 10 + 4, nowY, AbstractTwitterScreen.TweetList.this.getRowWidth() - 24 - 5 - 10 - 4 - 10);
+                    AbstractTwitterScreen.this.renderUserName(this.quoteSourceSummary, rowLeft + 24 + 5 + 10 + 4, nowY, AbstractTwitterScreen.TweetList.this.getRowWidth() - 24 - 5 - 10 - 4 - 10);
                     for (int i = 0; i < this.quotedTweetStrings.size(); i++) {
                         AbstractTwitterScreen.this.font.drawWithShadow(this.quotedTweetStrings.get(i), rowLeft + 24 + 5, nowY + 10 + i * AbstractTwitterScreen.this.minecraft.textRenderer.fontHeight, 16777215);
                     }
@@ -391,7 +482,7 @@ public abstract class AbstractTwitterScreen extends Screen implements Displayabl
                 if (p.size() == 1) {
                     TwitterPhotoMedia media = p.get(0);
                     InputStream data = media.getData();
-                    if (data != null) {
+                    if (data != null && media.canRendering()) {
                         Dimension d = TwitterUtil.getScaledDimensionMaxRatio(new Dimension(media.getWidth(), media.getHeight()), new Dimension(208, 117));
                         TwitterForMC.getTextureManager().bindTexture(data);
                         DrawableHelper.blit(rowLeft + 24, rowTop, 0.0F, 0.0F, 208, 117, d.width, d.height);
@@ -400,7 +491,7 @@ public abstract class AbstractTwitterScreen extends Screen implements Displayabl
                     for (int i = 0; i < 2; i++) {
                         TwitterPhotoMedia media = p.get(i);
                         InputStream data = media.getData();
-                        if (data != null) {
+                        if (data != null && media.canRendering()) {
                             Dimension d = TwitterUtil.getScaledDimensionMaxRatio(new Dimension(media.getWidth(), media.getHeight()), new Dimension(104, 117));
                             TwitterForMC.getTextureManager().bindTexture(data);
                             DrawableHelper.blit(rowLeft + 24 + i * 105, rowTop, 0.0F, 0.0F, 104, 117, d.width, d.height);
@@ -410,7 +501,7 @@ public abstract class AbstractTwitterScreen extends Screen implements Displayabl
                     for (int i = 0; i < 3; i++) {
                         TwitterPhotoMedia media = p.get(i);
                         InputStream data = media.getData();
-                        if (data != null) {
+                        if (data != null && media.canRendering()) {
                             Dimension d;
                             TwitterForMC.getTextureManager().bindTexture(data);
                             if (i == 0) {
@@ -426,7 +517,7 @@ public abstract class AbstractTwitterScreen extends Screen implements Displayabl
                     for (int i = 0; i < 4; i++) {
                         TwitterPhotoMedia media = p.get(i);
                         InputStream data = media.getData();
-                        if (data != null) {
+                        if (data != null && media.canRendering()) {
                             Dimension d = TwitterUtil.getScaledDimensionMaxRatio(new Dimension(media.getWidth(), media.getHeight()), new Dimension(104, 58));
                             TwitterForMC.getTextureManager().bindTexture(data);
                             if (i % 2 == 0) {

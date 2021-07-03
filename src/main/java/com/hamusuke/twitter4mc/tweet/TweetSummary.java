@@ -88,7 +88,7 @@ public class TweetSummary implements Comparable<TweetSummary> {
 		this.createdAtC = Calendar.getInstance(Locale.ROOT);
 		this.createdAtC.setTime(this.createdAt);
 		this.favoriteCount = status.getFavoriteCount();
-		this.favoriteCountF = TwitterUtil.chunkedNumber(this.favoriteCount);
+		this.favoriteCountF = TwitterUtil.getChunkedNumber(this.favoriteCount);
 		this.hashtags = status.getHashtagEntities();
 		this.hashtagList = Arrays.asList(this.hashtags);
 		this.ID = status.getId();
@@ -108,7 +108,7 @@ public class TweetSummary implements Comparable<TweetSummary> {
 
 		this.place = status.getPlace();
 		this.retweetCount = status.getRetweetCount();
-		this.retweetCountF = TwitterUtil.chunkedNumber(this.retweetCount);
+		this.retweetCountF = TwitterUtil.getChunkedNumber(this.retweetCount);
 		this.tweet = status.getText();
 		this.urls = status.getURLEntities();
 		this.urlList = Arrays.asList(this.urls);
@@ -164,7 +164,7 @@ public class TweetSummary implements Comparable<TweetSummary> {
 	}
 
 	public String getDifferenceTime() {
-		return TwitterUtil.getDTime(this.createdAtC, Calendar.getInstance());
+		return TwitterUtil.getDifferenceTime(this.createdAtC, Calendar.getInstance());
 	}
 
 	public String getTime() {

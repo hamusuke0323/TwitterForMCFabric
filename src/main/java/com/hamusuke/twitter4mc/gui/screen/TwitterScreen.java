@@ -34,7 +34,7 @@ public class TwitterScreen extends AbstractTwitterScreen implements DisplayableM
 	private final AtomicBoolean refreshingTL = new AtomicBoolean();
 
 	public TwitterScreen() {
-		super(NarratorManager.EMPTY);
+		super(NarratorManager.EMPTY, null);
 
 		if (TwitterForMC.twitterScreen != null) {
 			throw new IllegalStateException("TwitterScreen can be created only one");

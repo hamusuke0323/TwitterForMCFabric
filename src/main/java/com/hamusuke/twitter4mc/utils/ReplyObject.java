@@ -3,12 +3,16 @@ package com.hamusuke.twitter4mc.utils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.hamusuke.twitter4mc.tweet.ReplyTweet;
+import net.fabricmc.api.EnvType;
+import net.fabricmc.api.Environment;
 import twitter4j.JSONArray;
 import twitter4j.JSONObject;
 
 import java.util.List;
 
+@Environment(EnvType.CLIENT)
 public class ReplyObject {
+    private final JSONObject jsonObject;
     private final long newestTweetId;
     private final long oldestTweetId;
     private final int resultCount;
@@ -16,6 +20,7 @@ public class ReplyObject {
     private final List<ReplyTweet> replyTweets = Lists.newArrayList();
 
     public ReplyObject(JSONObject jsonObject) {
+        this.jsonObject = jsonObject;
         JSONObject meta = jsonObject.optJSONObject("meta");
         this.newestTweetId = meta != null ? meta.optLong("newest_id", -1L) : -1L;
         this.oldestTweetId = meta != null ? meta.optLong("oldest_id", -1L) : -1L;
@@ -31,6 +36,10 @@ public class ReplyObject {
                 }
             }
         }
+    }
+
+    public JSONObject getJsonObject() {
+        return this.jsonObject;
     }
 
     public long getNewestTweetId() {
@@ -51,5 +60,9 @@ public class ReplyObject {
 
     public List<ReplyTweet> getReplyTweets() {
         return ImmutableList.copyOf(this.replyTweets);
+    }
+
+    public void removeOtherReplies(long tweetId) {
+        this.replyTweets.removeIf((replyTweet) -> replyTweet.getRepliedToTweetId() != tweetId);
     }
 }
