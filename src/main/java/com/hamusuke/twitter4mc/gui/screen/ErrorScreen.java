@@ -6,7 +6,6 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.List;
@@ -23,9 +22,7 @@ public class ErrorScreen extends ParentalScreen {
     protected void init() {
         super.init();
         int i = this.width / 2;
-        this.addButton(new ButtonWidget(i / 2, this.height - 20, i, 20, I18n.translate("gui.back"), (b) -> {
-            this.onClose();
-        }));
+        this.addButton(new ButtonWidget(i / 2, this.height - 20, i, 20, I18n.translate("gui.back"), (b) -> this.onClose()));
     }
 
     public void render(int mouseX, int mouseY, float delta) {
@@ -36,10 +33,10 @@ public class ErrorScreen extends ParentalScreen {
             this.renderBackground();
         }
         super.render(mouseX, mouseY, delta);
-        this.drawCenteredString(this.font, this.title.asFormattedString(), this.width / 2, 20, Formatting.WHITE.getColorValue());
+        this.drawCenteredString(this.font, this.title.asFormattedString(), this.width / 2, 20, 16777215);
         List<String> list = this.font.wrapStringToWidthAsList(this.errorMsg, this.width / 2);
         for (int i = 0; i < list.size(); i++) {
-            this.font.drawWithShadow(list.get(i), (float) this.width / 4, 50 + i * this.minecraft.textRenderer.fontHeight, Formatting.WHITE.getColorValue());
+            this.font.drawWithShadow(list.get(i), (float) this.width / 4, 50 + i * this.font.fontHeight, 16777215);
         }
     }
 }

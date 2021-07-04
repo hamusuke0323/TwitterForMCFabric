@@ -1,9 +1,11 @@
 package com.hamusuke.twitter4mc.utils;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.resource.language.I18n;
+import net.minecraft.stat.Stat;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
@@ -36,6 +38,27 @@ public final class TwitterUtil {
 		return new JSONObject();
 	}
 
+	public static int getArgb(int alpha, int red, int green, int blue) {
+		return alpha << 24 | red << 16 | green << 8 | blue;
+	}
+
+	public static ImmutableList<Status> getHomeTimeline(Twitter twitter, int count) throws TwitterException {
+		HttpResponse httpResponse = HttpClientFactory.getInstance().get("https://api.twitter.com/1.1/statuses/home_timeline.json", new HttpParameter[]{new HttpParameter("count", count)}, twitter.getAuthorization(), null);
+		List<Status> statuses = Lists.newArrayList();
+		if (httpResponse != null) {
+			try {
+				JSONArray jsonArray = httpResponse.asJSONArray();
+				for (int i = 0; i < jsonArray.length(); i++) {
+					statuses.add(TwitterObjectFactory.createStatus(jsonArray.getJSONObject(i).toString()));
+				}
+			} catch (Exception e) {
+				throw new TwitterException(e);
+			}
+		}
+
+		return ImmutableList.copyOf(statuses);
+	}
+
 	@Nullable
 	public static ReplyObject getReplies(Twitter twitter, long tweetId) throws TwitterException {
 		return getReplies(twitter, tweetId, 10);
@@ -43,7 +66,7 @@ public final class TwitterUtil {
 
 	@Nullable
 	public static ReplyObject getReplies(Twitter twitter, long tweetId, int maxResult) throws TwitterException {
-		HttpResponse httpResponse = HttpClientFactory.getInstance().get("https://api.twitter.com/2/tweets/search/recent", new HttpParameter[]{new HttpParameter("query", "conversation_id:" + tweetId), new HttpParameter("tweet.fields", "public_metrics,author_id,conversation_id,in_reply_to_user_id,referenced_tweets"), new HttpParameter("max_results", maxResult)}, twitter.getAuthorization(), null);
+		HttpResponse httpResponse = HttpClientFactory.getInstance().get("https://api.twitter.com/2/tweets/search/recent", new HttpParameter[]{new HttpParameter("expansions", "attachments.poll_ids,attachments.media_keys,author_id,entities.mentions.username,geo.place_id,in_reply_to_user_id,referenced_tweets.id,referenced_tweets.id.author_id"), new HttpParameter("query", "conversation_id:" + tweetId), new HttpParameter("tweet.fields", "author_id,conversation_id,created_at,entities,id,in_reply_to_user_id,public_metrics,referenced_tweets,reply_settings,text"), new HttpParameter("user.fields", "id,name,pinned_tweet_id,profile_image_url,protected,username,verified"), new HttpParameter("max_results", maxResult)}, twitter.getAuthorization(), null);
 
 		if (httpResponse != null) {
 			return new ReplyObject(httpResponse.asJSONObject());

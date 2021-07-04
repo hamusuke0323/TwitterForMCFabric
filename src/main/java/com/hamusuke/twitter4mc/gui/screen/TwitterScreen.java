@@ -9,6 +9,8 @@ import com.hamusuke.twitter4mc.TwitterForMC;
 import com.hamusuke.twitter4mc.gui.screen.settings.TwitterSettingsScreen;
 import com.hamusuke.twitter4mc.tweet.TweetSummary;
 import com.hamusuke.twitter4mc.utils.TweetSummaryCreator;
+import com.hamusuke.twitter4mc.utils.TwitterThread;
+import com.hamusuke.twitter4mc.utils.TwitterUtil;
 import com.hamusuke.twitter4mc.utils.VersionChecker;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -46,7 +48,10 @@ public class TwitterScreen extends AbstractTwitterScreen implements DisplayableM
 	}
 
 	public void tick() {
-		this.list.tick();
+		if (this.list != null) {
+			this.list.tick();
+		}
+
 		super.tick();
 	}
 
@@ -164,7 +169,11 @@ public class TwitterScreen extends AbstractTwitterScreen implements DisplayableM
 		}
 
 		super.render(mouseX, mouseY, delta);
-		this.list.render(mouseX, mouseY, delta);
+
+		if (this.list != null) {
+			this.list.render(mouseX, mouseY, delta);
+		}
+
 		for (AbstractButtonWidget b : this.buttons) {
 			if (!b.getMessage().equals(I18n.translate("tw.settings")) && !b.getMessage().equals(I18n.translate("tweet")) && !b.getMessage().equals(I18n.translate("tw.save.timeline")) && !b.getMessage().equals(I18n.translate("tw.view.profile")) && !b.getMessage().equals(I18n.translate("tw.new.update.available"))) {
 				b.render(mouseX, mouseY, delta);
@@ -178,8 +187,8 @@ public class TwitterScreen extends AbstractTwitterScreen implements DisplayableM
 	}
 
 	@Environment(EnvType.CLIENT)
-	protected class TweetList extends AbstractTwitterScreen.TweetList {
-		protected TweetList(MinecraftClient mcIn) {
+	private class TweetList extends AbstractTwitterScreen.TweetList {
+		private TweetList(MinecraftClient mcIn) {
 			super(mcIn, TwitterScreen.this.width, TwitterScreen.this.height, 0, TwitterScreen.this.height - 20);
 			for (TweetSummary tweetSummary : TwitterForMC.tweetSummaries) {
 				this.addEntry(new TweetEntry(tweetSummary));

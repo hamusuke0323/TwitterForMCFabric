@@ -161,16 +161,12 @@ public final class TwitterForMC implements ClientModInitializer {
     }
 
     public static synchronized void saveTimeline() throws IOException {
-        ObjectOutputStream oos = null;
-        try {
-            oos = new ObjectOutputStream(new FileOutputStream(configFile.resolve("timeline").toFile()));
+        try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(configFile.resolve("timeline").toFile()))) {
             oos.writeObject(tweets);
             oos.flush();
         } catch (IOException e) {
             LOGGER.error("Error occurred while saving timeline", e);
             throw e;
-        } finally {
-            IOUtils.closeQuietly(oos);
         }
     }
 
@@ -179,9 +175,7 @@ public final class TwitterForMC implements ClientModInitializer {
         if (!file.exists()) {
             return;
         }
-        ObjectInputStream ois = null;
-        try {
-            ois = new ObjectInputStream(new FileInputStream(file));
+        try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(file))) {
             Object object = ois.readObject();
             if (object instanceof List) {
                 List<Status> statuses = (List<Status>) object;
@@ -194,8 +188,6 @@ public final class TwitterForMC implements ClientModInitializer {
             }
         } catch (Throwable e) {
             LOGGER.error("Error occurred while reading timeline", e);
-        } finally {
-            IOUtils.closeQuietly(ois);
         }
     }
 

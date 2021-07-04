@@ -12,7 +12,6 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
-import net.minecraft.util.Formatting;
 
 import java.util.List;
 
@@ -31,9 +30,7 @@ public class ViewLicenseScreen extends ParentalScreen {
         super.init();
 
         this.lines.clear();
-        this.addButton(new ButtonWidget(this.width / 4, this.height - 20, this.width / 2, 20, I18n.translate("gui.back"), (b) -> {
-            this.onClose();
-        }));
+        this.addButton(new ButtonWidget(this.width / 4, this.height - 20, this.width / 2, 20, I18n.translate("gui.back"), (b) -> this.onClose()));
 
         this.list = new WidgetList(this.minecraft, this.width, this.height, 20, this.height - 20, 10) {
             public int getRowWidth() {
@@ -50,9 +47,9 @@ public class ViewLicenseScreen extends ParentalScreen {
         }
 
         for (int i = 0; i < this.lines.size(); i++) {
-            this.list.addEntry(new TextWidget((this.width - this.list.getRowWidth()) / 2, i * this.minecraft.textRenderer.fontHeight, this.list.getRowWidth(), this.minecraft.textRenderer.fontHeight, new LiteralText(this.lines.get(i))) {
+            this.list.addEntry(new TextWidget((this.width - this.list.getRowWidth()) / 2, i * this.font.fontHeight, this.list.getRowWidth(), this.font.fontHeight, new LiteralText(this.lines.get(i))) {
                 public void renderButton(int mouseX, int mouseY, float delta) {
-                    ViewLicenseScreen.this.font.drawWithShadow(this.getMessage(), this.x, this.y, Formatting.WHITE.getColorValue());
+                    ViewLicenseScreen.this.font.drawWithShadow(this.getMessage(), this.x, this.y, 16777215);
                 }
             });
         }
@@ -62,7 +59,7 @@ public class ViewLicenseScreen extends ParentalScreen {
 
     public void render(int mouseX, int mouseY, float delta) {
         this.list.render(mouseX, mouseY, delta);
-        this.drawCenteredString(this.font, this.title.asFormattedString(), this.width / 2, 5, Formatting.WHITE.getColorValue());
+        this.drawCenteredString(this.font, this.title.asFormattedString(), this.width / 2, 5, 16777215);
         super.render(mouseX, mouseY, delta);
     }
 }

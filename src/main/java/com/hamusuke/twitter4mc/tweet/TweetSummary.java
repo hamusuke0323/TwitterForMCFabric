@@ -1,12 +1,14 @@
 package com.hamusuke.twitter4mc.tweet;
 
 import java.io.InputStream;
-import java.util.Arrays;
-import java.util.Calendar;
-import java.util.Date;
-import java.util.List;
-import java.util.Locale;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
+import java.util.concurrent.atomic.AtomicReference;
 
+import com.hamusuke.twitter4mc.TwitterForMC;
+import com.hamusuke.twitter4mc.utils.ReplyObject;
+import com.hamusuke.twitter4mc.utils.TwitterThread;
 import com.hamusuke.twitter4mc.utils.TwitterUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -17,12 +19,7 @@ import com.google.common.collect.Lists;
 
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
-import twitter4j.HashtagEntity;
-import twitter4j.MediaEntity;
-import twitter4j.Place;
-import twitter4j.Status;
-import twitter4j.URLEntity;
-import twitter4j.User;
+import twitter4j.*;
 
 @Environment(EnvType.CLIENT)
 public class TweetSummary implements Comparable<TweetSummary> {
@@ -36,6 +33,12 @@ public class TweetSummary implements Comparable<TweetSummary> {
 	private final Status quotedTweet;
 	@Nullable
 	private final TweetSummary quotedTweetSummary;
+	private final AtomicInteger replyCount = new AtomicInteger();
+	private final AtomicReference<ReplyObject> replyObject = new AtomicReference<>();
+	private final List<Status> replyStatuses = Lists.newArrayList();
+	private final List<TweetSummary> replyTweetSummaries = Lists.newArrayList();
+	private final AtomicBoolean isGettingReplies = new AtomicBoolean();
+	private final AtomicBoolean isAlreadyGotReplies = new AtomicBoolean();
 	private final User user;
 	@Nullable
 	private final InputStream userIconData;
@@ -46,7 +49,7 @@ public class TweetSummary implements Comparable<TweetSummary> {
 	private final String favoriteCountF;
 	private final HashtagEntity[] hashtags;
 	private final List<HashtagEntity> hashtagList;
-	private final long ID;
+	private final long id;
 	private final String lang;
 	private final MediaEntity[] medias;
 	private final List<MediaEntity> mediaList;
@@ -91,7 +94,7 @@ public class TweetSummary implements Comparable<TweetSummary> {
 		this.favoriteCountF = TwitterUtil.getChunkedNumber(this.favoriteCount);
 		this.hashtags = status.getHashtagEntities();
 		this.hashtagList = Arrays.asList(this.hashtags);
-		this.ID = status.getId();
+		this.id = status.getId();
 		this.lang = status.getLang();
 		this.medias = status.getMediaEntities();
 		this.mediaList = Arrays.asList(this.medias);
@@ -116,6 +119,51 @@ public class TweetSummary implements Comparable<TweetSummary> {
 		this.isRetweet = status.isRetweet();
 		this.isRetweeted = status.isRetweeted();
 		this.isRetweetedByMe = status.isRetweetedByMe();
+	}
+
+	public void startGettingReplies(Runnable onAdd) {
+		if (TwitterForMC.mctwitter != null && !this.isGettingReplies()) {
+			this.isGettingReplies.set(true);
+			new TwitterThread(() -> {
+				try {
+					ReplyObject replyObject = TwitterUtil.getReplies(TwitterForMC.mctwitter, this.id);
+					if (replyObject != null) {
+						this.replyObject.set(replyObject);
+						replyObject.removeOtherReplies(this.id);
+						List<ReplyTweet> replyTweets = replyObject.getReplyTweets();
+						this.replyCount.set(replyTweets.size());
+						for (ReplyTweet replyTweet : replyTweets) {
+							Status status = TwitterForMC.mctwitter.showStatus(replyTweet.getTweetId());
+							this.replyStatuses.add(status);
+							this.replyTweetSummaries.add(new TweetSummary(status));
+							onAdd.run();
+						}
+					}
+					this.isGettingReplies.set(false);
+					this.isAlreadyGotReplies.set(true);
+				} catch (Throwable e) {
+					LOGGER.error("Error occurred while getting replies", e);
+					this.isGettingReplies.set(false);
+					this.isAlreadyGotReplies.set(false);
+				}
+			}).start();
+		}
+	}
+
+	public boolean isGettingReplies() {
+		return this.isGettingReplies.get();
+	}
+
+	public boolean isAlreadyGotReplies() {
+		return this.isAlreadyGotReplies.get();
+	}
+
+	public List<Status> getReplyStatuses() {
+		return this.replyStatuses;
+	}
+
+	public List<TweetSummary> getReplyTweetSummaries() {
+		return this.replyTweetSummaries;
 	}
 
 	public Status getStatus() {
@@ -192,7 +240,7 @@ public class TweetSummary implements Comparable<TweetSummary> {
 	}
 
 	public long getId() {
-		return this.ID;
+		return this.id;
 	}
 
 	public String getLang() {

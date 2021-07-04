@@ -86,4 +86,8 @@ public class ReplyTweet {
     public int hashCode() {
         return Objects.hash(this.tweetId);
     }
+
+    public String toString() {
+        return "ReplyTweet{conversationId=" + this.conversationId + ", tweetId=" + this.tweetId + ", inReplyToUserId=" + this.inReplyToUserId + ", retweetCount=" + this.retweetCount + ", replyCount=" + this.replyCount + ", likeCount=" + this.likeCount + ", quoteCount=" + this.quoteCount + ", repliedToTweetId=" + this.repliedToTweetId + ", text='" + this.text + "'}";
+    }
 }

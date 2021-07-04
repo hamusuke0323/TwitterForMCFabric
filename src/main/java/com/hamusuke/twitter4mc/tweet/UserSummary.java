@@ -50,7 +50,7 @@ public class UserSummary {
         this.isVerified = this.user.isVerified();
     }
 
-    public synchronized void startGettingUserTimeline(Runnable onPush) {
+    public void startGettingUserTimeline(Runnable onSend) {
         if (TwitterForMC.mctwitter != null && !this.isGettingUserTimeline()) {
             this.isGettingUserTimeline.set(true);
             try {
@@ -58,7 +58,7 @@ public class UserSummary {
                 Collections.reverse(statuses);
                 new TweetSummaryCreator(statuses, (tweetSummary) -> {
                     if (this.userTimeline.add(tweetSummary)) {
-                        onPush.run();
+                        onSend.run();
                     }
                 }, () -> {
                     this.isGettingUserTimeline.set(false);

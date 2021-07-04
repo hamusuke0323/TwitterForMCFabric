@@ -459,16 +459,16 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 		return false;
 	}
 
-	protected void renderHoleBackground(int p_renderHoleBackground_1_, int p_renderHoleBackground_2_, int p_renderHoleBackground_3_, int p_renderHoleBackground_4_) {
+	protected void renderHoleBackground(int top, int bottom, int alphaTop, int alphaBottom) {
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder bufferbuilder = tessellator.getBuffer();
 		this.minecraft.getTextureManager().bindTexture(DrawableHelper.BACKGROUND_LOCATION);
 		RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
 		bufferbuilder.begin(7, VertexFormats.POSITION_TEXTURE_COLOR);
-		bufferbuilder.vertex(this.leftpos, p_renderHoleBackground_2_, 0.0D).texture(0.0F, (float) p_renderHoleBackground_2_ / 32.0F).color(64, 64, 64, p_renderHoleBackground_4_).next();
-		bufferbuilder.vertex(this.leftpos + this.width, p_renderHoleBackground_2_, 0.0D).texture((float) this.width / 32.0F, (float) p_renderHoleBackground_2_ / 32.0F).color(64, 64, 64, p_renderHoleBackground_4_).next();
-		bufferbuilder.vertex(this.leftpos + this.width, p_renderHoleBackground_1_, 0.0D).texture((float) this.width / 32.0F, (float) p_renderHoleBackground_1_ / 32.0F).color(64, 64, 64, p_renderHoleBackground_3_).next();
-		bufferbuilder.vertex(this.leftpos, p_renderHoleBackground_1_, 0.0D).texture(0.0F, (float) p_renderHoleBackground_1_ / 32.0F).color(64, 64, 64, p_renderHoleBackground_3_).next();
+		bufferbuilder.vertex(this.leftpos, bottom, 0.0D).texture(0.0F, (float) bottom / 32.0F).color(64, 64, 64, alphaBottom).next();
+		bufferbuilder.vertex(this.leftpos + this.width, bottom, 0.0D).texture((float) this.width / 32.0F, (float) bottom / 32.0F).color(64, 64, 64, alphaBottom).next();
+		bufferbuilder.vertex(this.leftpos + this.width, top, 0.0D).texture((float) this.width / 32.0F, (float) top / 32.0F).color(64, 64, 64, alphaTop).next();
+		bufferbuilder.vertex(this.leftpos, top, 0.0D).texture(0.0F, (float) top / 32.0F).color(64, 64, 64, alphaTop).next();
 		tessellator.draw();
 	}
 
@@ -529,10 +529,12 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 		public void tick() {
 		}
 
-		public void render(int itemIndex, int rowTop, int rowLeft, int rowWidth, int height2, int mouseX, int mouseY, boolean isMouseOverAndObjectEquals, float p_render_9_) {
+		public void render(int itemIndex, int rowTop, int rowLeft, int rowWidth, int height2, int mouseX, int mouseY, boolean isMouseOverAndObjectEquals, float delta) {
+		}
 
+		public void renderButtons(int mouseX, int mouseY, float delta) {
 			for (AbstractButtonWidget button : this.buttons) {
-				button.render(mouseX, mouseY, p_render_9_);
+				button.render(mouseX, mouseY, delta);
 			}
 		}
 
