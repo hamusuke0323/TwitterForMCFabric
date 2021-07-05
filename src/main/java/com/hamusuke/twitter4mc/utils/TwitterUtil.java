@@ -220,19 +220,13 @@ public final class TwitterUtil {
 		}
 	}
 
-	public static Dimension getScaledDimensionMaxRatio(Dimension imageSize, Dimension boundary) {
-		double widthRatio = boundary.getWidth() / imageSize.getWidth();
-		double heightRatio = boundary.getHeight() / imageSize.getHeight();
-		double ratio = Math.max(widthRatio, heightRatio);
-
+	public static Dimension wrapImageSizeToMax(Dimension imageSize, Dimension boundary) {
+		double ratio = Math.max(boundary.getWidth() / imageSize.getWidth(), boundary.getHeight() / imageSize.getHeight());
 		return new Dimension((int) (imageSize.width * ratio), (int) (imageSize.height * ratio));
 	}
 
-	public static Dimension getScaledDimensionMinRatio(Dimension imageSize, Dimension boundary) {
-		double widthRatio = boundary.getWidth() / imageSize.getWidth();
-		double heightRatio = boundary.getHeight() / imageSize.getHeight();
-		double ratio = Math.min(widthRatio, heightRatio);
-
+	public static Dimension wrapImageSizeToMin(Dimension imageSize, Dimension boundary) {
+		double ratio = Math.min(boundary.getWidth() / imageSize.getWidth(), boundary.getHeight() / imageSize.getHeight());
 		return new Dimension((int) (imageSize.width * ratio), (int) (imageSize.height * ratio));
 	}
 

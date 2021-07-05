@@ -18,21 +18,13 @@ import twitter4j.User;
 import java.util.List;
 
 @Environment(EnvType.CLIENT)
-public class TwitterShowUserScreen extends AbstractTwitterScreen implements DisplayableMessage {
+public class TwitterShowUserScreen extends AbstractTwitterScreen {
 	private final UserSummary user;
 	private List<String> name = Lists.newArrayList();
 
 	public TwitterShowUserScreen(@Nullable Screen parent, User user) {
 		super(new LiteralText(user.getName()).formatted(Formatting.BOLD), parent);
 		this.user = new UserSummary(user);
-	}
-
-	public void tick() {
-		if (this.list != null) {
-			this.list.tick();
-		}
-
-		super.tick();
 	}
 
 	protected void init() {
@@ -103,12 +95,6 @@ public class TwitterShowUserScreen extends AbstractTwitterScreen implements Disp
 			if (this.getSelected() != null) {
 				this.centerScrollOn(this.getSelected());
 			}
-
-			this.setY(0);
-		}
-
-		protected void renderHoleBackground(int top, int bottom, int alphaTop, int alphaBottom) {
-			this.fillGradient(this.leftpos + this.width, bottom, this.leftpos, top, -15392725, -15392725);
 		}
 
 		public void setSelected(@Nullable TweetEntry entry) {

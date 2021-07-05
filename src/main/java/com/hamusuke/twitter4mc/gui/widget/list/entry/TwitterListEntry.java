@@ -6,6 +6,8 @@ import net.minecraft.client.gui.Element;
 
 @Environment(EnvType.CLIENT)
 public interface TwitterListEntry extends Element {
+	void setHeight(int height);
+
 	int getHeight();
 
 	int getY();

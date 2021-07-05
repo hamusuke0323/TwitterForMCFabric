@@ -64,6 +64,10 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
     }
 
     public void tick() {
+        if (this.list != null) {
+            this.list.tick();
+        }
+
         if (this.message != null) {
             if (this.fade <= 0) {
                 this.message = null;
@@ -277,6 +281,10 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
         protected void renderBackground() {
         }
 
+        protected void renderHoleBackground(int top, int bottom, int alphaTop, int alphaBottom) {
+            this.fillGradient(this.leftpos + this.width, bottom, this.leftpos, top, -15392725, -15392725);
+        }
+
         public void render(int p_render_1_, int p_render_2_, float p_render_3_) {
             super.render(p_render_1_, p_render_2_, p_render_3_);
 
@@ -311,7 +319,8 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
             protected final int retweetedUserNameHeight;
             protected int height;
             protected int y;
-
+            protected int photoRenderingWidth;
+            protected int photoRenderingHeight;
             @Nullable
             protected TwitterButton replyButton;
             @Nullable
@@ -320,7 +329,7 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
             protected TwitterButton favoriteButton;
             @Nullable
             protected TwitterButton shareButton;
-            protected final int fourBtnHeightOffset;
+            protected int fourBtnHeightOffset;
 
             protected TweetEntry(@Nullable TweetSummary tweet) {
                 if (tweet != null) {
@@ -330,8 +339,10 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
                     this.quoteSourceSummary = this.summary.getQuotedTweetSummary();
                     this.strings = AbstractTwitterScreen.this.font.wrapStringToWidthAsList(this.summary.getText(), AbstractTwitterScreen.TweetList.this.getRowWidth() - 25);
                     this.quotedTweetStrings = this.quoteSourceSummary != null ? AbstractTwitterScreen.this.font.wrapStringToWidthAsList(this.quoteSourceSummary.getText(), AbstractTwitterScreen.TweetList.this.getRowWidth() - 40) : Lists.newArrayList();
+                    this.photoRenderingWidth = TweetList.this.getRowWidth() - 30;
+                    this.photoRenderingHeight = (int) (0.5625F * this.photoRenderingWidth);
                     this.height = ((this.strings.size() - 1) * AbstractTwitterScreen.this.font.fontHeight) + 10 + 30;
-                    this.height += this.summary.isIncludeImages() || this.summary.isIncludeVideo() ? 120 : 0;
+                    this.height += this.summary.isIncludeImages() || this.summary.isIncludeVideo() ? this.photoRenderingHeight + 3 : 0;
                     this.retweetedUserNameHeight = flag ? AbstractTwitterScreen.this.wrapUserNameToWidth(this.retweetedSummary, AbstractTwitterScreen.TweetList.this.getRowWidth() - 24).size() * AbstractTwitterScreen.this.font.fontHeight : 0;
                     this.height += this.retweetedUserNameHeight;
                     this.height += this.quoteSourceSummary != null ? 20 + this.quotedTweetStrings.size() * AbstractTwitterScreen.this.font.fontHeight : 0;
@@ -339,7 +350,7 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
                 } else {
                     this.summary = this.retweetedSummary = this.quoteSourceSummary = null;
                     this.strings = this.quotedTweetStrings = Lists.newArrayList();
-                    this.height = this.retweetedUserNameHeight = this.fourBtnHeightOffset = 0;
+                    this.height = this.retweetedUserNameHeight = this.fourBtnHeightOffset = this.photoRenderingWidth = this.photoRenderingHeight = 0;
                 }
             }
 
@@ -416,11 +427,11 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
                 nowY += 10 + this.strings.size() * AbstractTwitterScreen.this.font.fontHeight;
 
                 if (this.summary != null && this.summary.isIncludeVideo()) {
-                    AbstractTwitterScreen.this.fillGradient(rowLeft + 24, nowY, rowLeft + 24 + 208, nowY + 117, -1072689136, -804253680);
-                    if (mouseX >= rowLeft + 24 && mouseX <= rowLeft + 24 + 208 && mouseY >= nowY && mouseY <= nowY + 117) {
+                    AbstractTwitterScreen.this.fillGradient(rowLeft + 24, nowY, rowLeft + 24 + this.photoRenderingWidth, nowY + this.photoRenderingHeight, -1072689136, -804253680);
+                    if (mouseX >= rowLeft + 24 && mouseX <= rowLeft + 24 + this.photoRenderingWidth && mouseY >= nowY && mouseY <= nowY + this.photoRenderingHeight) {
                         AbstractTwitterScreen.this.renderTooltip(I18n.translate("tw.play.video"), mouseX, mouseY);
                     }
-                    nowY += 117;
+                    nowY += this.photoRenderingHeight;
                 }
 
                 nowY += this.renderPhotos(rowLeft, nowY);
@@ -497,23 +508,25 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
 
             public int renderPhotos(int rowLeft, int rowTop) {
                 if (this.summary != null) {
+                    int w2 = this.photoRenderingWidth / 2;
+                    int h2 = this.photoRenderingHeight / 2;
                     List<TwitterPhotoMedia> p = this.summary.getPhotoMedias();
                     if (p.size() == 1) {
                         TwitterPhotoMedia media = p.get(0);
                         InputStream data = media.getData();
                         if (data != null && media.canRendering()) {
-                            Dimension d = TwitterUtil.getScaledDimensionMaxRatio(new Dimension(media.getWidth(), media.getHeight()), new Dimension(208, 117));
+                            Dimension d = TwitterUtil.wrapImageSizeToMax(new Dimension(media.getWidth(), media.getHeight()), new Dimension(this.photoRenderingWidth, this.photoRenderingHeight));
                             TwitterForMC.getTextureManager().bindTexture(data);
-                            DrawableHelper.blit(rowLeft + 24, rowTop, 0.0F, 0.0F, 208, 117, d.width, d.height);
+                            DrawableHelper.blit(rowLeft + 24, rowTop, 0.0F, (float) (d.height - this.photoRenderingHeight) / 2, this.photoRenderingWidth, this.photoRenderingHeight, d.width, d.height);
                         }
                     } else if (p.size() == 2) {
                         for (int i = 0; i < 2; i++) {
                             TwitterPhotoMedia media = p.get(i);
                             InputStream data = media.getData();
                             if (data != null && media.canRendering()) {
-                                Dimension d = TwitterUtil.getScaledDimensionMaxRatio(new Dimension(media.getWidth(), media.getHeight()), new Dimension(104, 117));
+                                Dimension d = TwitterUtil.wrapImageSizeToMax(new Dimension(media.getWidth(), media.getHeight()), new Dimension(w2, this.photoRenderingHeight));
                                 TwitterForMC.getTextureManager().bindTexture(data);
-                                DrawableHelper.blit(rowLeft + 24 + i * 105, rowTop, 0.0F, 0.0F, 104, 117, d.width, d.height);
+                                DrawableHelper.blit(rowLeft + 24 + i * w2 + 1, rowTop, 0.0F, (float) (d.height - this.photoRenderingHeight) / 2, w2, this.photoRenderingHeight, d.width, d.height);
                             }
                         }
                     } else if (p.size() == 3) {
@@ -524,11 +537,11 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
                                 Dimension d;
                                 TwitterForMC.getTextureManager().bindTexture(data);
                                 if (i == 0) {
-                                    d = TwitterUtil.getScaledDimensionMaxRatio(new Dimension(media.getWidth(), media.getHeight()), new Dimension(104, 117));
-                                    DrawableHelper.blit(rowLeft + 24, rowTop, 0.0F, 0.0F, 104, 117, d.width, d.height);
+                                    d = TwitterUtil.wrapImageSizeToMax(new Dimension(media.getWidth(), media.getHeight()), new Dimension(w2, this.photoRenderingHeight));
+                                    DrawableHelper.blit(rowLeft + 24, rowTop, 0.0F, (float) (d.height - this.photoRenderingHeight) / 2, w2, this.photoRenderingHeight, d.width, d.height);
                                 } else {
-                                    d = TwitterUtil.getScaledDimensionMaxRatio(new Dimension(media.getWidth(), media.getHeight()), new Dimension(104, 58));
-                                    DrawableHelper.blit(rowLeft + 24 + 105, rowTop + ((i - 1) * 59), 0.0F, 0.0F, 104, 58, d.width, d.height);
+                                    d = TwitterUtil.wrapImageSizeToMax(new Dimension(media.getWidth(), media.getHeight()), new Dimension(w2, h2));
+                                    DrawableHelper.blit(rowLeft + 24 + w2 + 1, rowTop + ((i - 1) * (h2 + 1)), 0.0F, (float) (d.height - h2) / 2, w2, h2, d.width, d.height);
                                 }
                             }
                         }
@@ -537,18 +550,18 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
                             TwitterPhotoMedia media = p.get(i);
                             InputStream data = media.getData();
                             if (data != null && media.canRendering()) {
-                                Dimension d = TwitterUtil.getScaledDimensionMaxRatio(new Dimension(media.getWidth(), media.getHeight()), new Dimension(104, 58));
+                                Dimension d = TwitterUtil.wrapImageSizeToMax(new Dimension(media.getWidth(), media.getHeight()), new Dimension(w2, h2));
                                 TwitterForMC.getTextureManager().bindTexture(data);
                                 if (i % 2 == 0) {
-                                    DrawableHelper.blit(rowLeft + 24, rowTop + ((i / 2) * 59), 0.0F, 0.0F, 104, 58, d.width, d.height);
+                                    DrawableHelper.blit(rowLeft + 24, rowTop + ((i / 2) * (h2 + 1)), 0.0F, (float) (d.height - h2) / 2, w2, h2, d.width, d.height);
                                 } else {
-                                    DrawableHelper.blit(rowLeft + 24 + 105, rowTop + ((i / 3) * 59), 0.0F, 0.0F, 104, 58, d.width, d.height);
+                                    DrawableHelper.blit(rowLeft + 24 + w2 + 1, rowTop + ((i / 3) * (h2 + 1)), 0.0F, (float) (d.height - h2) / 2, w2, h2, d.width, d.height);
                                 }
                             }
                         }
                     }
 
-                    return p.size() == 0 ? 0 : 117;
+                    return p.size() == 0 ? 0 : this.photoRenderingHeight;
                 }
 
                 return 0;
@@ -559,11 +572,13 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
                     int i = AbstractTwitterScreen.TweetList.this.getRowLeft() + 24;
                     int j = this.y + this.retweetedUserNameHeight + 11 + this.strings.size() * AbstractTwitterScreen.this.font.fontHeight;
                     int k = this.summary.getPhotoMediaLength();
+                    int w2 = this.photoRenderingWidth / 2;
+                    int h2 = this.photoRenderingHeight / 2;
                     boolean xMore = x >= i;
                     boolean yMore = y >= j;
-                    boolean b = xMore && x <= i + 208 && yMore && y <= j + 117;
-                    boolean b1 = xMore && x <= i + 104 && yMore && y <= j + 117;
-                    boolean b2 = x >= i + 105 && x <= i + 208 && yMore && y <= j + 58;
+                    boolean b = xMore && x <= i + this.photoRenderingWidth && yMore && y <= j + this.photoRenderingHeight;
+                    boolean b1 = xMore && x <= i + w2 && yMore && y <= j + this.photoRenderingHeight;
+                    boolean b2 = x >= i + w2 + 1 && x <= i + this.photoRenderingWidth && yMore && y <= j + h2;
 
                     if (k == 1) {
                         if (b) {
@@ -572,7 +587,7 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
                     } else if (k == 2) {
                         if (b1) {
                             return this.displayTwitterPhotoAndShowStatusScreen(button, 0);
-                        } else if (x >= i + 105 && x <= i + 208 && yMore && y <= j + 117) {
+                        } else if (x >= i + w2 + 1 && x <= i + this.photoRenderingWidth && yMore && y <= j + this.photoRenderingHeight) {
                             return this.displayTwitterPhotoAndShowStatusScreen(button, 1);
                         }
                     } else if (k == 3) {
@@ -580,17 +595,17 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
                             return this.displayTwitterPhotoAndShowStatusScreen(button, 0);
                         } else if (b2) {
                             return this.displayTwitterPhotoAndShowStatusScreen(button, 1);
-                        } else if (xMore && x <= i + 208 && y >= j + 59 && y <= j + 117) {
+                        } else if (xMore && x <= i + this.photoRenderingWidth && y >= j + h2 + 1 && y <= j + this.photoRenderingHeight) {
                             return this.displayTwitterPhotoAndShowStatusScreen(button, 2);
                         }
                     } else if (k == 4) {
-                        if (xMore && x <= i + 104 && yMore && y <= j + 58) {
+                        if (xMore && x <= i + w2 && yMore && y <= j + h2) {
                             return this.displayTwitterPhotoAndShowStatusScreen(button, 0);
                         } else if (b2) {
                             return this.displayTwitterPhotoAndShowStatusScreen(button, 1);
-                        } else if (xMore && x <= i + 104 && y >= j + 59 && y <= j + 117) {
+                        } else if (xMore && x <= i + w2 && y >= j + h2 + 1 && y <= j + this.photoRenderingHeight) {
                             return this.displayTwitterPhotoAndShowStatusScreen(button, 2);
-                        } else if (x >= i + 105 && x <= i + 208 && y >= j + 59 && y <= j + 117) {
+                        } else if (x >= i + w2 + 1 && x <= i + this.photoRenderingWidth && y >= j + h2 + 1 && y <= j + this.photoRenderingHeight) {
                             return this.displayTwitterPhotoAndShowStatusScreen(button, 3);
                         }
                     }
@@ -609,8 +624,11 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
                 }
 
                 if (button == 0) {
-                    AbstractTwitterScreen.TweetList.this.setSelected(this);
-                    //TODO show showStatusScreen action
+                    if (this.summary != null && TweetList.this.getSelected() == this) {
+                        AbstractTwitterScreen.this.minecraft.openScreen(new TwitterShowStatusScreen(AbstractTwitterScreen.this, this.summary));
+                    } else {
+                        TweetList.this.setSelected(this);
+                    }
                     return true;
                 } else {
                     return false;
@@ -648,6 +666,17 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
                 }
 
                 return false;
+            }
+
+            public void setHeight(int height) {
+                this.height = height;
+                this.fourBtnHeightOffset = this.height - 14;
+                this.children.clear();
+                this.buttons.clear();
+                this.init();
+                TweetList.this.calcAllHeight();
+                TweetList.this.calcAverage();
+                TweetList.this.setY(-(int) TweetList.this.getScrollAmount());
             }
 
             public int getHeight() {

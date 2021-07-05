@@ -146,6 +146,10 @@ public class TweetSummary implements Comparable<TweetSummary> {
 					this.isGettingReplies.set(false);
 					this.isAlreadyGotReplies.set(false);
 				}
+
+				if (this.replyCount.get() <= 0) {
+					onAdd.run();
+				}
 			}).start();
 		}
 	}

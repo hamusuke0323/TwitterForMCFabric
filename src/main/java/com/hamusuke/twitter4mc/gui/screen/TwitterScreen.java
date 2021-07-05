@@ -9,8 +9,6 @@ import com.hamusuke.twitter4mc.TwitterForMC;
 import com.hamusuke.twitter4mc.gui.screen.settings.TwitterSettingsScreen;
 import com.hamusuke.twitter4mc.tweet.TweetSummary;
 import com.hamusuke.twitter4mc.utils.TweetSummaryCreator;
-import com.hamusuke.twitter4mc.utils.TwitterThread;
-import com.hamusuke.twitter4mc.utils.TwitterUtil;
 import com.hamusuke.twitter4mc.utils.VersionChecker;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -30,7 +28,7 @@ import twitter4j.Status;
 import twitter4j.TwitterException;
 
 @Environment(EnvType.CLIENT)
-public class TwitterScreen extends AbstractTwitterScreen implements DisplayableMessage {
+public class TwitterScreen extends AbstractTwitterScreen {
 	@Nullable
 	private Screen parent;
 	private final AtomicBoolean refreshingTL = new AtomicBoolean();
@@ -45,14 +43,6 @@ public class TwitterScreen extends AbstractTwitterScreen implements DisplayableM
 
 	public void setParentScreen(@Nullable Screen parent) {
 		this.parent = parent;
-	}
-
-	public void tick() {
-		if (this.list != null) {
-			this.list.tick();
-		}
-
-		super.tick();
 	}
 
 	public void init() {
@@ -197,8 +187,6 @@ public class TwitterScreen extends AbstractTwitterScreen implements DisplayableM
 			if (this.getSelected() != null) {
 				this.centerScrollOn(this.getSelected());
 			}
-
-			this.setY(0);
 		}
 	}
 }
