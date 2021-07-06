@@ -59,7 +59,7 @@ public class TwitterVideoPlayer {
 		});
 	}
 
-	private void start(Stage primaryStage, int x, int y, int width, int height) throws Exception {
+	private void start(Stage primaryStage, int x, int y, int width, int height) {
 		this.stage = primaryStage;
 		this.stage.show();
 		InputStream icon = TwitterVideoPlayer.class.getResourceAsStream("/assets/" + TwitterForMC.MOD_ID + "/textures/twitter/icon/twitter.png");
