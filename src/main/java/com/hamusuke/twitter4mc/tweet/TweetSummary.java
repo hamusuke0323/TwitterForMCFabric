@@ -122,18 +122,18 @@ public class TweetSummary implements Comparable<TweetSummary> {
 	}
 
 	public void startGettingReplies(Runnable onAdd) {
-		if (TwitterForMC.mctwitter != null && !this.isGettingReplies()) {
+		if (TwitterForMC.mcTwitter != null && !this.isGettingReplies()) {
 			this.isGettingReplies.set(true);
 			new TwitterThread(() -> {
 				try {
-					ReplyObject replyObject = TwitterUtil.getReplies(TwitterForMC.mctwitter, this.id);
+					ReplyObject replyObject = TwitterUtil.getReplies(TwitterForMC.mcTwitter, this.id);
 					if (replyObject != null) {
 						this.replyObject.set(replyObject);
 						replyObject.removeOtherReplies(this.id);
 						List<ReplyTweet> replyTweets = replyObject.getReplyTweets();
 						this.replyCount.set(replyTweets.size());
 						for (ReplyTweet replyTweet : replyTweets) {
-							Status status = TwitterForMC.mctwitter.showStatus(replyTweet.getTweetId());
+							Status status = TwitterForMC.mcTwitter.showStatus(replyTweet.getTweetId());
 							this.replyStatuses.add(status);
 							this.replyTweetSummaries.add(new TweetSummary(status));
 							onAdd.run();

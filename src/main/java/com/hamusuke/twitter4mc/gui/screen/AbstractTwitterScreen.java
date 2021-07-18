@@ -385,13 +385,13 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
                     this.favoriteButton = this.addButton(new TwitterButton(i + 60 + 60, this.fourBtnHeightOffset, 10, 10, 0, 0, this.summary.isFavorited() ? 0 : 16, this.summary.isFavorited() ? FAVORITED : FAVORITE, 16, this.summary.isFavorited() ? 16 : 32, 16, 16, (b) -> {
                         try {
                             if (this.summary.isFavorited()) {
-                                TwitterForMC.mctwitter.destroyFavorite(this.summary.getId());
+                                TwitterForMC.mcTwitter.destroyFavorite(this.summary.getId());
                                 this.summary.favorite(false);
                                 ((ChangeableImageButton) b).setImage(FAVORITE);
                                 ((ChangeableImageButton) b).setWhenHovered(16);
                                 ((ChangeableImageButton) b).setSize(16, 32);
                             } else {
-                                TwitterForMC.mctwitter.createFavorite(this.summary.getId());
+                                TwitterForMC.mcTwitter.createFavorite(this.summary.getId());
                                 this.summary.favorite(true);
                                 ((ChangeableImageButton) b).setImage(FAVORITED);
                                 ((ChangeableImageButton) b).setWhenHovered(0);
@@ -539,9 +539,12 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
                                 if (i == 0) {
                                     d = TwitterUtil.wrapImageSizeToMax(new Dimension(media.getWidth(), media.getHeight()), new Dimension(w2, this.photoRenderingHeight));
                                     DrawableHelper.blit(rowLeft + 24, rowTop, 0.0F, (float) (d.height - this.photoRenderingHeight) / 2, w2, this.photoRenderingHeight, d.width, d.height);
+                                } else if(i == 1) {
+                                    d = TwitterUtil.wrapImageSizeToMax(new Dimension(media.getWidth(), media.getHeight()), new Dimension(w2, h2 - 1));
+                                    DrawableHelper.blit(rowLeft + 24 + w2 + 1, rowTop, 0.0F, (float) (d.height - h2 - 1) / 2, w2, h2 - 1, d.width, d.height - 1);
                                 } else {
-                                    d = TwitterUtil.wrapImageSizeToMax(new Dimension(media.getWidth(), media.getHeight()), new Dimension(w2, h2));
-                                    DrawableHelper.blit(rowLeft + 24 + w2 + 1, rowTop + ((i - 1) * (h2 + 1)), 0.0F, (float) (d.height - h2) / 2, w2, h2, d.width, d.height);
+                                    d = TwitterUtil.wrapImageSizeToMax(new Dimension(media.getWidth(), media.getHeight()), new Dimension(w2, h2 - 1));
+                                    DrawableHelper.blit(rowLeft + 24 + w2 + 1, rowTop + h2 + 1, 0.0F, (float) (d.height - h2 - 1) / 2, w2, h2 - 1, d.width, d.height - 1);
                                 }
                             }
                         }

@@ -7,7 +7,9 @@ import com.hamusuke.twitter4mc.gui.screen.TwitterScreen;
 import com.hamusuke.twitter4mc.gui.widget.MaskableTextFieldWidget;
 import com.hamusuke.twitter4mc.texture.TextureManager;
 import com.hamusuke.twitter4mc.tweet.TweetSummary;
+import com.hamusuke.twitter4mc.utils.NewToken;
 import com.hamusuke.twitter4mc.utils.TwitterThread;
+import com.hamusuke.twitter4mc.utils.TwitterUtil;
 import com.hamusuke.twitter4mc.utils.VersionChecker;
 import com.hamusuke.twitter4mc.license.LicenseManager;
 import com.sun.javafx.application.PlatformImpl;
@@ -26,7 +28,6 @@ import net.minecraft.client.options.KeyBinding;
 import net.minecraft.client.util.InputUtil;
 import net.minecraft.resource.ResourceType;
 import net.minecraft.util.Identifier;
-import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -41,6 +42,7 @@ import java.io.*;
 import java.nio.file.Path;
 import java.util.Collections;
 import java.util.List;
+import java.util.Objects;
 import java.util.TreeSet;
 
 @Environment(EnvType.CLIENT)
@@ -54,9 +56,9 @@ public final class TwitterForMC implements ClientModInitializer {
     @Nullable
     private static File tokenFile;
     @Nullable
-    public static Twitter mctwitter;
+    public static Twitter mcTwitter;
     @Nullable
-    private static Token token;
+    private static NewToken token;
     public static final TwitterScreen twitterScreen = new TwitterScreen();
     public static boolean loginTwitter;
     public static final TreeSet<Status> tweets = Sets.newTreeSet(Collections.reverseOrder());
@@ -78,7 +80,7 @@ public final class TwitterForMC implements ClientModInitializer {
     public static ButtonWidget login;
     public static final FileChooserOpen tokenFileChooser = new FileChooserOpen((file) -> {
         if (file != null) {
-            Token t = read(file);
+            NewToken t = read(file);
             if (t != null) {
                 token = t;
                 update();
@@ -137,14 +139,14 @@ public final class TwitterForMC implements ClientModInitializer {
                 AccessToken var1 = new AccessToken(token.getAccessToken(), token.getAccessTokenSecret());
                 if (token.autoLogin()) {
                     try {
-                        mctwitter = new TwitterFactory().getInstance();
-                        mctwitter.setOAuthConsumer(token.getConsumer(), token.getConsumerSecret());
-                        mctwitter.setOAuthAccessToken(var1);
-                        mctwitter.getId();
+                        mcTwitter = new TwitterFactory().getInstance();
+                        mcTwitter.setOAuthConsumer(token.getConsumer(), token.getConsumerSecret());
+                        mcTwitter.setOAuthAccessToken(var1);
+                        mcTwitter.getId();
                         loginTwitter = true;
                         LOGGER.info("Successfully logged in twitter.");
                     } catch (Throwable e) {
-                        mctwitter = null;
+                        mcTwitter = null;
                         loginTwitter = false;
                         LOGGER.error("Error occurred while logging in twitter", e);
                     }
@@ -192,32 +194,32 @@ public final class TwitterForMC implements ClientModInitializer {
     }
 
     @Nullable
-    private static synchronized Token read(File tokenFile) {
+    private static synchronized NewToken read(File tokenFile) {
         if (!tokenFile.exists()) {
             return null;
         }
-        ObjectInputStream ois = null;
         try {
-            ois = new ObjectInputStream(new FileInputStream(tokenFile));
-            return (Token) ois.readObject();
-        } catch (Throwable e) {
-            LOGGER.error("Error occurred while reading tokens", e);
-        } finally {
-            IOUtils.closeQuietly(ois);
+            return TwitterUtil.readToken(tokenFile);
+        } catch (Exception e) {
+            LOGGER.info("Failed to read token. try to read old token");
+            try (ObjectInputStream ois = new ObjectInputStream(new FileInputStream(tokenFile))) {
+                Token old = (Token) ois.readObject();
+                return TwitterUtil.oldTokenToNewTokenAndSave(old, tokenFile);
+            } catch (Exception e1) {
+                LOGGER.error("Error occurred while reading tokens", e);
+            }
         }
+
         return null;
     }
 
     public static synchronized void store(@NotNull String consumer, @NotNull String consumerS, @NotNull AccessToken token, boolean autoLogin) throws Throwable {
+        Objects.requireNonNull(consumer, "consumer cannot be null");
+        Objects.requireNonNull(consumerS, "consumer secret cannot be null");
+        Objects.requireNonNull(token, "access token cannot be null");
+
         if (TwitterForMC.save.isChecked()) {
-            ObjectOutputStream var1 = null;
-            try {
-                var1 = new ObjectOutputStream(new FileOutputStream(TwitterForMC.getTokenFile()));
-                var1.writeObject(new Token(consumer, consumerS, token, autoLogin));
-                var1.flush();
-            } finally {
-                IOUtils.closeQuietly(var1);
-            }
+            TwitterUtil.saveToken(new NewToken(consumer, consumerS, token, autoLogin), tokenFile);
         }
     }
 
@@ -232,7 +234,7 @@ public final class TwitterForMC implements ClientModInitializer {
     }
 
     @Nullable
-    public static Token getToken() {
+    public static NewToken getToken() {
         return token;
     }
 

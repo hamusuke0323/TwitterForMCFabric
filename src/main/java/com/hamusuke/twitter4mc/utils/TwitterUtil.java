@@ -2,6 +2,7 @@ package com.hamusuke.twitter4mc.utils;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
+import com.hamusuke.twitter4mc.Token;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.resource.language.I18n;
@@ -13,7 +14,7 @@ import twitter4j.*;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.InputStream;
+import java.io.*;
 import java.net.URL;
 import java.util.Calendar;
 import java.util.Date;
@@ -25,6 +26,18 @@ public final class TwitterUtil {
 
 	private TwitterUtil() {
 		throw new IllegalStateException();
+	}
+
+	public static void saveToken(NewToken newToken, File tokenFile) throws Exception {
+		Class_124611_a_.func_082122_a_(newToken, tokenFile);
+	}
+
+	public static NewToken readToken(File tokenFile) throws Exception {
+		return Class_124611_a_.func_082113_b_(tokenFile);
+	}
+
+	public static NewToken oldTokenToNewTokenAndSave(Token old, File tokenFile) throws Exception {
+		return Class_124611_a_.func_013341_f_(old, tokenFile);
 	}
 
 	public static JSONObject getReplyCount(Twitter twitter, long tweetId) throws TwitterException {
@@ -208,11 +221,15 @@ public final class TwitterUtil {
 
 	@Nullable
 	public static Integer[] getImageWidthHeight(@Nullable String imageURL) {
+		if (imageURL == null) {
+			return null;
+		}
+
 		try {
-			if (imageURL == null) {
+			BufferedImage bi = ImageIO.read(new URL(imageURL));
+			if (bi == null) {
 				return null;
 			}
-			BufferedImage bi = ImageIO.read(new URL(imageURL));
 			return new Integer[]{bi.getWidth(), bi.getHeight()};
 		} catch (Exception e) {
 			return null;

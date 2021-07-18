@@ -51,10 +51,10 @@ public class UserSummary {
     }
 
     public void startGettingUserTimeline(Runnable onSend) {
-        if (TwitterForMC.mctwitter != null && !this.isGettingUserTimeline()) {
+        if (TwitterForMC.mcTwitter != null && !this.isGettingUserTimeline()) {
             this.isGettingUserTimeline.set(true);
             try {
-                List<Status> statuses = TwitterForMC.mctwitter.getUserTimeline(this.user.getId());
+                List<Status> statuses = TwitterForMC.mcTwitter.getUserTimeline(this.user.getId());
                 Collections.reverse(statuses);
                 new TweetSummaryCreator(statuses, (tweetSummary) -> {
                     if (this.userTimeline.add(tweetSummary)) {

@@ -13,8 +13,9 @@ import java.nio.charset.StandardCharsets;
 import java.util.Arrays;
 import java.util.Objects;
 
+@Deprecated
 @Environment(EnvType.CLIENT)
-final class Token implements Serializable {
+public final class Token implements Serializable {
     private static final long serialVersionUID = 7308358373767907036L;
 
     private final String consumer;

@@ -124,11 +124,11 @@ public class TwitterLoginScreen extends ParentalScreen {
             AccessToken token = new AccessToken(TwitterForMC.access.getText(), TwitterForMC.accessS.getText());
             twitter.setOAuthAccessToken(token);
             twitter.getId();
-            TwitterForMC.mctwitter = twitter;
+            TwitterForMC.mcTwitter = twitter;
             TwitterForMC.store(TwitterForMC.consumer.getText(), TwitterForMC.consumerS.getText(), token, TwitterForMC.autoLogin.isChecked());
-            callback.accept(TwitterForMC.mctwitter);
+            callback.accept(TwitterForMC.mcTwitter);
         } catch (Throwable e) {
-            TwitterForMC.mctwitter = null;
+            TwitterForMC.mcTwitter = null;
             LOGGER.error("Error occurred while logging in twitter", e);
             this.minecraft.openScreen(new ErrorScreen(new TranslatableText("tw.login.failed"), this, e.getLocalizedMessage()));
         }
@@ -145,13 +145,13 @@ public class TwitterLoginScreen extends ParentalScreen {
                     AccessToken token = twitter.getOAuthAccessToken(requestToken, pin);
                     twitter.setOAuthAccessToken(token);
                     twitter.getId();
-                    TwitterForMC.mctwitter = twitter;
+                    TwitterForMC.mcTwitter = twitter;
                     TwitterForMC.access.setText(token.getToken());
                     TwitterForMC.accessS.setText(token.getTokenSecret());
                     TwitterForMC.store(TwitterForMC.consumer.getText(), TwitterForMC.consumerS.getText(), token, TwitterForMC.autoLogin.isChecked());
-                    callback.accept(TwitterForMC.mctwitter);
+                    callback.accept(TwitterForMC.mcTwitter);
                 } catch (Throwable e) {
-                    TwitterForMC.mctwitter = null;
+                    TwitterForMC.mcTwitter = null;
                     LOGGER.error("Error occurred while logging in twitter", e);
                     this.minecraft.openScreen(new ErrorScreen(new TranslatableText("tw.login.failed"), this, e.getLocalizedMessage()));
                 }

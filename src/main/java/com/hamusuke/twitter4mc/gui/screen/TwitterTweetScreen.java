@@ -39,7 +39,7 @@ public class TwitterTweetScreen extends ParentalScreen {
 
 		this.addButton(new ButtonWidget(i * 2, (this.height / 4 + this.height / 2) + 10, i, 20, I18n.translate("tweet"), (a) -> {
 			try {
-				TwitterForMC.mctwitter.updateStatus(this.tweetText.getText());
+				TwitterForMC.mcTwitter.updateStatus(this.tweetText.getText());
 				this.accept(I18n.translate("sent.tweet"));
 			} catch (TwitterException e) {
 				LOGGER.error("Error occurred while sending tweet", e);

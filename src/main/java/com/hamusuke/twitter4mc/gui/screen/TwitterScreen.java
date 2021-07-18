@@ -65,7 +65,7 @@ public class TwitterScreen extends AbstractTwitterScreen {
 			j += i;
 		}
 
-		if (TwitterForMC.mctwitter == null) {
+		if (TwitterForMC.mcTwitter == null) {
 			this.list = new TwitterScreen.TweetList(this.minecraft);
 
 			this.addButton(new ButtonWidget(j, this.height - 20, i, 20, I18n.translate("twitter.login"), (l) -> {
@@ -81,7 +81,7 @@ public class TwitterScreen extends AbstractTwitterScreen {
 			this.addButton(new ButtonWidget(0, this.height - 50, k - 10, 20, I18n.translate("tw.view.profile"), (press) -> {
 				press.active = false;
 				try {
-					this.minecraft.openScreen(new TwitterShowUserScreen(this, TwitterForMC.mctwitter.showUser(TwitterForMC.mctwitter.getId())));
+					this.minecraft.openScreen(new TwitterShowUserScreen(this, TwitterForMC.mcTwitter.showUser(TwitterForMC.mcTwitter.getId())));
 				} catch (TwitterException e) {
 					this.accept(e.getErrorMessage());
 					press.active = true;
@@ -93,7 +93,7 @@ public class TwitterScreen extends AbstractTwitterScreen {
 				this.refreshingTL.set(true);
 				List<Status> t = Lists.newArrayList();
 				try {
-					t.addAll(TwitterForMC.mctwitter.getHomeTimeline());
+					t.addAll(TwitterForMC.mcTwitter.getHomeTimeline());
 				} catch (TwitterException e) {
 					this.accept(e.getErrorMessage());
 				}
@@ -107,6 +107,7 @@ public class TwitterScreen extends AbstractTwitterScreen {
 				}, () -> {
 					p.active = true;
 					this.refreshingTL.set(false);
+					this.init(this.minecraft, this.width, this.height);
 				}).createAll();
 			})).active = !this.refreshingTL.get();
 
