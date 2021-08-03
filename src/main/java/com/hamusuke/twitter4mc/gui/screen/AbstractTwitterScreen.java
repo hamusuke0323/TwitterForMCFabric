@@ -355,19 +355,7 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
             }
 
             public void tick() {
-                int i = this.fourBtnHeightOffset + this.y;
-                if (this.replyButton != null) {
-                    this.replyButton.y = i;
-                }
-                if (this.retweetButton != null) {
-                    this.retweetButton.y = i;
-                }
-                if (this.favoriteButton != null) {
-                    this.favoriteButton.y = i;
-                }
-                if (this.shareButton != null) {
-                    this.shareButton.y = i;
-                }
+                this.updateButtonY(this.fourBtnHeightOffset + this.y);
             }
 
             public void init() {
@@ -674,7 +662,6 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
             public void setHeight(int height) {
                 this.height = height;
                 this.fourBtnHeightOffset = this.height - 14;
-                this.children.clear();
                 this.buttons.clear();
                 this.init();
                 TweetList.this.calcAllHeight();
@@ -696,18 +683,9 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
             }
 
             protected void updateButtonY(int y) {
-                if (this.replyButton != null) {
-                    this.replyButton.y = y;
-                }
-                if (this.retweetButton != null) {
-                    this.retweetButton.y = y;
-                }
-                if (this.favoriteButton != null) {
-                    this.favoriteButton.y = y;
-                }
-                if (this.shareButton != null) {
-                    this.shareButton.y = y;
-                }
+                this.buttons.forEach((abstractButtonWidget) -> {
+                    abstractButtonWidget.y = y;
+                });
             }
 
             public boolean equals(Object obj) {

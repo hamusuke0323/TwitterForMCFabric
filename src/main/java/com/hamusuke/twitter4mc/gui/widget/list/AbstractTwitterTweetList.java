@@ -5,14 +5,12 @@ import java.util.Collection;
 import java.util.List;
 import java.util.Objects;
 
-import com.hamusuke.twitter4mc.gui.widget.list.entry.TwitterListEntry;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.AbstractParentElement;
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.DrawableHelper;
-import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.widget.AbstractButtonWidget;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
@@ -517,11 +515,10 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 	}
 
 	@Environment(EnvType.CLIENT)
-	public abstract static class AbstractTwitterListEntry<E extends AbstractTwitterTweetList.AbstractTwitterListEntry<E>> implements TwitterListEntry {
+	public abstract static class AbstractTwitterListEntry<E extends AbstractTwitterTweetList.AbstractTwitterListEntry<E>> implements TweetElement {
 		@Deprecated
 		AbstractTwitterTweetList<E> list;
 		public final List<AbstractButtonWidget> buttons = Lists.newArrayList();
-		public final List<Element> children = Lists.newArrayList();
 
 		public void init() {
 		}
@@ -547,7 +544,6 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 
 		protected <T extends AbstractButtonWidget> T addButton(T widget) {
 			this.buttons.add(widget);
-			this.children.add(widget);
 			return widget;
 		}
 	}

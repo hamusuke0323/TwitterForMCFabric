@@ -6,6 +6,7 @@ import java.util.concurrent.atomic.AtomicBoolean;
 import java.util.concurrent.atomic.AtomicInteger;
 import java.util.concurrent.atomic.AtomicReference;
 
+import com.google.common.collect.ImmutableList;
 import com.hamusuke.twitter4mc.TwitterForMC;
 import com.hamusuke.twitter4mc.utils.ReplyObject;
 import com.hamusuke.twitter4mc.utils.TwitterThread;
@@ -53,7 +54,7 @@ public class TweetSummary implements Comparable<TweetSummary> {
 	private final String lang;
 	private final MediaEntity[] medias;
 	private final List<MediaEntity> mediaList;
-	private final List<TwitterPhotoMedia> photoList = Lists.newArrayList();
+	private final List<TwitterPhotoMedia> photoList;
 	@Nullable
 	private final String videoURL;
 	@Nullable
@@ -104,11 +105,11 @@ public class TweetSummary implements Comparable<TweetSummary> {
 		this.videoURL = this.isIncludeVideo ? TwitterUtil.getHiBitrateVideoURL(this.medias[0]) : null;
 		this.player = this.videoURL == null ? null : new TwitterVideoPlayer(this.videoURL);
 		this.photoMediaLength = this.isIncludeImages ? this.medias.length : 0;
-
+		List<TwitterPhotoMedia> list = Lists.newArrayList();
 		for (int i = 0; i < this.photoMediaLength; i++) {
-			this.photoList.add(new TwitterPhotoMedia(this.medias[i]));
+			list.add(new TwitterPhotoMedia(this.medias[i]));
 		}
-
+		this.photoList = ImmutableList.copyOf(list);
 		this.place = status.getPlace();
 		this.retweetCount = status.getRetweetCount();
 		this.retweetCountF = TwitterUtil.getChunkedNumber(this.retweetCount);
