@@ -1,5 +1,6 @@
 package com.hamusuke.twitter4mc.emoji;
 
+import com.google.common.collect.ImmutableMap;
 import com.google.common.collect.Maps;
 import com.google.gson.Gson;
 import com.google.gson.JsonArray;
@@ -16,12 +17,12 @@ import net.minecraft.util.Identifier;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
-import java.util.Iterator;
 import java.util.List;
 import java.util.Map;
 
@@ -41,16 +42,14 @@ public final class EmojiManager implements SimpleSynchronousResourceReloadListen
 
     private synchronized void load(ResourceManager resourceManager) {
         this.emojiMap.clear();
-        Iterator<String> iterator = resourceManager.getAllNamespaces().iterator();
 
-        while (iterator.hasNext()) {
-            String nameSpace = iterator.next();
+        for (String nameSpace : resourceManager.getAllNamespaces()) {
             String file = "textures/twitter/emoji.json";
 
             try {
                 Identifier identifier = new Identifier(nameSpace, file);
                 this.load(resourceManager.getAllResources(identifier));
-            } catch (FileNotFoundException e) {
+            } catch (FileNotFoundException ignored) {
             } catch (Exception e) {
                 LOGGER.warn("Skipped emoji file: {}:{}", nameSpace, file);
             }
@@ -58,10 +57,7 @@ public final class EmojiManager implements SimpleSynchronousResourceReloadListen
     }
 
     private void load(List<Resource> list) {
-        Iterator<Resource> iterator = list.listIterator();
-
-        while (iterator.hasNext()) {
-            Resource resource = iterator.next();
+        for (Resource resource : list) {
             InputStream inputStream = resource.getInputStream();
 
             try {
@@ -74,15 +70,14 @@ public final class EmojiManager implements SimpleSynchronousResourceReloadListen
 
     private void load(InputStream inputStream) {
         JsonArray jsonArray = GSON.fromJson(new InputStreamReader(inputStream, StandardCharsets.UTF_8), JsonArray.class);
-        Iterator<JsonElement> iterator = jsonArray.iterator();
         long time = System.currentTimeMillis();
 
-        while (iterator.hasNext()) {
-            JsonObject jsonObject = iterator.next().getAsJsonObject();
+        for (JsonElement jsonElement : jsonArray) {
+            JsonObject jsonObject = jsonElement.getAsJsonObject();
             String hex = jsonObject.get("hex").getAsString();
             Emoji emoji = new Emoji(hex, new Identifier(jsonObject.get("image").getAsString()));
             if (this.emojiMap.put(hex, emoji) == null) {
-                LOGGER.debug("Registering emoji: {}:{}", emoji.getId().getNamespace(), emoji.getHex());
+                LOGGER.debug("Registered emoji: {}:{}", emoji.getId().getNamespace(), emoji.getHex());
             }
         }
 
@@ -98,7 +93,8 @@ public final class EmojiManager implements SimpleSynchronousResourceReloadListen
         return e == null ? new Emoji(hex, MissingSprite.getMissingSpriteId()) : e;
     }
 
+    @Unmodifiable
     public Map<String, Emoji> getAllEmojis() {
-        return this.emojiMap;
+        return ImmutableMap.copyOf(this.emojiMap);
     }
 }

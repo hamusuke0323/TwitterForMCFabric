@@ -43,13 +43,17 @@ public final class Emoji {
         vertexConsumer.vertex(matrix, x + this.getEmojiWidth(), y, 0.0F).color(1.0F, 1.0F, 1.0F, alpha).texture(1.0F, 0.0F).light(light).next();
     }
 
-    public boolean equals(Object obj) {
-        if (obj instanceof Emoji) {
-            Emoji emoji = (Emoji) obj;
-            return this.hex.equals(emoji.getHex());
-        } else {
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
+
+        if (o == null || getClass() != o.getClass()) {
             return false;
         }
+
+        Emoji emoji = (Emoji) o;
+        return this.hex.equals(emoji.hex) && this.id.equals(emoji.id);
     }
 
     public int hashCode() {

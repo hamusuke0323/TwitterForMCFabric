@@ -283,6 +283,11 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 		}
 	}
 
+	public boolean isEntryVisible(E entry) {
+		int index = this.children.indexOf(entry);
+		return index != -1 && this.getRowBottom(index) >= this.top && this.getRowTop(index) <= this.bottom;
+	}
+
 	private void scroll(int p_scroll_1_) {
 		this.setScrollAmount(this.getScrollAmount() + (double) p_scroll_1_);
 		this.yDrag = -2;
@@ -445,12 +450,12 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 		return this.leftpos + this.width / 2 - this.getRowWidth() / 2 + 2;
 	}
 
-	protected int getRowTop(int p_getRowTop_1_) {
-		return this.top + 4 - (int) this.getScrollAmount() + this.countBefore(p_getRowTop_1_) + this.headerHeight;
+	protected int getRowTop(int index) {
+		return this.top + 4 - (int) this.getScrollAmount() + this.countBefore(index) + this.headerHeight;
 	}
 
-	protected int getRowBottom(int p_getRowBottom_1_) {
-		return this.getRowTop(p_getRowBottom_1_) + this.children().get(p_getRowBottom_1_).getHeight();
+	protected int getRowBottom(int index) {
+		return this.getRowTop(index) + this.children().get(index).getHeight();
 	}
 
 	protected boolean isFocused() {
