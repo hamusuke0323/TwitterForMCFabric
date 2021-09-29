@@ -54,7 +54,7 @@ public class VersionChecker {
                         if (jsonObject != null && jsonObject.has(version)) {
                             String newVersion = jsonObject.get(version).getAsString();
                             String current = modMetadata.getVersion().getFriendlyString();
-                            VersionChecker.isUpdateAvailable = current.equalsIgnoreCase(newVersion);
+                            VersionChecker.isUpdateAvailable = !current.equalsIgnoreCase(newVersion);
                             VersionChecker.version = newVersion;
                             VersionChecker.url = updateUrl;
 

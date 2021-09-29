@@ -146,20 +146,8 @@ public class TwitterTweetFieldWidget extends AbstractButtonWidget implements Dra
 		this.nextNarration = Util.getMeasuringTimeMs() + 500L;
 	}
 
-	public static List<String> splitByLF(String input) {
-		List<String> result = Lists.newArrayList();
-		StringBuilder queue = new StringBuilder();
-		for (char c : input.toCharArray()) {
-			if (c != 10) {
-				queue.append(c);
-			} else {
-				result.add(queue.toString());
-				queue = new StringBuilder();
-			}
-		}
-
-		result.add(queue.toString());
-		return result;
+	private static List<String> splitByLF(String input) {
+		return Lists.newArrayList(input.split("\n"));
 	}
 
 	private void erase(int offset) {

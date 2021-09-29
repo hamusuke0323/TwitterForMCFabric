@@ -5,13 +5,13 @@ import com.hamusuke.twitter4mc.emoji.EmojiManager;
 import com.hamusuke.twitter4mc.gui.filechooser.FileChooserOpen;
 import com.hamusuke.twitter4mc.gui.screen.TwitterScreen;
 import com.hamusuke.twitter4mc.gui.widget.MaskableTextFieldWidget;
+import com.hamusuke.twitter4mc.license.LicenseManager;
 import com.hamusuke.twitter4mc.texture.TextureManager;
 import com.hamusuke.twitter4mc.tweet.TweetSummary;
 import com.hamusuke.twitter4mc.utils.NewToken;
 import com.hamusuke.twitter4mc.utils.TwitterThread;
 import com.hamusuke.twitter4mc.utils.TwitterUtil;
 import com.hamusuke.twitter4mc.utils.VersionChecker;
-import com.hamusuke.twitter4mc.license.LicenseManager;
 import com.sun.javafx.application.PlatformImpl;
 import javafx.application.Platform;
 import net.fabricmc.api.ClientModInitializer;
@@ -98,7 +98,7 @@ public final class TwitterForMC implements ClientModInitializer {
                 }
             }
         }
-    });
+    }, FabricLoader.getInstance().getGameDir().toFile());
 
     public void onInitializeClient() {
         LOGGER.info("Hello from TwitterForMC#onInitializeClient!");

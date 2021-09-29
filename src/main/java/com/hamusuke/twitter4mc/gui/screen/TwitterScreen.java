@@ -1,10 +1,6 @@
 package com.hamusuke.twitter4mc.gui.screen;
 
-import java.io.IOException;
-import java.util.Collections;
-import java.util.List;
-import java.util.concurrent.atomic.AtomicBoolean;
-
+import com.google.common.collect.Lists;
 import com.hamusuke.twitter4mc.TwitterForMC;
 import com.hamusuke.twitter4mc.gui.screen.settings.TwitterSettingsScreen;
 import com.hamusuke.twitter4mc.tweet.TweetSummary;
@@ -14,18 +10,19 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ConfirmChatLinkScreen;
-import net.minecraft.client.gui.widget.AbstractButtonWidget;
+import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.util.NarratorManager;
 import net.minecraft.util.Util;
-
-import com.google.common.collect.Lists;
-
-import net.minecraft.client.gui.screen.Screen;
 import org.jetbrains.annotations.Nullable;
 import twitter4j.Status;
 import twitter4j.TwitterException;
+
+import java.io.IOException;
+import java.util.Collections;
+import java.util.List;
+import java.util.concurrent.atomic.AtomicBoolean;
 
 @Environment(EnvType.CLIENT)
 public class TwitterScreen extends AbstractTwitterScreen {
@@ -37,7 +34,7 @@ public class TwitterScreen extends AbstractTwitterScreen {
 		super(NarratorManager.EMPTY, null);
 
 		if (TwitterForMC.twitterScreen != null) {
-			throw new IllegalStateException("TwitterScreen can be created only one");
+			throw new IllegalStateException("TwitterScreen object can be created only one");
 		}
 	}
 
@@ -52,7 +49,7 @@ public class TwitterScreen extends AbstractTwitterScreen {
 		int k = this.width / 4;
 
 		if (updateAvailable) {
-			this.addButton(new ButtonWidget(j, this.height - 20, i, 20, I18n.translate("tw.new.update.available"), (b) -> {
+			this.addRenderLaterButton(new ButtonWidget(j, this.height - 20, i, 20, I18n.translate("tw.new.update.available"), (b) -> {
 				this.minecraft.openScreen(new ConfirmChatLinkScreen((bl) -> {
 					if (bl) {
 						Util.getOperatingSystem().open(VersionChecker.getUrl());
@@ -65,18 +62,24 @@ public class TwitterScreen extends AbstractTwitterScreen {
 			j += i;
 		}
 
+		this.addButton(new ButtonWidget(0, this.height - 110, k - 10, 20, I18n.translate("tweet"), (press) -> {
+			this.minecraft.openScreen(new TwitterTweetScreen(this));
+		}));
+
 		if (TwitterForMC.mcTwitter == null) {
 			this.list = new TwitterScreen.TweetList(this.minecraft);
 
-			this.addButton(new ButtonWidget(j, this.height - 20, i, 20, I18n.translate("twitter.login"), (l) -> {
+			this.addRenderLaterButton(new ButtonWidget(j, this.height - 20, i, 20, I18n.translate("twitter.login"), (l) -> {
 				this.minecraft.openScreen(new TwitterLoginScreen(this));
 			}));
 
 			j += i;
 		} else {
+			/*
 			this.addButton(new ButtonWidget(0, this.height - 110, k - 10, 20, I18n.translate("tweet"), (press) -> {
 				this.minecraft.openScreen(new TwitterTweetScreen(this));
 			}));
+			*/
 
 			this.addButton(new ButtonWidget(0, this.height - 50, k - 10, 20, I18n.translate("tw.view.profile"), (press) -> {
 				press.active = false;
@@ -88,7 +91,7 @@ public class TwitterScreen extends AbstractTwitterScreen {
 				}
 			}));
 
-			this.addButton(new ButtonWidget(j, this.height - 20, i, 20, I18n.translate("twitter.refresh"), (p) -> {
+			this.addRenderLaterButton(new ButtonWidget(j, this.height - 20, i, 20, I18n.translate("twitter.refresh"), (p) -> {
 				p.active = false;
 				this.refreshingTL.set(true);
 				List<Status> t = Lists.newArrayList();
@@ -124,7 +127,7 @@ public class TwitterScreen extends AbstractTwitterScreen {
 			}));
 		}
 
-		this.addButton(new ButtonWidget(j, this.height - 20, i, 20, I18n.translate("gui.back"), (p_213034_1_) -> this.onClose()));
+		this.addRenderLaterButton(new ButtonWidget(j, this.height - 20, i, 20, I18n.translate("gui.back"), (p_213034_1_) -> this.onClose()));
 
 		this.addButton(new ButtonWidget(0, this.height - 140, k - 10, 20, I18n.translate("tw.settings"), (b) -> {
 			this.minecraft.openScreen(new TwitterSettingsScreen(this));
@@ -165,11 +168,7 @@ public class TwitterScreen extends AbstractTwitterScreen {
 			this.list.render(mouseX, mouseY, delta);
 		}
 
-		for (AbstractButtonWidget b : this.buttons) {
-			if (!b.getMessage().equals(I18n.translate("tw.settings")) && !b.getMessage().equals(I18n.translate("tweet")) && !b.getMessage().equals(I18n.translate("tw.save.timeline")) && !b.getMessage().equals(I18n.translate("tw.view.profile")) && !b.getMessage().equals(I18n.translate("tw.new.update.available"))) {
-				b.render(mouseX, mouseY, delta);
-			}
-		}
+		this.renderButtonLater(mouseX, mouseY, delta);
 		this.renderMessage();
 	}
 

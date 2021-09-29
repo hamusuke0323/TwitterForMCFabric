@@ -2,6 +2,7 @@ package com.hamusuke.twitter4mc.gui.screen;
 
 import com.hamusuke.twitter4mc.TwitterForMC;
 import com.hamusuke.twitter4mc.gui.widget.TwitterTweetFieldWidget;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -11,8 +12,6 @@ import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.util.NarratorManager;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import com.mojang.blaze3d.systems.RenderSystem;
 import twitter4j.TwitterException;
 import twitter4j.util.CharacterUtil;
 
@@ -23,6 +22,14 @@ public class TwitterTweetScreen extends ParentalScreen {
 
 	public TwitterTweetScreen(Screen parent) {
 		super(NarratorManager.EMPTY, parent);
+	}
+
+	public void tick() {
+		if (this.tweetText != null) {
+			this.tweetText.tick();
+		}
+
+		super.tick();
 	}
 
 	protected void init() {

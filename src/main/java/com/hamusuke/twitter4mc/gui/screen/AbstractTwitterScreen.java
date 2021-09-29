@@ -58,6 +58,7 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
     protected String message;
     protected int fade;
     protected boolean isFade;
+    protected final List<AbstractButtonWidget> renderLaterButtons = Lists.newArrayList();
 
     protected AbstractTwitterScreen(Text title, @Nullable Screen parent) {
         super(title, parent);
@@ -81,6 +82,23 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
         }
 
         super.tick();
+    }
+
+    protected <T extends AbstractButtonWidget> T addRenderLaterButton(T button) {
+        this.renderLaterButtons.add(button);
+        this.children.add(button);
+        return button;
+    }
+
+    public void renderButtonLater(int mouseX, int mouseY, float tickDelta) {
+        for (AbstractButtonWidget abstractButtonWidget : this.renderLaterButtons) {
+            abstractButtonWidget.render(mouseX, mouseY, tickDelta);
+        }
+    }
+
+    public void init(MinecraftClient client, int width, int height) {
+        this.renderLaterButtons.clear();
+        super.init(client, width, height);
     }
 
     public void renderMessage() {

@@ -11,14 +11,16 @@ import java.util.function.Consumer;
 
 @Environment(EnvType.CLIENT)
 public class FileChooserOpen extends AbstractFileChooser {
-    public FileChooserOpen(Consumer<File> onChose) {
-        super(onChose);
+    public FileChooserOpen(Consumer<File> onChose, File initDir) {
+        super(onChose, initDir);
     }
 
     protected void onChoose() {
         Platform.runLater(() -> {
             this.stage = new Stage();
-            this.onChose.accept(new FileChooser().showOpenDialog(this.stage));
+            FileChooser fileChooser = new FileChooser();
+            fileChooser.setInitialDirectory(this.initDir);
+            this.onChose.accept(fileChooser.showOpenDialog(this.stage));
             this.choosing.set(false);
         });
     }

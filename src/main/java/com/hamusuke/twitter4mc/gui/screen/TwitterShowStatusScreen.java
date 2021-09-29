@@ -8,6 +8,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.AbstractButtonWidget;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.text.TranslatableText;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -45,6 +46,10 @@ public class TwitterShowStatusScreen extends AbstractTwitterScreen {
 				this.children.add(this.list);
 			}
 		}
+
+		this.addButton(new ButtonWidget(this.width / 2 - this.width / 4, 0, 20, 20, "←", button -> {
+			this.onClose();
+		}));
 
 		super.init();
 	}

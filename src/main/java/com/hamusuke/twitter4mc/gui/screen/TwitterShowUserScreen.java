@@ -9,12 +9,14 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.texture.MissingSprite;
 import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.Nullable;
 import twitter4j.User;
 
+import java.io.InputStream;
 import java.util.List;
 
 @Environment(EnvType.CLIENT)
@@ -129,10 +131,22 @@ public class TwitterShowUserScreen extends AbstractTwitterScreen {
 
 				int i = rowWidth / 3;
 				int j = rowWidth / 5;
-				TwitterForMC.getTextureManager().bindTexture(this.summary.getHeader());
+
+				InputStream header = this.summary.getHeader();
+				InputStream icon = this.summary.getIcon();
+
+				if (header == null) {
+					TwitterShowUserScreen.this.minecraft.getTextureManager().bindTexture(MissingSprite.getMissingSpriteId());
+				} else {
+					TwitterForMC.getTextureManager().bindTexture(this.summary.getHeader());
+				}
 				blit(rowLeft, rowTop, 0.0F, 0.0F, rowWidth, i, rowWidth, i);
 
-				TwitterForMC.getTextureManager().bindTexture(this.summary.getIcon());
+				if (icon == null) {
+					TwitterShowUserScreen.this.minecraft.getTextureManager().bindTexture(MissingSprite.getMissingSpriteId());
+				} else {
+					TwitterForMC.getTextureManager().bindTexture(this.summary.getIcon());
+				}
 				blit(rowLeft + 10, rowTop + (i - i / 3), 0.0F, 0.0F, j, j, j, j);
 
 				int k = rowTop + (i - i / 3) + j;
