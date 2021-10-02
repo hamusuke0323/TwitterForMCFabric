@@ -5,8 +5,10 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.Element;
-import net.minecraft.client.gui.widget.AbstractButtonWidget;
+import net.minecraft.client.gui.Selectable;
+import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.ElementListWidget;
+import net.minecraft.client.util.math.MatrixStack;
 
 import java.util.List;
 
@@ -21,7 +23,7 @@ public class WidgetList extends ElementListWidget<WidgetList.AbstractButtonEntry
         return super.addEntry(entry);
     }
 
-    public void addEntry(AbstractButtonWidget widget) {
+    public void addEntry(ClickableWidget widget) {
         AbstractButtonEntry entry = new AbstractButtonEntry();
         entry.addWidget(widget);
         this.addEntry(entry);
@@ -29,22 +31,26 @@ public class WidgetList extends ElementListWidget<WidgetList.AbstractButtonEntry
 
     @Environment(EnvType.CLIENT)
     public static class AbstractButtonEntry extends ElementListWidget.Entry<WidgetList.AbstractButtonEntry> {
-        private final List<AbstractButtonWidget> buttons = Lists.newArrayList();
+        private final List<ClickableWidget> buttons = Lists.newArrayList();
 
-        public <T extends AbstractButtonWidget> T addWidget(T button) {
+        public <T extends ClickableWidget> T addWidget(T button) {
             this.buttons.add(button);
             return button;
         }
 
-        public void render(int index, int y, int x, int width, int height, int mouseX, int mouseY, boolean hovering, float delta) {
-            this.buttons.forEach((button) -> {
-                button.y = y;
-                button.render(mouseX, mouseY, delta);
-            });
-        }
-
         public List<? extends Element> children() {
             return this.buttons;
+        }
+
+        public List<? extends Selectable> selectableChildren() {
+            return this.buttons;
+        }
+
+        public void render(MatrixStack matrices, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta) {
+            this.buttons.forEach((button) -> {
+                button.y = y;
+                button.render(matrices, mouseX, mouseY, tickDelta);
+            });
         }
     }
 }

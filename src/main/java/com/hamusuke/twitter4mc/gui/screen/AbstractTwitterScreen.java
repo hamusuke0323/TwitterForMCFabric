@@ -300,7 +300,7 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
         }
 
         protected void renderHoleBackground(int top, int bottom, int alphaTop, int alphaBottom) {
-            this.fillGradient(this.leftpos + this.width, bottom, this.leftpos, top, -15392725, -15392725);
+            this.fillGradient(this.left + this.width, bottom, this.left, top, -15392725, -15392725);
         }
 
         public void render(int p_render_1_, int p_render_2_, float p_render_3_) {
