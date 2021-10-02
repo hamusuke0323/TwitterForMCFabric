@@ -5,6 +5,7 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.util.NarratorManager;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
@@ -26,7 +27,7 @@ public class ScalableImageButton extends ButtonWidget {
     }
 
     public ScalableImageButton(int x, int y, int wwidth, int wheight, int renderWidth, int renderHeight, float scale, int u, int v, int hoveredVOffset, Identifier texture, int textureWidth, int textureHeight, ButtonWidget.PressAction pressAction) {
-        this(x, y, wwidth, wheight, renderWidth, renderHeight, scale, u, v, hoveredVOffset, texture, textureWidth, textureHeight, pressAction, "");
+        this(x, y, wwidth, wheight, renderWidth, renderHeight, scale, u, v, hoveredVOffset, texture, textureWidth, textureHeight, pressAction, NarratorManager.EMPTY);
     }
 
     public ScalableImageButton(int x, int y, int wwidth, int wheight, int renderWidth, int renderHeight, float scale, int u, int v, int hoveredVOffset, Identifier texture, int textureWidth, int textureHeight, ButtonWidget.PressAction pressAction, Text text) {

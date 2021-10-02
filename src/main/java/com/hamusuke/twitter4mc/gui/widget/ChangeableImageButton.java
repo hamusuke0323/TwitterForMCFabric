@@ -5,6 +5,9 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.util.NarratorManager;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 
 @Environment(EnvType.CLIENT)
@@ -16,15 +19,15 @@ public class ChangeableImageButton extends ButtonWidget {
     protected int textureSizeX;
     protected int textureSizeY;
 
-    public ChangeableImageButton(int x, int y, int width, int height, int u, int v, int whenHovered, Identifier image, String msg, ButtonWidget.PressAction iPressable) {
+    public ChangeableImageButton(int x, int y, int width, int height, int u, int v, int whenHovered, Identifier image, Text msg, ButtonWidget.PressAction iPressable) {
         this(x, y, width, height, u, v, whenHovered, image, 256, 256, msg, iPressable);
     }
 
     public ChangeableImageButton(int x, int y, int width, int height, int u, int v, int whenHovered, Identifier image, int sizex, int sizey, ButtonWidget.PressAction iPressable) {
-        this(x, y, width, height, u, v, whenHovered, image, sizex, sizey, "", iPressable);
+        this(x, y, width, height, u, v, whenHovered, image, sizex, sizey, NarratorManager.EMPTY, iPressable);
     }
 
-    public ChangeableImageButton(int x, int y, int width, int height, int u, int v, int whenHovered, Identifier image, int sizex, int sizey, String msg, ButtonWidget.PressAction iPressable) {
+    public ChangeableImageButton(int x, int y, int width, int height, int u, int v, int whenHovered, Identifier image, int sizex, int sizey, Text msg, ButtonWidget.PressAction iPressable) {
         super(x, y, width, height, msg, iPressable);
         this.textureSizeX = sizex;
         this.textureSizeY = sizey;
@@ -52,7 +55,7 @@ public class ChangeableImageButton extends ButtonWidget {
         this.yDiffText = i;
     }
 
-    public void renderButton(int p_renderButton_1_, int p_renderButton_2_, float p_renderButton_3_) {
+    public void renderButton(MatrixStack matrices, int p_renderButton_1_, int p_renderButton_2_, float p_renderButton_3_) {
         MinecraftClient minecraft = MinecraftClient.getInstance();
         minecraft.getTextureManager().bindTexture(this.resourceLocation);
         RenderSystem.disableDepthTest();
@@ -62,7 +65,7 @@ public class ChangeableImageButton extends ButtonWidget {
             i += this.yDiffText;
         }
 
-        blit(this.x, this.y, (float) this.xTexStart, (float) i, this.width, this.height, this.textureSizeX, this.textureSizeY);
+        drawTexture(matrices, this.x, this.y, (float) this.xTexStart, (float) i, this.width, this.height, this.textureSizeX, this.textureSizeY);
         RenderSystem.enableDepthTest();
     }
 }

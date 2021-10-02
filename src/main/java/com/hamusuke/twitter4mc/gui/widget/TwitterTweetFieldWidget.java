@@ -1,6 +1,7 @@
 package com.hamusuke.twitter4mc.gui.widget;
 
 import com.google.common.collect.Lists;
+import com.hamusuke.twitter4mc.invoker.TextRendererInvoker;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
@@ -12,14 +13,17 @@ import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.AbstractButtonWidget;
+import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
+import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.gui.widget.TextFieldWidget;
 import net.minecraft.client.render.BufferBuilder;
 import net.minecraft.client.render.Tessellator;
+import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
-import net.minecraft.client.resource.language.I18n;
-import net.minecraft.util.Formatting;
-import net.minecraft.util.Util;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.MutableText;
+import net.minecraft.text.Text;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.MathHelper;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -28,7 +32,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 
 @Environment(EnvType.CLIENT)
-public class TwitterTweetFieldWidget extends AbstractButtonWidget implements Drawable, Element {
+public class TwitterTweetFieldWidget extends ClickableWidget implements Drawable, Element {
 	private static final Logger LOGGER = LogManager.getLogger();
 	private final TextRenderer textRenderer;
 	private String text;
@@ -45,11 +49,11 @@ public class TwitterTweetFieldWidget extends AbstractButtonWidget implements Dra
 	private int uneditableColor;
 	private String suggestion;
 
-	public TwitterTweetFieldWidget(TextRenderer textRenderer, int x, int y, int width, int height, String message) {
+	public TwitterTweetFieldWidget(TextRenderer textRenderer, int x, int y, int width, int height, Text message) {
 		this(textRenderer, x, y, width, height, null, message);
 	}
 
-	public TwitterTweetFieldWidget(TextRenderer textRenderer, int x, int y, int width, int height, @Nullable TextFieldWidget copyFrom, String message) {
+	public TwitterTweetFieldWidget(TextRenderer textRenderer, int x, int y, int width, int height, @Nullable TextFieldWidget copyFrom, Text message) {
 		super(x, y, width, height, message);
 		this.text = "";
 		this.maxLength = 32;
@@ -68,9 +72,9 @@ public class TwitterTweetFieldWidget extends AbstractButtonWidget implements Dra
 		++this.focusedTicks;
 	}
 
-	protected String getNarrationMessage() {
-		String string = this.getMessage();
-		return string.isEmpty() ? "" : I18n.translate("gui.narrate.editBox", string, this.text);
+	protected MutableText getNarrationMessage() {
+		Text text = this.getMessage();
+		return new TranslatableText("gui.narrate.editBox", text, this.text);
 	}
 
 	public void setText(String text) {
@@ -142,8 +146,6 @@ public class TwitterTweetFieldWidget extends AbstractButtonWidget implements Dra
 
 	private void onChanged(String newText) {
 		this.wrappedTextList = splitByLF(this.text);
-
-		this.nextNarration = Util.getMeasuringTimeMs() + 500L;
 	}
 
 	private static List<String> splitByLF(String input) {
@@ -400,18 +402,14 @@ public class TwitterTweetFieldWidget extends AbstractButtonWidget implements Dra
 
 	private int countWidthUpToCursor() {
 		int i = this.text.lastIndexOf(10, this.selectionStart - 1);
-		return this.wrappedTextList.size() == 0 ? 0 : this.textRenderer.getStringWidth(this.text.substring(i == -1 ? 0 : i, this.selectionStart).replace("\n", ""));
+		return this.wrappedTextList.size() == 0 ? 0 : this.getWidth(this.text.substring(i == -1 ? 0 : i, this.selectionStart).replace("\n", ""));
 	}
 
-	private void info(String info, float x, float y, Formatting color) {
-		this.textRenderer.drawWithShadow(info, x, y, color.getColorValue());
-	}
-
-	public void renderButton(int mouseX, int mouseY, float delta) {
+	public void renderButton(MatrixStack matrices, int mouseX, int mouseY, float delta) {
 		if (this.isVisible()) {
 			if (this.hasBorder()) {
-				fill(this.x - 1, this.y - 1, this.x + this.width + 1, this.y + this.height + 1, -6250336);
-				fill(this.x, this.y, this.x + this.width, this.y + this.height, -16777216);
+				fill(matrices, this.x - 1, this.y - 1, this.x + this.width + 1, this.y + this.height + 1, -6250336);
+				fill(matrices, this.x, this.y, this.x + this.width, this.y + this.height, -16777216);
 			}
 
 			int i = this.editable ? this.editableColor : this.uneditableColor;
@@ -428,7 +426,7 @@ public class TwitterTweetFieldWidget extends AbstractButtonWidget implements Dra
 			}
 
 			for (int i2 = 0; i2 < this.wrappedTextList.size(); i2++) {
-				this.textRenderer.drawWithShadow(this.wrappedTextList.get(i2), (float) l, (float) m + i2 * 9, i);
+				((TextRendererInvoker) this.textRenderer).drawWithShadowAndEmoji(matrices, this.wrappedTextList.get(i2), (float) l, (float) m + i2 * 9, i);
 			}
 
 			boolean bl3 = this.selectionStart < this.text.length() || this.text.length() >= this.getMaxLength();
@@ -441,7 +439,7 @@ public class TwitterTweetFieldWidget extends AbstractButtonWidget implements Dra
 			}
 
 			if (!bl3 && this.suggestion != null) {
-				this.textRenderer.drawWithShadow(this.suggestion, (float) (o - 1), (float) m + c, -8355712);
+				this.textRenderer.drawWithShadow(matrices, this.suggestion, (float) (o - 1), (float) m + c, -8355712);
 			}
 
 			int var10002;
@@ -451,14 +449,14 @@ public class TwitterTweetFieldWidget extends AbstractButtonWidget implements Dra
 					int var10001 = m + c - 1;
 					var10002 = o + 1;
 					var10003 = m + c + 1;
-					DrawableHelper.fill(o, var10001, var10002, var10003 + 9, -3092272);
+					DrawableHelper.fill(matrices, o, var10001, var10002, var10003 + 9, -3092272);
 				} else {
-					this.textRenderer.drawWithShadow("_", (float) o, (float) m + c, i);
+					this.textRenderer.drawWithShadow(matrices, "_", (float) o, (float) m + c, i);
 				}
 			}
 
 			if (k != j) {
-				int p = l + this.textRenderer.getStringWidth(this.text.substring(0, k));
+				int p = l + this.getWidth(this.text.substring(0, k));
 				var10002 = m - 1;
 				var10003 = p - 1;
 				int var10004 = m + 1;
@@ -491,11 +489,11 @@ public class TwitterTweetFieldWidget extends AbstractButtonWidget implements Dra
 
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder bufferBuilder = tessellator.getBuffer();
-		RenderSystem.color4f(0.0F, 0.0F, 255.0F, 255.0F);
+		RenderSystem.clearColor(0.0F, 0.0F, 255.0F, 255.0F);
 		RenderSystem.disableTexture();
 		RenderSystem.enableColorLogicOp();
 		RenderSystem.logicOp(GlStateManager.LogicOp.OR_REVERSE);
-		bufferBuilder.begin(7, VertexFormats.POSITION);
+		bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION);
 		bufferBuilder.vertex(x1, y2, 0.0D).next();
 		bufferBuilder.vertex(x2, y2, 0.0D).next();
 		bufferBuilder.vertex(x2, y1, 0.0D).next();
@@ -587,10 +585,17 @@ public class TwitterTweetFieldWidget extends AbstractButtonWidget implements Dra
 	}
 
 	public int getCharacterX(int index) {
-		return index > this.text.length() ? this.x : this.x + this.textRenderer.getStringWidth(this.text.substring(0, index));
+		return index > this.text.length() ? this.x : this.x + this.getWidth(this.text.substring(0, index));
+	}
+
+	private int getWidth(String text) {
+		return ((TextRendererInvoker) this.textRenderer).getWidthWithEmoji(text);
 	}
 
 	public void setX(int x) {
 		this.x = x;
+	}
+
+	public void appendNarrations(NarrationMessageBuilder builder) {
 	}
 }
