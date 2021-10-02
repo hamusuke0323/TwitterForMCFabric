@@ -1,31 +1,27 @@
 {
   "schemaVersion": 1,
-  "id": "modid",
+  "id": "twitter4mc",
   "version": "${version}",
-
-  "name": "Example Mod",
-  "description": "This is an example description! Tell everyone what your mod is about!",
+  "name": "Twitter for MC",
+  "description": "You can browse Twitter in Minecraft!",
   "authors": [
-    "Me!"
+    "hamusuke2303"
   ],
   "contact": {
-    "homepage": "https://fabricmc.net/",
-    "sources": "https://github.com/FabricMC/fabric-example-mod"
+    "homepage": "https://www.curseforge.com/minecraft/mc-mods/twitter-for-mc-fabric",
+    "sources": "https://github.com/hamusuke0323/TwitterForMCFabric",
+    "issues": "https://github.com/hamusuke0323/TwitterForMCFabric/issues"
   },
-
-  "license": "CC0-1.0",
-  "icon": "assets/modid/icon.png",
-
-  "environment": "*",
+  "license": "MIT",
+  "environment": "client",
   "entrypoints": {
-    "main": [
-      "net.fabricmc.example.ExampleMod"
+    "client": [
+      "com.hamusuke.twitter4mc.TwitterForMC"
     ]
   },
   "mixins": [
-    "modid.mixins.json"
+    "twitter4mc.mixins.json"
   ],
-
   "depends": {
     "fabricloader": ">=0.11.3",
     "fabric": "*",
@@ -34,5 +30,8 @@
   },
   "suggests": {
     "another-mod": "*"
+  },
+  "custom": {
+    "updateJsonUrl": "https://raw.githubusercontent.com/hamusuke0323/TwitterForMCFabric/main/update.json"
   }
 }

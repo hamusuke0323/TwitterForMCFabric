@@ -1,0 +1,10 @@
+{
+  "required": true,
+  "minVersion": "0.8",
+  "package": "com.hamusuke.twitter4mc.mixin",
+  "compatibilityLevel": "JAVA_16",
+  "client": [
+    "TitleScreenMixin",
+    "TextRendererMixin"
+  ]
+}

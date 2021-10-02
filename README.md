@@ -1,9 +1,4 @@
-# Fabric Example Mod
+# Twitter For MC
+Description is in preparation...
 
-## Setup
-
-For setup instructions please see the [fabric wiki page](https://fabricmc.net/wiki/tutorial:setup) that relates to the IDE that you are using.
-
-## License
-
-This template is available under the CC0 license. Feel free to learn from it and incorporate it in your own projects.
+This mod includes the work that is distributed in the [Apache License 2.0](http://www.apache.org/licenses/LICENSE-2.0) and [CC-BY 4.0](https://creativecommons.org/licenses/by/4.0/).
