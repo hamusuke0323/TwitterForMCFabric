@@ -7,6 +7,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.util.NarratorManager;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
 import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
@@ -23,7 +24,7 @@ public class TitleScreenMixin extends Screen {
         super(NarratorManager.EMPTY);
     }
 
-    @Inject(at = @At("RETURN"), method = "init()V")
+    @Inject(at = @At("TAIL"), method = "init()V")
     private void init(CallbackInfo info) {
         if (!TwitterForMC.twitterScreen.isInitialized()) {
             TwitterForMC.twitterScreen.init(this.client, this.width, this.height);
@@ -35,8 +36,8 @@ public class TitleScreenMixin extends Screen {
         }, new LiteralText("Twitter")));
     }
 
-    @Inject(cancellable = true, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/TitleScreen;blit(IIFFIIII)V", shift = At.Shift.AFTER), method = "render")
-    private void render(CallbackInfo info) {
+    @Inject(cancellable = true, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/TitleScreen;drawTexture(Lnet/minecraft/client/util/math/MatrixStack;IIFFIIII)V", shift = At.Shift.AFTER), method = "render")
+    private void render(MatrixStack matrices, int mouseX, int mouseY, float tickDelta, CallbackInfo info) {
         if (this.client.currentScreen != this) {
             info.cancel();
         }

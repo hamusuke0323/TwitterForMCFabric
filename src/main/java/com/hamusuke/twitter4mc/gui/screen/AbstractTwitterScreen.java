@@ -96,9 +96,9 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
         }
     }
 
-    public void init(MinecraftClient client, int width, int height) {
+    protected void clearChildren() {
+        super.clearChildren();
         this.renderLaterButtons.clear();
-        super.init(client, width, height);
     }
 
     public void renderMessage() {

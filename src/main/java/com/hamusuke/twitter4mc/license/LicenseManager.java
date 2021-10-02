@@ -8,6 +8,7 @@ import net.minecraft.util.Identifier;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Unmodifiable;
 
 import java.io.IOException;
 import java.io.InputStream;
@@ -32,12 +33,12 @@ public final class LicenseManager {
         }
     }
 
-    public static void registerLicense(License license) {
+    private static void registerLicense(License license) {
         LOGGER.info("Registering License: {}:{}", license.getTextLocation().getNamespace(), license.getTextLocation().getPath());
         LICENSE_LIST.add(license);
     }
 
-    public static List<License> getLicenseList() {
+    public static ImmutableList<License> getLicenseList() {
         return ImmutableList.copyOf(LICENSE_LIST);
     }
 
