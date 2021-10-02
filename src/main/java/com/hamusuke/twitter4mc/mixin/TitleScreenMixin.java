@@ -7,6 +7,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.TitleScreen;
 import net.minecraft.client.util.NarratorManager;
+import net.minecraft.text.LiteralText;
 import net.minecraft.util.Identifier;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
@@ -30,8 +31,8 @@ public class TitleScreenMixin extends Screen {
 
         this.addDrawableChild(new ScalableImageButton(this.width / 2 + 104, this.height / 4 + 48, 20, 20, 40, 40, 0.5F, 0, 0, 40, TWITTER_ICON, 40, 80, (b) -> {
             TwitterForMC.twitterScreen.setParentScreen(this);
-            this.minecraft.openScreen(TwitterForMC.twitterScreen);
-        }, "Twitter"));
+            this.client.setScreen(TwitterForMC.twitterScreen);
+        }, new LiteralText("Twitter")));
     }
 
     @Inject(cancellable = true, at = @At(value = "INVOKE", target = "Lnet/minecraft/client/gui/screen/TitleScreen;blit(IIFFIIII)V", shift = At.Shift.AFTER), method = "render")

@@ -35,7 +35,7 @@ public class TextRendererMixin {
      * @author hamusuke0323
      */
     @Overwrite
-    private float drawLayer(String text, float x, float y, int color, boolean shadow, Matrix4f matrix, VertexConsumerProvider vertexConsumerProvider, boolean seeThrough, int underlineColor, int light) {
+    private float draw(String text, float x, float y, int color, boolean shadow, Matrix4f matrix, VertexConsumerProvider vertexConsumerProvider, boolean seeThrough, int underlineColor, int light) {
         float f = shadow ? 0.25F : 1.0F;
         float g = (float) (color >> 16 & 255) / 255.0F * f;
         float h = (float) (color >> 8 & 255) / 255.0F * f;
