@@ -33,41 +33,33 @@ public class VersionChecker {
 
     public static void checkUpdate() {
         Optional<ModContainer> modContainerOptional = FabricLoader.getInstance().getModContainer(TwitterForMC.MOD_ID);
-        if (modContainerOptional.isPresent()) {
-            try {
-                ModMetadata modMetadata = modContainerOptional.get().getMetadata();
-                CustomValue customValue = modMetadata.getCustomValue("updateJsonUrl");
-                String urlString = customValue == null ? "" : customValue.getAsString();
-                ContactInformation contactInformation = modMetadata.getContact();
-                Optional<String> stringOptional = contactInformation == null ? Optional.empty() : contactInformation.get("homepage");
-                String updateUrl = stringOptional.orElse("");
+        modContainerOptional.ifPresent(modContainer -> {
 
-                if (!urlString.isEmpty() && !updateUrl.isEmpty()) {
-                    URL url = new URL(urlString);
-                    InputStream inputStream = url.openStream();
+            ModMetadata modMetadata = modContainer.getMetadata();
+            CustomValue customValue = modMetadata.getCustomValue("updateJsonUrl");
+            String urlString = customValue == null ? "" : customValue.getAsString();
+            ContactInformation contactInformation = modMetadata.getContact();
+            String updateUrl = contactInformation == null ? "" : contactInformation.get("homepage").orElse("");
+            if (!urlString.isEmpty() && !updateUrl.isEmpty()) {
+                try (InputStream inputStream = new URL(urlString).openStream()) {
+                    Gson gson = new Gson();
+                    JsonObject jsonObject = gson.fromJson(new InputStreamReader(inputStream, StandardCharsets.UTF_8), JsonObject.class);
+                    String version = SharedConstants.getGameVersion().getName();
 
-                    if (inputStream != null) {
-                        Gson gson = new Gson();
-                        JsonObject jsonObject = gson.fromJson(new InputStreamReader(inputStream, StandardCharsets.UTF_8), JsonObject.class);
-                        String version = SharedConstants.getGameVersion().getName();
+                    if (jsonObject != null && jsonObject.has(version)) {
+                        String newVersion = jsonObject.get(version).getAsString();
+                        String current = modMetadata.getVersion().getFriendlyString();
+                        VersionChecker.isUpdateAvailable = !current.equalsIgnoreCase(newVersion);
+                        VersionChecker.version = newVersion;
+                        VersionChecker.url = updateUrl;
 
-                        if (jsonObject != null && jsonObject.has(version)) {
-                            String newVersion = jsonObject.get(version).getAsString();
-                            String current = modMetadata.getVersion().getFriendlyString();
-                            VersionChecker.isUpdateAvailable = !current.equalsIgnoreCase(newVersion);
-                            VersionChecker.version = newVersion;
-                            VersionChecker.url = updateUrl;
-
-                            LOGGER.info("current TwitterForMC version: {}, new version: {}", current, VersionChecker.isUpdateAvailable ? newVersion : "NONE");
-                        }
+                        LOGGER.info("current TwitterForMC version: {}, new version: {}", current, VersionChecker.isUpdateAvailable ? newVersion : "NONE");
                     }
+                } catch (Exception e) {
+                    LOGGER.warn("Couldn't check new update", e);
                 }
-            } catch (Exception e) {
-                LOGGER.warn("Couldn't check new update", e);
             }
-        } else {
-            throw new IllegalStateException();
-        }
+        });
     }
 
     public static boolean isUpdateAvailable() {

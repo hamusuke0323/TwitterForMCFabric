@@ -3,11 +3,14 @@ package com.hamusuke.twitter4mc.utils;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import twitter4j.auth.AccessToken;
+
+import java.io.Serial;
 import java.io.Serializable;
 import java.util.Objects;
 
 @Environment(EnvType.CLIENT)
 public final class NewToken implements Serializable {
+    @Serial
     private static final long serialVersionUID = 1446196596512638593L;
 
     private final String consumer;

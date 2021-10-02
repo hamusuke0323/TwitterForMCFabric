@@ -36,7 +36,7 @@ public final class EmojiManager implements SimpleSynchronousResourceReloadListen
         return new Identifier(TwitterForMC.MOD_ID, "emoji_resources");
     }
 
-    public void apply(ResourceManager manager) {
+    public void reload(ResourceManager manager) {
         this.load(manager);
     }
 

@@ -4,7 +4,8 @@
   "package": "com.hamusuke.twitter4mc.mixin",
   "compatibilityLevel": "JAVA_16",
   "client": [
-    "TitleScreenMixin",
-    "TextRendererMixin"
+    "TextHandlerMixin",
+    "TextRendererMixin",
+    "TitleScreenMixin"
   ]
 }
