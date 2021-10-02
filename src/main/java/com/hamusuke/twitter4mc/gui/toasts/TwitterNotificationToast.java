@@ -1,20 +1,24 @@
 package com.hamusuke.twitter4mc.gui.toasts;
 
-import java.io.InputStream;
-import java.util.List;
-
 import com.hamusuke.twitter4mc.TwitterForMC;
+import com.hamusuke.twitter4mc.invoker.TextRendererInvoker;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.minecraft.client.font.TextRenderer;
 import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.toast.Toast;
 import net.minecraft.client.toast.ToastManager;
-import org.apache.logging.log4j.LogManager;
-
-import com.mojang.blaze3d.systems.RenderSystem;
-
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.StringVisitable;
+import net.minecraft.text.Style;
 import net.minecraft.util.math.MathHelper;
+import org.apache.logging.log4j.LogManager;
 import org.jetbrains.annotations.Nullable;
+
+import java.io.InputStream;
+import java.util.List;
 
 @Environment(EnvType.CLIENT)
 public class TwitterNotificationToast extends InputStreamToast implements ClickableToast {
@@ -28,31 +32,40 @@ public class TwitterNotificationToast extends InputStreamToast implements Clicka
 		this.subtitle = subtitle;
 	}
 
-	public Visibility draw(ToastManager toastGui, long delta) {
-		toastGui.getGame().getTextureManager().bindTexture(TOASTS_TEX);
-		RenderSystem.color3f(1.0F, 1.0F, 1.0F);
-		toastGui.blit(0, 0, 0, 0, 160, 32);
+	static TextRendererInvoker getInvoker(TextRenderer textRenderer) {
+		return (TextRendererInvoker) textRenderer;
+	}
+
+	public void mouseClicked(int toastX, int toastY, double x, double y, int button) {
+		LogManager.getLogger().info("x: {}, y: {}", toastX, toastY);
+	}
+
+	public Visibility draw(MatrixStack matrices, ToastManager toastGui, long delta) {
+		RenderSystem.setShader(GameRenderer::getPositionTexShader);
+		RenderSystem.setShaderTexture(0, TEXTURE);
+		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
+		toastGui.drawTexture(matrices, 0, 0, 0, 0, 160, 32);
 
 		if (this.subtitle == null) {
-			toastGui.getGame().textRenderer.draw(this.title, 30.0F, 12.0F, -1);
+			getInvoker(toastGui.getGame().textRenderer).drawWithEmoji(matrices, this.title, 30.0F, 12.0F, -1);
 		} else {
-			List<String> list = toastGui.getGame().textRenderer.wrapStringToWidthAsList(this.subtitle, 125);
+			List<StringVisitable> list = toastGui.getGame().textRenderer.getTextHandler().wrapLines(this.subtitle, 125, Style.EMPTY);
 			if (list.size() == 1) {
-				toastGui.getGame().textRenderer.draw(this.title, 30.0F, 7.0F, 16777215);
-				toastGui.getGame().textRenderer.draw(this.subtitle, 30.0F, 18.0F, 16777215);
+				getInvoker(toastGui.getGame().textRenderer).drawWithEmoji(matrices, this.title, 30.0F, 7.0F, 16777215);
+				getInvoker(toastGui.getGame().textRenderer).drawWithEmoji(matrices, this.subtitle, 30.0F, 18.0F, 16777215);
 			} else {
 				int j = 1500;
 				float f = 300.0F;
 				if (delta < 1500L) {
 					int k = MathHelper.floor(MathHelper.clamp((float) (1500L - delta) / 300.0F, 0.0F, 1.0F) * 255.0F) << 24 | 67108864;
-					toastGui.getGame().textRenderer.draw(this.title, 30.0F, 7.0F, 16777215 | k);
-					toastGui.getGame().textRenderer.draw(this.subtitle, 30.0F, 18.0F, 16777215 | k);
+					getInvoker(toastGui.getGame().textRenderer).drawWithEmoji(matrices, this.title, 30.0F, 7.0F, 16777215 | k);
+					getInvoker(toastGui.getGame().textRenderer).drawWithEmoji(matrices, this.subtitle, 30.0F, 18.0F, 16777215 | k);
 				} else {
 					int i1 = MathHelper.floor(MathHelper.clamp((float) (delta - 1500L) / 300.0F, 0.0F, 1.0F) * 252.0F) << 24 | 67108864;
 					int l = 16 - list.size() * 9 / 2;
 
-					for (String s : list) {
-						toastGui.getGame().textRenderer.draw(s, 30.0F, (float) l, 16777215 | i1);
+					for (StringVisitable s : list) {
+						getInvoker(toastGui.getGame().textRenderer).drawWithEmoji(matrices, s.getString(), 30.0F, (float) l, 16777215 | i1);
 						l += 9;
 					}
 				}
@@ -60,19 +73,15 @@ public class TwitterNotificationToast extends InputStreamToast implements Clicka
 		}
 
 		if (this.image != null) {
-			RenderSystem.pushMatrix();
+			matrices.push();
 			RenderSystem.enableBlend();
-			RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
-			RenderSystem.translatef(8.0F, 8.0F, 0.0F);
+			RenderSystem.clearColor(1.0F, 1.0F, 1.0F, 1.0F);
+			matrices.translate(8.0D, 8.0D, 0.0D);
 			TwitterForMC.getTextureManager().bindTexture(this.image);
-			DrawableHelper.blit(0, 0, 0.0F, 0.0F, 16, 16, 16, 16);
-			RenderSystem.popMatrix();
+			DrawableHelper.drawTexture(matrices, 0, 0, 0.0F, 0.0F, 16, 16, 16, 16);
+			matrices.pop();
 		}
 
 		return delta < 5000L ? Toast.Visibility.SHOW : Toast.Visibility.HIDE;
-	}
-
-	public void mouseClicked(int toastX, int toastY, double x, double y, int button) {
-		LogManager.getLogger().info("x: {}, y: {}", toastX, toastY);
 	}
 }
