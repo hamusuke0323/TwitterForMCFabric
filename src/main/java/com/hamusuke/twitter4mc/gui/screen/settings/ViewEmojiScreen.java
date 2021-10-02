@@ -9,11 +9,12 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.ScreenTexts;
+import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.EntryListWidget;
-import net.minecraft.client.resource.language.I18n;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.TranslatableText;
-import net.minecraft.util.Formatting;
 
 @Environment(EnvType.CLIENT)
 public class ViewEmojiScreen extends ParentalScreen {
@@ -26,18 +27,16 @@ public class ViewEmojiScreen extends ParentalScreen {
     protected void init() {
         super.init();
 
-        this.addButton(new ButtonWidget(this.width / 4, this.height - 20, this.width / 2, 20, I18n.translate("gui.back"), (b) -> {
-            this.onClose();
-        }));
+        this.addDrawableChild(new ButtonWidget(this.width / 4, this.height - 20, this.width / 2, 20, ScreenTexts.BACK, b -> this.onClose()));
 
-        this.emojiList = new EmojiList(TwitterForMC.getEmojiManager(), this.minecraft, this.width, this.height, 30, this.height - 20, 50);
-        this.children.add(this.emojiList);
+        this.emojiList = new EmojiList(TwitterForMC.getEmojiManager(), this.client, this.width, this.height, 30, this.height - 20, 50);
+        this.addDrawableChild(this.emojiList);
     }
 
-    public void render(int mouseX, int mouseY, float delta) {
-        this.emojiList.render(mouseX, mouseY, delta);
-        this.drawCenteredString(this.font, this.title.asFormattedString(), this.width / 2, 10, Formatting.WHITE.getColorValue());
-        super.render(mouseX, mouseY, delta);
+    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+        this.emojiList.render(matrices, mouseX, mouseY, delta);
+        drawCenteredText(matrices, this.textRenderer, this.title, this.width / 2, 10, 16777215);
+        super.render(matrices, mouseX, mouseY, delta);
     }
 
     @Environment(EnvType.CLIENT)
@@ -47,7 +46,7 @@ public class ViewEmojiScreen extends ParentalScreen {
             emojiManager.getAllEmojis().forEach((hex, emoji) -> this.addEntry(new EmojiEntry(emoji)));
         }
 
-        protected int getScrollbarPosition() {
+        protected int getScrollbarPositionX() {
             return this.width - 5;
         }
 
@@ -55,12 +54,15 @@ public class ViewEmojiScreen extends ParentalScreen {
             return this.width;
         }
 
-        protected boolean isSelectedItem(int index) {
+        protected boolean isSelectedEntry(int index) {
             return true;
         }
 
         protected boolean isFocused() {
             return true;
+        }
+
+        public void appendNarrations(NarrationMessageBuilder builder) {
         }
 
         @Environment(EnvType.CLIENT)
@@ -71,10 +73,10 @@ public class ViewEmojiScreen extends ParentalScreen {
                 this.emoji = emoji;
             }
 
-            public void render(int index, int y, int x, int width, int height, int mouseX, int mouseY, boolean hovering, float delta) {
-                ViewEmojiScreen.this.font.drawWithShadow("Hexadecimal(Character code): " + this.emoji.getHex(), x, y + height / 2 - 4, Formatting.WHITE.getColorValue());
-                ViewEmojiScreen.this.minecraft.getTextureManager().bindTexture(this.emoji.getId());
-                DrawableHelper.blit(x + width - 60, y + 2, 0.0F, 0.0F, 42, 42, 42, 42);
+            public void render(MatrixStack matrices, int index, int y, int x, int width, int height, int mouseX, int mouseY, boolean hovering, float delta) {
+                ViewEmojiScreen.this.textRenderer.drawWithShadow(matrices, "Hexadecimal(Character code): " + this.emoji.getHex(), x, y + (float) height / 2 - 4, 16777215);
+                ViewEmojiScreen.this.client.getTextureManager().bindTexture(this.emoji.getId());
+                DrawableHelper.drawTexture(matrices, x + width - 60, y + 2, 0.0F, 0.0F, 42, 42, 42, 42);
             }
         }
     }

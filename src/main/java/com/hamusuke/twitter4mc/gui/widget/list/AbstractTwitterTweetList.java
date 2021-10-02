@@ -216,8 +216,8 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 			RenderSystem.depthFunc(519);
 			float g = 32.0F;
 			bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
-			bufferBuilder.vertex(this.left, (double) this.top, -100.0D).texture(0.0F, (float) this.top / 32.0F).color(64, 64, 64, 255).next();
-			bufferBuilder.vertex(this.left + this.width, (double) this.top, -100.0D).texture((float) this.width / 32.0F, (float) this.top / 32.0F).color(64, 64, 64, 255).next();
+			bufferBuilder.vertex(this.left, this.top, -100.0D).texture(0.0F, (float) this.top / 32.0F).color(64, 64, 64, 255).next();
+			bufferBuilder.vertex(this.left + this.width, this.top, -100.0D).texture((float) this.width / 32.0F, (float) this.top / 32.0F).color(64, 64, 64, 255).next();
 			bufferBuilder.vertex(this.left + this.width, 0.0D, -100.0D).texture((float) this.width / 32.0F, 0.0F).color(64, 64, 64, 255).next();
 			bufferBuilder.vertex(this.left, 0.0D, -100.0D).texture(0.0F, 0.0F).color(64, 64, 64, 255).next();
 			bufferBuilder.vertex(this.left, this.height, -100.0D).texture(0.0F, (float) this.height / 32.0F).color(64, 64, 64, 255).next();
@@ -232,14 +232,14 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 			RenderSystem.disableTexture();
 			RenderSystem.setShader(GameRenderer::getPositionColorShader);
 			bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
-			bufferBuilder.vertex((double) this.left, (double) (this.top + 4), 0.0D).color(0, 0, 0, 0).next();
-			bufferBuilder.vertex((double) this.right, (double) (this.top + 4), 0.0D).color(0, 0, 0, 0).next();
-			bufferBuilder.vertex((double) this.right, (double) this.top, 0.0D).color(0, 0, 0, 255).next();
-			bufferBuilder.vertex((double) this.left, (double) this.top, 0.0D).color(0, 0, 0, 255).next();
-			bufferBuilder.vertex((double) this.left, (double) this.bottom, 0.0D).color(0, 0, 0, 255).next();
-			bufferBuilder.vertex((double) this.right, (double) this.bottom, 0.0D).color(0, 0, 0, 255).next();
-			bufferBuilder.vertex((double) this.right, (double) (this.bottom - 4), 0.0D).color(0, 0, 0, 0).next();
-			bufferBuilder.vertex((double) this.left, (double) (this.bottom - 4), 0.0D).color(0, 0, 0, 0).next();
+			bufferBuilder.vertex(this.left, this.top + 4, 0.0D).color(0, 0, 0, 0).next();
+			bufferBuilder.vertex(this.right, this.top + 4, 0.0D).color(0, 0, 0, 0).next();
+			bufferBuilder.vertex(this.right, this.top, 0.0D).color(0, 0, 0, 255).next();
+			bufferBuilder.vertex(this.left, this.top, 0.0D).color(0, 0, 0, 255).next();
+			bufferBuilder.vertex(this.left, this.bottom, 0.0D).color(0, 0, 0, 255).next();
+			bufferBuilder.vertex(this.right, this.bottom, 0.0D).color(0, 0, 0, 255).next();
+			bufferBuilder.vertex(this.right, this.bottom - 4, 0.0D).color(0, 0, 0, 0).next();
+			bufferBuilder.vertex(this.left, this.bottom - 4, 0.0D).color(0, 0, 0, 0).next();
 			tessellator.draw();
 		}
 
