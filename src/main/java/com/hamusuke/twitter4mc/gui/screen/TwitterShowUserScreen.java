@@ -159,11 +159,11 @@ public class TwitterShowUserScreen extends AbstractTwitterScreen {
 
 				int k = rowTop + (i - i / 3) + j;
 				int x = 0;
-				for (int index = 0; index < this.name.size(); index++) {
-					int xx = TwitterShowUserScreen.this.drawWithShadowAndEmoji(matrices, this.name.get(index).getString(), rowLeft + 10, k, 16777215);
-					k += TwitterShowUserScreen.this.textRenderer.fontHeight;
-					x = index == this.name.size() - 1 ? xx : rowLeft + 10;
+				for (StringVisitable stringVisitable : this.name) {
+					x = TwitterShowUserScreen.this.drawWithShadowAndEmoji(matrices, stringVisitable.getString(), rowLeft + 10, k, 16777215);
 				}
+
+				k += (this.name.size() - 1) * TwitterShowUserScreen.this.textRenderer.fontHeight;
 
 				if (this.summary.isProtected()) {
 					x += TwitterShowUserScreen.this.renderProtected(matrices, x, k);
@@ -171,6 +171,8 @@ public class TwitterShowUserScreen extends AbstractTwitterScreen {
 				if (this.summary.isVerified()) {
 					TwitterShowUserScreen.this.renderVerified(matrices, x, k);
 				}
+
+				k += TwitterShowUserScreen.this.textRenderer.fontHeight;
 
 				TwitterShowUserScreen.this.drawWithShadowAndEmoji(matrices, new LiteralText(this.summary.getScreenName()).formatted(Formatting.GRAY).asString(), rowLeft + 10, k, 0);
 

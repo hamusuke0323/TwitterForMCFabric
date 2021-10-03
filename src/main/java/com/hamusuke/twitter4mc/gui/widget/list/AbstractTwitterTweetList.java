@@ -436,6 +436,7 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 					int l1 = this.left + this.width / 2 - k1 / 2;
 					int i2 = this.left + this.width / 2 + k1 / 2;
 					RenderSystem.disableTexture();
+					RenderSystem.setShader(GameRenderer::getPositionShader);
 					float f = this.isFocused() ? 1.0F : 0.5F;
 					RenderSystem.setShaderColor(f, f, f, 1.0F);
 					bufferbuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION);

@@ -45,6 +45,8 @@ public class TwitterScreen extends AbstractTwitterScreen {
 	}
 
 	public void init() {
+		this.getPreviousScreen().ifPresent(screen -> this.client.setScreen(screen));
+
 		boolean updateAvailable = VersionChecker.isUpdateAvailable();
 		int i = this.width / (updateAvailable ? 3 : 2);
 		int j = 0;
@@ -146,8 +148,6 @@ public class TwitterScreen extends AbstractTwitterScreen {
 		if (this.parent != null) {
 			this.parent.resize(this.client, this.width, this.height);
 		}
-
-		super.init();
 	}
 
 	public boolean isInitialized() {

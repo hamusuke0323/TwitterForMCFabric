@@ -15,6 +15,7 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexConsumerProvider;
@@ -33,9 +34,10 @@ import twitter4j.User;
 import java.awt.*;
 import java.io.InputStream;
 import java.util.List;
+import java.util.Optional;
 
 @Environment(EnvType.CLIENT)
-public abstract class AbstractTwitterScreen extends ParentalScreen implements DisplayableMessage {
+public abstract class AbstractTwitterScreen extends ParentalScreen implements DisplayableMessage, ReturnableGame {
     protected static final Identifier PROTECTED = new Identifier(TwitterForMC.MOD_ID, "textures/twitter/icon/protected.png");
     protected static final Identifier VERIFIED = new Identifier(TwitterForMC.MOD_ID, "textures/twitter/icon/verified.png");
     protected static final Identifier REPLY = new Identifier(TwitterForMC.MOD_ID, "textures/twitter/icon/reply.png");
@@ -57,6 +59,8 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
     protected String message;
     protected int fade;
     protected boolean isFade;
+    @Nullable
+    Screen previousScreen;
 
     protected AbstractTwitterScreen(Text title, @Nullable Screen parent) {
         super(title, parent);
@@ -80,6 +84,11 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
         }
 
         super.tick();
+    }
+
+    protected void init() {
+        this.addDrawableChild(new ButtonWidget(this.width / 2 - this.width / 4, this.height - 20, this.width / 2, 20, new TranslatableText("menu.returnToGame"), button -> this.returnToGame()));
+        super.init();
     }
 
     protected <T extends ClickableWidget> T addRenderLaterButton(T button) {
@@ -109,6 +118,17 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
     public void accept(String errorMsg) {
         this.message = errorMsg;
         this.fade = 100;
+    }
+
+    public void returnToGame() {
+        TwitterForMC.twitterScreen.previousScreen = this;
+        this.client.setScreen(null);
+    }
+
+    protected final Optional<Screen> getPreviousScreen() {
+        Optional<Screen> screen = Optional.ofNullable(this.previousScreen);
+        this.previousScreen = null;
+        return screen;
     }
 
     public boolean mouseClicked(double p_mouseClicked_1_, double p_mouseClicked_3_, int p_mouseClicked_5_) {
