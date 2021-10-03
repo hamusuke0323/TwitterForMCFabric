@@ -37,7 +37,7 @@ public class TwitterShowUserScreen extends AbstractTwitterScreen {
 	protected void init() {
 		List<StringVisitable> wrapped = this.textRenderer.getTextHandler().wrapLines(this.title, this.width / 2 - 20, Style.EMPTY);
 		this.name = wrapped;
-		int fontHeight = this.textRenderer.fontHeight;
+		int fontHeight = this.textRenderer.fontHeight + 1;
 		int top = fontHeight * wrapped.size() + fontHeight;
 
 		this.addDrawableChild(new ButtonWidget(this.width / 2 - this.width / 4 + 2, 0, 20, 20, new LiteralText("←"), button -> this.onClose(), (button, matrices, mouseX, mouseY) -> {
