@@ -437,14 +437,14 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 					int i2 = this.left + this.width / 2 + k1 / 2;
 					RenderSystem.disableTexture();
 					float f = this.isFocused() ? 1.0F : 0.5F;
-					RenderSystem.clearColor(f, f, f, 1.0F);
+					RenderSystem.setShaderColor(f, f, f, 1.0F);
 					bufferbuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION);
 					bufferbuilder.vertex(l1, i1 + j1 + 2, 0.0D).next();
 					bufferbuilder.vertex(i2, i1 + j1 + 2, 0.0D).next();
 					bufferbuilder.vertex(i2, i1 - 2, 0.0D).next();
 					bufferbuilder.vertex(l1, i1 - 2, 0.0D).next();
 					tessellator.draw();
-					RenderSystem.clearColor(0.0F, 0.0F, 0.0F, 1.0F);
+					RenderSystem.setShaderColor(0.0F, 0.0F, 0.0F, 1.0F);
 					bufferbuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION);
 					bufferbuilder.vertex(l1 + 1, i1 + j1 + 1, 0.0D).next();
 					bufferbuilder.vertex(i2 - 1, i1 + j1 + 1, 0.0D).next();
@@ -480,7 +480,7 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder bufferbuilder = tessellator.getBuffer();
 		RenderSystem.setShaderTexture(0, OPTIONS_BACKGROUND_TEXTURE);
-		RenderSystem.clearColor(1.0F, 1.0F, 1.0F, 1.0F);
+		RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 		bufferbuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
 		bufferbuilder.vertex(this.left, bottom, 0.0D).texture(0.0F, (float) bottom / 32.0F).color(64, 64, 64, alphaBottom).next();
 		bufferbuilder.vertex(this.left + this.width, bottom, 0.0D).texture((float) this.width / 32.0F, (float) bottom / 32.0F).color(64, 64, 64, alphaBottom).next();

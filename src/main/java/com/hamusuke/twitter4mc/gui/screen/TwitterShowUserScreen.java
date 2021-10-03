@@ -9,6 +9,8 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.ScreenTexts;
+import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.texture.MissingSprite;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
@@ -37,6 +39,10 @@ public class TwitterShowUserScreen extends AbstractTwitterScreen {
 		this.name = wrapped;
 		int fontHeight = this.textRenderer.fontHeight;
 		int top = fontHeight * wrapped.size() + fontHeight;
+
+		this.addDrawableChild(new ButtonWidget(this.width / 2 - this.width / 4 + 2, 0, 20, 20, new LiteralText("←"), button -> this.onClose(), (button, matrices, mouseX, mouseY) -> {
+			this.renderTooltip(matrices, ScreenTexts.BACK, mouseX, mouseY);
+		}));
 
 		if (!this.user.isGettingUserTimeline()) {
 			if (!this.user.isAlreadyGotUserTimeline()) {

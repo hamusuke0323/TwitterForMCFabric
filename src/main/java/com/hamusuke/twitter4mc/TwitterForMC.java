@@ -40,10 +40,7 @@ import twitter4j.auth.AccessToken;
 
 import java.io.*;
 import java.nio.file.Path;
-import java.util.Collections;
-import java.util.List;
-import java.util.Objects;
-import java.util.TreeSet;
+import java.util.*;
 
 @Environment(EnvType.CLIENT)
 public final class TwitterForMC implements ClientModInitializer {
@@ -51,11 +48,8 @@ public final class TwitterForMC implements ClientModInitializer {
     private static final Logger LOGGER = LogManager.getLogger();
     private static final TextureManager textureManager = new TextureManager();
     private static final EmojiManager emojiManager = new EmojiManager();
-    @Nullable
     private static Path configFile;
-    @Nullable
     private static File tokenFile;
-    @Nullable
     public static Twitter mcTwitter;
     @Nullable
     private static NewToken token;
@@ -64,25 +58,18 @@ public final class TwitterForMC implements ClientModInitializer {
     public static final TreeSet<Status> tweets = Sets.newTreeSet(Collections.reverseOrder());
     public static final TreeSet<TweetSummary> tweetSummaries = Sets.newTreeSet(Collections.reverseOrder());
     public static KeyBinding openTwitter;
-    @Nullable
     public static MaskableTextFieldWidget consumer;
-    @Nullable
     public static MaskableTextFieldWidget consumerS;
-    @Nullable
     public static MaskableTextFieldWidget access;
-    @Nullable
     public static MaskableTextFieldWidget accessS;
-    @Nullable
     public static CheckboxWidget save;
-    @Nullable
     public static CheckboxWidget autoLogin;
-    @Nullable
     public static ButtonWidget login;
     public static final FileChooserOpen tokenFileChooser = new FileChooserOpen((file) -> {
         if (file != null) {
-            NewToken t = read(file);
-            if (t != null) {
-                token = t;
+            Optional<NewToken> t = Optional.ofNullable(read(file));
+            t.ifPresent(newToken -> {
+                token = newToken;
                 update();
                 if (token.autoLogin()) {
                     if (!save.isChecked()) {
@@ -96,70 +83,12 @@ public final class TwitterForMC implements ClientModInitializer {
                         autoLogin.onPress();
                     }
                 }
-            }
+            });
         }
     }, FabricLoader.getInstance().getGameDir().toFile());
 
-    public void onInitializeClient() {
-        LOGGER.info("Hello from TwitterForMC#onInitializeClient!");
-
-        LicenseManager.registerLicense(new Identifier(TwitterForMC.MOD_ID, "license/mitlicense.txt"), 400, "tw.license.thismod");
-        LicenseManager.registerLicense(new Identifier(TwitterForMC.MOD_ID, "license/twitter4j_license.txt"), 270, "tw.license.twitter4j");
-        LicenseManager.registerLicense(new Identifier(TwitterForMC.MOD_ID, "license/twemoji_graphics_license.txt"), 320, "tw.license.twemoji.graphics");
-
-        VersionChecker.checkUpdate();
-
-        configFile = FabricLoader.getInstance().getConfigDir().resolve(MOD_ID);
-        if (!configFile.toFile().exists()) {
-            if (configFile.toFile().mkdir()) {
-                LOGGER.info("made config directory: {}", MOD_ID);
-            }
-        }
-        tokenFile = configFile.resolve("token").toFile();
-
-        openTwitter = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.twitter4mc.opentw", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_B, "key.categories.gameplay"));
-        ClientTickEvents.END_CLIENT_TICK.register((client) -> {
-            while (openTwitter.wasPressed()) {
-                twitterScreen.setParentScreen(null);
-                client.setScreen(twitterScreen);
-            }
-        });
-
-        ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(emojiManager);
-
-        PlatformImpl.startup(() -> {
-        });
-        Platform.setImplicitExit(false);
-
-        ClientLifecycleEvents.CLIENT_STOPPING.register((client) -> Platform.exit());
-
-        new TwitterThread(() -> {
-            token = read(tokenFile);
-            if (token != null) {
-                AccessToken var1 = new AccessToken(token.getAccessToken(), token.getAccessTokenSecret());
-                if (token.autoLogin()) {
-                    try {
-                        mcTwitter = new TwitterFactory().getInstance();
-                        mcTwitter.setOAuthConsumer(token.getConsumer(), token.getConsumerSecret());
-                        mcTwitter.setOAuthAccessToken(var1);
-                        mcTwitter.getId();
-                        loginTwitter = true;
-                        LOGGER.info("Successfully logged in twitter.");
-                    } catch (Throwable e) {
-                        mcTwitter = null;
-                        loginTwitter = false;
-                        LOGGER.error("Error occurred while logging in twitter", e);
-                    }
-                }
-            }
-
-            if (loginTwitter) {
-                loadTimeline();
-                for (Status s : tweets) {
-                    tweetSummaries.add(new TweetSummary(s));
-                }
-            }
-        }).start();
+    public static Optional<NewToken> getNewToken() {
+        return Optional.ofNullable(token);
     }
 
     public static synchronized void saveTimeline() throws IOException {
@@ -223,27 +152,71 @@ public final class TwitterForMC implements ClientModInitializer {
         }
     }
 
-    @Nullable
-    public static File getTokenFile() {
-        return tokenFile;
-    }
-
-    @Nullable
-    public static Path getConfigFile() {
-        return configFile;
-    }
-
-    @Nullable
-    public static NewToken getToken() {
-        return token;
+    public static boolean readToken() {
+        return getNewToken().isPresent();
     }
 
     public static boolean isAutoLogin() {
         return readToken() && token.autoLogin();
     }
 
-    public static boolean readToken() {
-        return token != null;
+    public void onInitializeClient() {
+        LOGGER.info("Hello from TwitterForMC#onInitializeClient!");
+
+        configFile = FabricLoader.getInstance().getConfigDir().resolve(MOD_ID);
+        if (!configFile.toFile().exists()) {
+            if (configFile.toFile().mkdir()) {
+                LOGGER.info("made config directory: {}", MOD_ID);
+            }
+        }
+        tokenFile = configFile.resolve("token").toFile();
+        openTwitter = KeyBindingHelper.registerKeyBinding(new KeyBinding("key.twitter4mc.opentw", InputUtil.Type.KEYSYM, GLFW.GLFW_KEY_B, "key.categories.gameplay"));
+
+        LicenseManager.registerLicense(new Identifier(TwitterForMC.MOD_ID, "license/mitlicense.txt"), 400, "tw.license.thismod");
+        LicenseManager.registerLicense(new Identifier(TwitterForMC.MOD_ID, "license/twitter4j_license.txt"), 270, "tw.license.twitter4j");
+        LicenseManager.registerLicense(new Identifier(TwitterForMC.MOD_ID, "license/twemoji_graphics_license.txt"), 320, "tw.license.twemoji.graphics");
+        VersionChecker.checkUpdate();
+        ClientTickEvents.END_CLIENT_TICK.register((client) -> {
+            while (openTwitter.wasPressed()) {
+                twitterScreen.setParentScreen(null);
+                client.setScreen(twitterScreen);
+            }
+        });
+        ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(emojiManager);
+
+        PlatformImpl.startup(() -> {
+        });
+        Platform.setImplicitExit(false);
+
+        ClientLifecycleEvents.CLIENT_STOPPING.register((client) -> Platform.exit());
+
+        new TwitterThread(() -> {
+            token = read(tokenFile);
+            getNewToken().ifPresent(token -> {
+                AccessToken var1 = new AccessToken(token.getAccessToken(), token.getAccessTokenSecret());
+                if (token.autoLogin()) {
+                    try {
+                        mcTwitter = new TwitterFactory().getInstance();
+                        mcTwitter.setOAuthConsumer(token.getConsumer(), token.getConsumerSecret());
+                        mcTwitter.setOAuthAccessToken(var1);
+                        mcTwitter.getId();
+                        loginTwitter = true;
+                        LOGGER.info("Successfully logged in twitter.");
+                    } catch (Throwable e) {
+                        mcTwitter = null;
+                        loginTwitter = false;
+                        LOGGER.error("Error occurred while logging in twitter", e);
+                    }
+                }
+            });
+
+            if (loginTwitter) {
+                loadTimeline();
+                for (Status s : tweets) {
+                    tweetSummaries.add(new TweetSummary(s));
+                }
+            }
+        }).start();
     }
 
     public static void update() {

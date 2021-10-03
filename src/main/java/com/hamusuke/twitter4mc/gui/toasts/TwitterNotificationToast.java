@@ -73,7 +73,7 @@ public class TwitterNotificationToast extends InputStreamToast implements Clicka
 		if (this.image != null) {
 			matrices.push();
 			RenderSystem.enableBlend();
-			RenderSystem.clearColor(1.0F, 1.0F, 1.0F, 1.0F);
+			RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 			matrices.translate(8.0D, 8.0D, 0.0D);
 			TwitterForMC.getTextureManager().bindTexture(this.image);
 			DrawableHelper.drawTexture(matrices, 0, 0, 0.0F, 0.0F, 16, 16, 16, 16);
