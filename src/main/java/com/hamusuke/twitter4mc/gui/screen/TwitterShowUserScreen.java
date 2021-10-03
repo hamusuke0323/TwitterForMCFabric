@@ -49,13 +49,13 @@ public class TwitterShowUserScreen extends AbstractTwitterScreen {
 
 					this.list = new TweetList(this.client, top, this.user);
 					this.list.setScrollAmount(scroll);
-					this.addDrawableChild(this.list);
+					this.addSelectableChild(this.list);
 				});
 			} else {
 				double scroll = this.list != null ? this.list.getScrollAmount() : 0.0D;
 				this.list = new TweetList(this.client, top, this.user);
 				this.list.setScrollAmount(scroll);
-				this.addDrawableChild(this.list);
+				this.addSelectableChild(this.list);
 			}
 		}
 

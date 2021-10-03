@@ -39,13 +39,13 @@ public class TwitterShowStatusScreen extends AbstractTwitterScreen {
 
 					this.list = new TwitterShowStatusScreen.TweetList(this.client, this.summary);
 					this.list.setScrollAmount(scroll);
-					this.addDrawableChild(this.list);
+					this.addSelectableChild(this.list);
 				});
 			} else {
 				double scroll = this.list != null ? this.list.getScrollAmount() : 0.0D;
 				this.list = new TwitterShowStatusScreen.TweetList(this.client, this.summary);
 				this.list.setScrollAmount(scroll);
-				this.addDrawableChild(this.list);
+				this.addSelectableChild(this.list);
 			}
 		}
 

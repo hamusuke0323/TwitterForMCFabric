@@ -109,7 +109,7 @@ public class TwitterScreen extends AbstractTwitterScreen {
 					TwitterForMC.tweetSummaries.add(tweetSummary);
 					this.remove(this.list);
 					this.list = new TweetList(this.client);
-					this.addDrawableChild(this.list);
+					this.addSelectableChild(this.list);
 				}, () -> {
 					p.active = true;
 					this.refreshingTL.set(false);
@@ -140,7 +140,7 @@ public class TwitterScreen extends AbstractTwitterScreen {
 			double scroll = this.list != null ? this.list.getScrollAmount() : 0.0D;
 			this.list = new TwitterScreen.TweetList(this.client);
 			this.list.setScrollAmount(scroll);
-			this.addDrawableChild(this.list);
+			this.addSelectableChild(this.list);
 		}
 
 		if (this.parent != null) {

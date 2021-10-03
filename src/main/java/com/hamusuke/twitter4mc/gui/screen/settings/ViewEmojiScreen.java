@@ -31,7 +31,7 @@ public class ViewEmojiScreen extends ParentalScreen {
         this.addDrawableChild(new ButtonWidget(this.width / 4, this.height - 20, this.width / 2, 20, ScreenTexts.BACK, b -> this.onClose()));
 
         this.emojiList = new EmojiList(TwitterForMC.getEmojiManager(), this.client, this.width, this.height, 30, this.height - 20, 50);
-        this.addDrawableChild(this.emojiList);
+        this.addSelectableChild(this.emojiList);
     }
 
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {

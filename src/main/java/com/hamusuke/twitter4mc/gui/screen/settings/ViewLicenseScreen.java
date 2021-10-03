@@ -57,7 +57,7 @@ public class ViewLicenseScreen extends ParentalScreen {
             });
         }
 
-        this.addDrawableChild(this.list);
+        this.addSelectableChild(this.list);
     }
 
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
