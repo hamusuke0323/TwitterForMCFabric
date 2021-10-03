@@ -138,14 +138,14 @@ public class TwitterShowUserScreen extends AbstractTwitterScreen {
 				InputStream icon = this.summary.getIcon();
 
 				if (header == null) {
-					TwitterShowUserScreen.this.client.getTextureManager().bindTexture(MissingSprite.getMissingSpriteId());
+					RenderSystem.setShaderTexture(0, MissingSprite.getMissingSpriteId());
 				} else {
 					TwitterForMC.getTextureManager().bindTexture(this.summary.getHeader());
 				}
 				drawTexture(matrices, rowLeft, rowTop, 0.0F, 0.0F, rowWidth, i, rowWidth, i);
 
 				if (icon == null) {
-					TwitterShowUserScreen.this.client.getTextureManager().bindTexture(MissingSprite.getMissingSpriteId());
+					RenderSystem.setShaderTexture(0, MissingSprite.getMissingSpriteId());
 				} else {
 					TwitterForMC.getTextureManager().bindTexture(this.summary.getIcon());
 				}

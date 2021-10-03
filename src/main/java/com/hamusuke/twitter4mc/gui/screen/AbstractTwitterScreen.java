@@ -222,7 +222,7 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
 
     public int renderRetweetedUser(MatrixStack matrices, @Nullable TweetSummary retweetedSummary, int iconX, int x, int y, int width) {
         if (retweetedSummary != null) {
-            this.client.getTextureManager().bindTexture(RETWEET_USER);
+            RenderSystem.setShaderTexture(0, RETWEET_USER);
             matrices.push();
             matrices.translate(iconX, y, 0.0F);
             matrices.scale(0.625F, 0.625F, 0.625F);
@@ -255,7 +255,7 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
     }
 
     public int renderProtected(MatrixStack matrices, int x, int y) {
-        this.client.getTextureManager().bindTexture(PROTECTED);
+        RenderSystem.setShaderTexture(0, PROTECTED);
         matrices.push();
         matrices.translate(x, y, 0.0F);
         matrices.scale(0.625F, 0.625F, 0.625F);
@@ -265,7 +265,7 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
     }
 
     public int renderVerified(MatrixStack matrices, int x, int y) {
-        this.client.getTextureManager().bindTexture(VERIFIED);
+        RenderSystem.setShaderTexture(0, VERIFIED);
         matrices.push();
         matrices.translate(x, y, 0.0F);
         matrices.scale(0.625F, 0.625F, 0.625F);

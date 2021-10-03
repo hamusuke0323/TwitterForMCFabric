@@ -479,7 +479,7 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 	protected void renderHoleBackground(MatrixStack matrices, int top, int bottom, int alphaTop, int alphaBottom) {
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder bufferbuilder = tessellator.getBuffer();
-		this.minecraft.getTextureManager().bindTexture(OPTIONS_BACKGROUND_TEXTURE);
+		RenderSystem.setShaderTexture(0, OPTIONS_BACKGROUND_TEXTURE);
 		RenderSystem.clearColor(1.0F, 1.0F, 1.0F, 1.0F);
 		bufferbuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
 		bufferbuilder.vertex(this.left, bottom, 0.0D).texture(0.0F, (float) bottom / 32.0F).color(64, 64, 64, alphaBottom).next();

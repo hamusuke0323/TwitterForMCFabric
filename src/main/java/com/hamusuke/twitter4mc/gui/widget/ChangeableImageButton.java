@@ -3,7 +3,6 @@ package com.hamusuke.twitter4mc.gui.widget;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.NarratorManager;
 import net.minecraft.client.util.math.MatrixStack;
@@ -56,8 +55,7 @@ public class ChangeableImageButton extends ButtonWidget {
     }
 
     public void renderButton(MatrixStack matrices, int p_renderButton_1_, int p_renderButton_2_, float p_renderButton_3_) {
-        MinecraftClient minecraft = MinecraftClient.getInstance();
-        minecraft.getTextureManager().bindTexture(this.resourceLocation);
+        RenderSystem.setShaderTexture(0, this.resourceLocation);
         RenderSystem.disableDepthTest();
         int i = this.yTexStart;
 

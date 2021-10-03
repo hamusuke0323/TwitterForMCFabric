@@ -4,6 +4,7 @@ import com.hamusuke.twitter4mc.TwitterForMC;
 import com.hamusuke.twitter4mc.emoji.Emoji;
 import com.hamusuke.twitter4mc.emoji.EmojiManager;
 import com.hamusuke.twitter4mc.gui.screen.ParentalScreen;
+import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
@@ -75,7 +76,7 @@ public class ViewEmojiScreen extends ParentalScreen {
 
             public void render(MatrixStack matrices, int index, int y, int x, int width, int height, int mouseX, int mouseY, boolean hovering, float delta) {
                 ViewEmojiScreen.this.textRenderer.drawWithShadow(matrices, "Hexadecimal(Character code): " + this.emoji.getHex(), x, y + (float) height / 2 - 4, 16777215);
-                ViewEmojiScreen.this.client.getTextureManager().bindTexture(this.emoji.getId());
+                RenderSystem.setShaderTexture(0, this.emoji.getId());
                 DrawableHelper.drawTexture(matrices, x + width - 60, y + 2, 0.0F, 0.0F, 42, 42, 42, 42);
             }
         }
