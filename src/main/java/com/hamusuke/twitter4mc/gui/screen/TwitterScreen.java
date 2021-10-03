@@ -11,9 +11,11 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.ConfirmChatLinkScreen;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.util.NarratorManager;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Util;
 import org.jetbrains.annotations.Nullable;
 import twitter4j.Status;
@@ -49,13 +51,13 @@ public class TwitterScreen extends AbstractTwitterScreen {
 		int k = this.width / 4;
 
 		if (updateAvailable) {
-			this.addRenderLaterButton(new ButtonWidget(j, this.height - 20, i, 20, I18n.translate("tw.new.update.available"), (b) -> {
-				this.minecraft.openScreen(new ConfirmChatLinkScreen((bl) -> {
+			this.addRenderLaterButton(new ButtonWidget(j, this.height - 20, i, 20, new TranslatableText("tw.new.update.available"), (b) -> {
+				this.client.setScreen(new ConfirmChatLinkScreen((bl) -> {
 					if (bl) {
 						Util.getOperatingSystem().open(VersionChecker.getUrl());
 					}
 
-					this.minecraft.openScreen(this);
+					this.client.setScreen(this);
 				}, VersionChecker.getUrl(), true));
 			}));
 
@@ -63,15 +65,15 @@ public class TwitterScreen extends AbstractTwitterScreen {
 		}
 
 		//for debug
-		this.addButton(new ButtonWidget(0, this.height - 110, k - 10, 20, I18n.translate("tweet"), (press) -> {
-			this.minecraft.openScreen(new TwitterTweetScreen(this));
+		this.addDrawableChild(new ButtonWidget(0, this.height - 110, k - 10, 20, new TranslatableText("tweet"), (press) -> {
+			this.client.setScreen(new TwitterTweetScreen(this));
 		}));
 
 		if (TwitterForMC.mcTwitter == null) {
-			this.list = new TwitterScreen.TweetList(this.minecraft);
+			this.list = new TwitterScreen.TweetList(this.client);
 
-			this.addRenderLaterButton(new ButtonWidget(j, this.height - 20, i, 20, I18n.translate("twitter.login"), (l) -> {
-				this.minecraft.openScreen(new TwitterLoginScreen(this));
+			this.addRenderLaterButton(new ButtonWidget(j, this.height - 20, i, 20, new TranslatableText("twitter.login"), (l) -> {
+				this.client.setScreen(new TwitterLoginScreen(this));
 			}));
 
 			j += i;
@@ -82,17 +84,17 @@ public class TwitterScreen extends AbstractTwitterScreen {
 			}));
 			*/
 
-			this.addButton(new ButtonWidget(0, this.height - 50, k - 10, 20, I18n.translate("tw.view.profile"), (press) -> {
+			this.addDrawableChild(new ButtonWidget(0, this.height - 50, k - 10, 20, new TranslatableText("tw.view.profile"), (press) -> {
 				press.active = false;
 				try {
-					this.minecraft.openScreen(new TwitterShowUserScreen(this, TwitterForMC.mcTwitter.showUser(TwitterForMC.mcTwitter.getId())));
+					this.client.setScreen(new TwitterShowUserScreen(this, TwitterForMC.mcTwitter.showUser(TwitterForMC.mcTwitter.getId())));
 				} catch (TwitterException e) {
 					this.accept(e.getErrorMessage());
 					press.active = true;
 				}
 			}));
 
-			this.addRenderLaterButton(new ButtonWidget(j, this.height - 20, i, 20, I18n.translate("twitter.refresh"), (p) -> {
+			this.addRenderLaterButton(new ButtonWidget(j, this.height - 20, i, 20, new TranslatableText("twitter.refresh"), (p) -> {
 				p.active = false;
 				this.refreshingTL.set(true);
 				List<Status> t = Lists.newArrayList();
@@ -105,19 +107,19 @@ public class TwitterScreen extends AbstractTwitterScreen {
 				new TweetSummaryCreator(t, (tweetSummary) -> {
 					TwitterForMC.tweets.add(tweetSummary.getStatus());
 					TwitterForMC.tweetSummaries.add(tweetSummary);
-					this.children.remove(this.list);
-					this.list = new TweetList(this.minecraft);
-					this.children.add(this.list);
+					this.remove(this.list);
+					this.list = new TweetList(this.client);
+					this.addDrawableChild(this.list);
 				}, () -> {
 					p.active = true;
 					this.refreshingTL.set(false);
-					this.init(this.minecraft, this.width, this.height);
+					this.init(this.client, this.width, this.height);
 				}).createAll();
 			})).active = !this.refreshingTL.get();
 
 			j += i;
 
-			this.addButton(new ButtonWidget(0, this.height - 80, k - 10, 20, I18n.translate("tw.save.timeline"), (b) -> {
+			this.addDrawableChild(new ButtonWidget(0, this.height - 80, k - 10, 20, new TranslatableText("tw.save.timeline"), (b) -> {
 				b.active = false;
 				try {
 					TwitterForMC.saveTimeline();
@@ -128,53 +130,53 @@ public class TwitterScreen extends AbstractTwitterScreen {
 			}));
 		}
 
-		this.addRenderLaterButton(new ButtonWidget(j, this.height - 20, i, 20, I18n.translate("gui.back"), (p_213034_1_) -> this.onClose()));
+		this.addRenderLaterButton(new ButtonWidget(j, this.height - 20, i, 20, ScreenTexts.BACK, (p_213034_1_) -> this.onClose()));
 
-		this.addButton(new ButtonWidget(0, this.height - 140, k - 10, 20, I18n.translate("tw.settings"), (b) -> {
-			this.minecraft.openScreen(new TwitterSettingsScreen(this));
+		this.addDrawableChild(new ButtonWidget(0, this.height - 140, k - 10, 20, new TranslatableText("tw.settings"), (b) -> {
+			this.client.setScreen(new TwitterSettingsScreen(this));
 		}));
 
 		if (!this.refreshingTL.get()) {
 			double scroll = this.list != null ? this.list.getScrollAmount() : 0.0D;
-			this.list = new TwitterScreen.TweetList(this.minecraft);
+			this.list = new TwitterScreen.TweetList(this.client);
 			this.list.setScrollAmount(scroll);
-			this.children.add(this.list);
+			this.addDrawableChild(this.list);
 		}
 
 		if (this.parent != null) {
-			this.parent.resize(this.minecraft, this.width, this.height);
+			this.parent.resize(this.client, this.width, this.height);
 		}
 
 		super.init();
 	}
 
 	public boolean isInitialized() {
-		return this.minecraft != null;
+		return this.client != null;
 	}
 
-	public void render(int mouseX, int mouseY, float delta) {
+	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
 		if (this.parent != null) {
-			this.parent.render(-1, -1, delta);
+			this.parent.render(matrices, -1, -1, delta);
 		}
 
-		if (this.minecraft.currentScreen == this) {
-			this.fillGradient(0, 0, this.width, this.height, -1072689136, -804253680);
+		if (this.client.currentScreen == this) {
+			this.fillGradient(matrices, 0, 0, this.width, this.height, -1072689136, -804253680);
 		} else {
 			return;
 		}
 
-		super.render(mouseX, mouseY, delta);
+		super.render(matrices, mouseX, mouseY, delta);
 
 		if (this.list != null) {
-			this.list.render(mouseX, mouseY, delta);
+			this.list.render(matrices, mouseX, mouseY, delta);
 		}
 
-		this.renderButtonLater(mouseX, mouseY, delta);
-		this.renderMessage();
+		this.renderButtonLater(matrices, mouseX, mouseY, delta);
+		this.renderMessage(matrices);
 	}
 
 	public void onClose() {
-		this.minecraft.openScreen(this.parent);
+		this.client.setScreen(this.parent);
 	}
 
 	@Environment(EnvType.CLIENT)

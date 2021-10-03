@@ -5,7 +5,6 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
 import org.jetbrains.annotations.Nullable;
 import twitter4j.MediaEntity;
 
@@ -40,7 +39,7 @@ public class TwitterPhotoMedia {
 		this.width = w;
 		this.height = h;
 
-		this.canRendering = this.width != 0 && this.height != 0;
+		this.canRendering = this.data != null && this.width != 0 && this.height != 0;
 	}
 
 	public MediaEntity getMediaEntity() {

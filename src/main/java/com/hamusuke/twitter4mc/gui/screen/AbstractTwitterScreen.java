@@ -5,6 +5,7 @@ import com.hamusuke.twitter4mc.TwitterForMC;
 import com.hamusuke.twitter4mc.gui.widget.ChangeableImageButton;
 import com.hamusuke.twitter4mc.gui.widget.TwitterButton;
 import com.hamusuke.twitter4mc.gui.widget.list.ExtendedTwitterTweetList;
+import com.hamusuke.twitter4mc.invoker.TextRendererInvoker;
 import com.hamusuke.twitter4mc.tweet.TweetSummary;
 import com.hamusuke.twitter4mc.tweet.TwitterPhotoMedia;
 import com.hamusuke.twitter4mc.utils.TwitterUtil;
@@ -14,19 +15,17 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.DrawableHelper;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.AbstractButtonWidget;
+import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.sound.PositionedSoundInstance;
-import net.minecraft.client.util.math.Matrix4f;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.sound.SoundEvents;
-import net.minecraft.text.LiteralText;
-import net.minecraft.text.Text;
-import net.minecraft.text.TranslatableText;
+import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
+import net.minecraft.util.math.Matrix4f;
 import org.jetbrains.annotations.Nullable;
 import twitter4j.TwitterException;
 import twitter4j.User;
@@ -49,16 +48,15 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
 
     protected static final Text FOLLOW = new TranslatableText("tw.follow").formatted(Formatting.GRAY);
     protected static final Text FOLLOWER = new TranslatableText("tw.follower").formatted(Formatting.GRAY);
-    protected static final String THREE_PERIOD = new LiteralText("...").formatted(Formatting.BOLD).asFormattedString();
-    protected static final String THREE_PERIOD_GRAY = new LiteralText("...").formatted(Formatting.GRAY).asFormattedString();
-
+    protected static final Text THREE_PERIOD = new LiteralText("...").formatted(Formatting.BOLD);
+    protected static final Text THREE_PERIOD_GRAY = new LiteralText("...").formatted(Formatting.GRAY);
+    protected final List<ClickableWidget> renderLaterButtons = Lists.newArrayList();
     @Nullable
     protected AbstractTwitterScreen.TweetList list;
     @Nullable
     protected String message;
     protected int fade;
     protected boolean isFade;
-    protected final List<AbstractButtonWidget> renderLaterButtons = Lists.newArrayList();
 
     protected AbstractTwitterScreen(Text title, @Nullable Screen parent) {
         super(title, parent);
@@ -84,15 +82,15 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
         super.tick();
     }
 
-    protected <T extends AbstractButtonWidget> T addRenderLaterButton(T button) {
+    protected <T extends ClickableWidget> T addRenderLaterButton(T button) {
         this.renderLaterButtons.add(button);
-        this.children.add(button);
+        this.addSelectableChild(button);
         return button;
     }
 
-    public void renderButtonLater(int mouseX, int mouseY, float tickDelta) {
-        for (AbstractButtonWidget abstractButtonWidget : this.renderLaterButtons) {
-            abstractButtonWidget.render(mouseX, mouseY, tickDelta);
+    public void renderButtonLater(MatrixStack matrices, int mouseX, int mouseY, float tickDelta) {
+        for (ClickableWidget abstractButtonWidget : this.renderLaterButtons) {
+            abstractButtonWidget.render(matrices, mouseX, mouseY, tickDelta);
         }
     }
 
@@ -101,10 +99,10 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
         this.renderLaterButtons.clear();
     }
 
-    public void renderMessage() {
+    public void renderMessage(MatrixStack matrices) {
         if (this.message != null) {
-            List<String> list = this.font.wrapStringToWidthAsList(this.message, this.width / 2);
-            this.renderTooltip(list, (this.width - this.font.getStringWidth(list.get(0))) / 2, this.height - list.size() * this.font.fontHeight);
+            List<OrderedText> list = this.textRenderer.wrapLines(StringVisitable.plain(this.message), this.width / 2);
+            this.renderOrderedTooltip(matrices, list, (this.width - this.textRenderer.getWidth(list.get(0))) / 2, this.height - list.size() * this.textRenderer.fontHeight);
         }
     }
 
@@ -115,7 +113,7 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
 
     public boolean mouseClicked(double p_mouseClicked_1_, double p_mouseClicked_3_, int p_mouseClicked_5_) {
         if (this.list != null && this.list.hoveringEntry != null && this.list.hoveringEntry.summary != null && this.list.hoveringEntry.mayClickIcon(p_mouseClicked_1_, p_mouseClicked_3_)) {
-            this.minecraft.openScreen(new TwitterShowUserScreen(this, this.list.hoveringEntry.summary.getUser()));
+            this.client.setScreen(new TwitterShowUserScreen(this, this.list.hoveringEntry.summary.getUser()));
             return true;
         } else if (this.list != null && !this.list.isHovering) {
             return super.mouseClicked(p_mouseClicked_1_, p_mouseClicked_3_, p_mouseClicked_5_);
@@ -124,30 +122,29 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
         return false;
     }
 
-    public boolean renderTwitterUser(TweetSummary summary, int x, int y, int mouseX, int mouseY) {
+    public boolean renderTwitterUser(MatrixStack matrices, TweetSummary summary, int x, int y, int mouseX, int mouseY) {
         User user = summary.getUser();
         InputStream icon = summary.getUserIconData();
-        List<String> desc = this.font.wrapStringToWidthAsList(user.getDescription(), Math.min(this.width / 2, 150));
-        String f1 = new LiteralText(user.getFriendsCount() + "").formatted(Formatting.BOLD).asFormattedString();
-        String follow = f1 + " " + FOLLOW.asFormattedString();
-        String f2 = new LiteralText(user.getFollowersCount() + "").formatted(Formatting.BOLD).asFormattedString();
-        String follower = f2 + " " + FOLLOWER.asFormattedString();
-        List<String> ff = this.font.wrapStringToWidthAsList(follow + "  " + follower, 150);
+        List<StringVisitable> desc = this.textRenderer.getTextHandler().wrapLines(user.getDescription(), Math.min(this.width / 2, 150), Style.EMPTY);
+        String f1 = new LiteralText(user.getFriendsCount() + "").formatted(Formatting.BOLD).asString();
+        String follow = f1 + " " + FOLLOW.asString();
+        String f2 = new LiteralText(user.getFollowersCount() + "").formatted(Formatting.BOLD).asString();
+        String follower = f2 + " " + FOLLOWER.asString();
+        List<StringVisitable> ff = this.textRenderer.getTextHandler().wrapLines(follow + "  " + follower, 150, Style.EMPTY);
 
-        RenderSystem.disableRescaleNormal();
         RenderSystem.disableDepthTest();
         int i = 0;
 
-        for (String s : desc) {
-            int j = this.font.getStringWidth(s);
+        for (StringVisitable s : desc) {
+            int j = this.getWidthWithEmoji(s.getString());
 
             if (j > i) {
                 i = j;
             }
         }
 
-        for (String s1 : ff) {
-            int j2 = this.font.getStringWidth(s1);
+        for (StringVisitable s1 : ff) {
+            int j2 = this.textRenderer.getWidth(s1.getString());
             if (j2 > i) {
                 i = j2;
             }
@@ -158,22 +155,22 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
         k += icon != null ? 22 : 0;
         k += user.getName().isEmpty() ? 0 : 10;
         k += user.getScreenName().isEmpty() ? 0 : 10;
-        k += 4 + (desc.size() * (this.font.fontHeight + 1)) + 4;
+        k += 4 + (desc.size() * (this.textRenderer.fontHeight + 1)) + 4;
         k += ff.size() == 1 ? 10 : 20 + 2;
 
         if (i2 + k + 6 > this.height - 20) {
             i2 = this.height - 20 - k - 6;
         }
 
-        this.fillGradient(x - 3, i2 - 4, x + i + 3, i2 - 3, -267386864, -267386864);
-        this.fillGradient(x - 3, i2 + k + 3, x + i + 3, i2 + k + 4, -267386864, -267386864);
-        this.fillGradient(x - 3, i2 - 3, x + i + 3, i2 + k + 3, -267386864, -267386864);
-        this.fillGradient(x - 4, i2 - 3, x - 3, i2 + k + 3, -267386864, -267386864);
-        this.fillGradient(x + i + 3, i2 - 3, x + i + 4, i2 + k + 3, -267386864, -267386864);
-        this.fillGradient(x - 3, i2 - 3 + 1, x - 3 + 1, i2 + k + 3 - 1, 1347420415, 1344798847);
-        this.fillGradient(x + i + 2, i2 - 3 + 1, x + i + 3, i2 + k + 3 - 1, 1347420415, 1344798847);
-        this.fillGradient(x - 3, i2 - 3, x + i + 3, i2 - 3 + 1, 1347420415, 1347420415);
-        this.fillGradient(x - 3, i2 + k + 2, x + i + 3, i2 + k + 3, 1344798847, 1344798847);
+        this.fillGradient(matrices, x - 3, i2 - 4, x + i + 3, i2 - 3, -267386864, -267386864);
+        this.fillGradient(matrices, x - 3, i2 + k + 3, x + i + 3, i2 + k + 4, -267386864, -267386864);
+        this.fillGradient(matrices, x - 3, i2 - 3, x + i + 3, i2 + k + 3, -267386864, -267386864);
+        this.fillGradient(matrices, x - 4, i2 - 3, x - 3, i2 + k + 3, -267386864, -267386864);
+        this.fillGradient(matrices, x + i + 3, i2 - 3, x + i + 4, i2 + k + 3, -267386864, -267386864);
+        this.fillGradient(matrices, x - 3, i2 - 3 + 1, x - 3 + 1, i2 + k + 3 - 1, 1347420415, 1344798847);
+        this.fillGradient(matrices, x + i + 2, i2 - 3 + 1, x + i + 3, i2 + k + 3 - 1, 1347420415, 1344798847);
+        this.fillGradient(matrices, x - 3, i2 - 3, x + i + 3, i2 - 3 + 1, 1347420415, 1347420415);
+        this.fillGradient(matrices, x - 3, i2 + k + 2, x + i + 3, i2 + k + 3, 1344798847, 1344798847);
         MatrixStack matrixstack = new MatrixStack();
         VertexConsumerProvider.Immediate vertexConsumerProvider$immediate = VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
         Matrix4f matrix4f = matrixstack.peek().getModel();
@@ -181,7 +178,7 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
         int yy = i2;
         if (icon != null) {
             TwitterForMC.getTextureManager().bindTexture(icon);
-            blit(x, i2, 0.0F, 0.0F, 20, 20, 20, 20);
+            drawTexture(matrices, x, i2, 0.0F, 0.0F, 20, 20, 20, 20);
             i2 += 20;
         }
 
@@ -189,80 +186,91 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
         boolean p = user.isProtected();
         boolean v = user.isVerified();
         int m = (p ? 10 : 0) + (v ? 10 : 0);
-        String name = new LiteralText(user.getName()).formatted(Formatting.BOLD).asFormattedString();
-        List<String> nameFormatted = this.font.wrapStringToWidthAsList(name, i - this.font.getStringWidth(THREE_PERIOD) - m);
-        int n = this.font.draw(nameFormatted.size() == 1 ? nameFormatted.get(0) : nameFormatted.get(0) + THREE_PERIOD, (float) x, (float) i2 + 2, -1, true, matrix4f, vertexConsumerProvider$immediate, false, 0, 15728880);
-        this.font.draw(new LiteralText(summary.getScreenName()).formatted(Formatting.GRAY).asFormattedString(), (float) x, (float) i2 + 12, -1, true, matrix4f, vertexConsumerProvider$immediate, false, 0, 15728880);
+        String name = new LiteralText(user.getName()).formatted(Formatting.BOLD).asString();
+        List<StringVisitable> nameFormatted = this.textRenderer.getTextHandler().wrapLines(name, i - this.getWidthWithEmoji(THREE_PERIOD.asString()) - m, Style.EMPTY);
+        int n = ((TextRendererInvoker) this.textRenderer).drawWithEmoji(nameFormatted.size() == 1 ? nameFormatted.get(0).getString() : nameFormatted.get(0).getString() + THREE_PERIOD, (float) x, (float) i2 + 2, -1, true, matrix4f, vertexConsumerProvider$immediate, false, 0, 15728880);
+        ((TextRendererInvoker) this.textRenderer).drawWithEmoji(new LiteralText(summary.getScreenName()).formatted(Formatting.GRAY).asString(), (float) x, (float) i2 + 12, -1, true, matrix4f, vertexConsumerProvider$immediate, false, 0, 15728880);
 
-        for (String s1 : desc) {
+        for (StringVisitable s1 : desc) {
             if (s1 != null) {
-                this.font.draw(s1, (float) x, (float) i2 + 26, -1, true, matrix4f, vertexConsumerProvider$immediate, false, 0, 15728880);
+                ((TextRendererInvoker) this.textRenderer).drawWithEmoji(s1.getString(), (float) x, (float) i2 + 26, -1, true, matrix4f, vertexConsumerProvider$immediate, false, 0, 15728880);
             }
 
             i2 += 10;
         }
 
         if (ff.size() == 1) {
-            this.font.draw(ff.get(0), (float) x, (float) i2 + 30, -1, true, matrix4f, vertexConsumerProvider$immediate, false, 0, 15728880);
+            ((TextRendererInvoker) this.textRenderer).drawWithEmoji(ff.get(0).getString(), (float) x, (float) i2 + 30, -1, true, matrix4f, vertexConsumerProvider$immediate, false, 0, 15728880);
         } else {
-            this.font.draw(follow, (float) x, (float) i2 + 30, -1, true, matrix4f, vertexConsumerProvider$immediate, false, 0, 15728880);
-            this.font.draw(follower, (float) x, (float) i2 + 30 + 10, -1, true, matrix4f, vertexConsumerProvider$immediate, false, 0, 15728880);
+            ((TextRendererInvoker) this.textRenderer).drawWithEmoji(follow, (float) x, (float) i2 + 30, -1, true, matrix4f, vertexConsumerProvider$immediate, false, 0, 15728880);
+            ((TextRendererInvoker) this.textRenderer).drawWithEmoji(follower, (float) x, (float) i2 + 30 + 10, -1, true, matrix4f, vertexConsumerProvider$immediate, false, 0, 15728880);
         }
 
         vertexConsumerProvider$immediate.draw();
 
         if (p) {
-            n += this.renderProtected(n, yyy + 2);
+            n += this.renderProtected(matrices, n, yyy + 2);
         }
         if (v) {
-            this.renderVerified(n, yyy + 2);
+            this.renderVerified(matrices, n, yyy + 2);
         }
 
         RenderSystem.enableDepthTest();
-        RenderSystem.enableRescaleNormal();
 
         return x - 4 < mouseX && x + i + 4 > mouseX && yy - 4 < mouseY && yy + k + 4 > mouseY;
     }
 
-    public int renderRetweetedUser(@Nullable TweetSummary retweetedSummary, int iconX, int x, int y, int width) {
+    public int renderRetweetedUser(MatrixStack matrices, @Nullable TweetSummary retweetedSummary, int iconX, int x, int y, int width) {
         if (retweetedSummary != null) {
-            this.minecraft.getTextureManager().bindTexture(RETWEET_USER);
-            RenderSystem.pushMatrix();
-            RenderSystem.translatef(iconX, y, 0.0F);
-            RenderSystem.scalef(0.625F, 0.625F, 0.625F);
-            DrawableHelper.blit(0, 0, 0.0F, 0.0F, 16, 16, 16, 16);
-            RenderSystem.popMatrix();
+            this.client.getTextureManager().bindTexture(RETWEET_USER);
+            matrices.push();
+            matrices.translate(iconX, y, 0.0F);
+            matrices.scale(0.625F, 0.625F, 0.625F);
+            DrawableHelper.drawTexture(matrices, 0, 0, 0.0F, 0.0F, 16, 16, 16, 16);
+            matrices.pop();
             List<String> names = this.wrapUserNameToWidth(retweetedSummary, width);
             for (int i = 0; i < names.size(); i++) {
-                this.font.drawWithShadow(names.get(i), x, y + i * this.font.fontHeight, 11184810);
+                this.drawWithShadowAndEmoji(matrices, names.get(i), x, y + i * this.textRenderer.fontHeight, 11184810);
             }
-            return y + names.size() * this.font.fontHeight;
+            return y + names.size() * this.textRenderer.fontHeight;
         }
 
         return y;
     }
 
     public List<String> wrapUserNameToWidth(TweetSummary summary, int width) {
-        return this.font.wrapStringToWidthAsList(I18n.translate("tw.retweeted.user", summary.getUser().getName()), width);
+        return Lists.transform(this.textRenderer.getTextHandler().wrapLines(I18n.translate("tw.retweeted.user", summary.getUser().getName()), width, Style.EMPTY), StringVisitable::getString);
     }
 
-    public int renderProtected(int x, int y) {
-        this.minecraft.getTextureManager().bindTexture(PROTECTED);
-        RenderSystem.pushMatrix();
-        RenderSystem.translatef(x, y, 0.0F);
-        RenderSystem.scalef(0.625F, 0.625F, 0.625F);
-        DrawableHelper.blit(0, 0, 0.0F, 0.0F, 16, 16, 16, 16);
-        RenderSystem.popMatrix();
+    protected int drawWithEmoji(MatrixStack matrices, String text, float x, float y, int color) {
+        return ((TextRendererInvoker) this.textRenderer).drawWithEmoji(matrices, text, x, y, color);
+    }
+
+    protected int drawWithShadowAndEmoji(MatrixStack matrices, String text, float x, float y, int color) {
+        return ((TextRendererInvoker) this.textRenderer).drawWithShadowAndEmoji(matrices, text, x, y, color);
+    }
+
+    protected int getWidthWithEmoji(String text) {
+        return ((TextRendererInvoker) this.textRenderer).getWidthWithEmoji(text);
+    }
+
+    public int renderProtected(MatrixStack matrices, int x, int y) {
+        this.client.getTextureManager().bindTexture(PROTECTED);
+        matrices.push();
+        matrices.translate(x, y, 0.0F);
+        matrices.scale(0.625F, 0.625F, 0.625F);
+        DrawableHelper.drawTexture(matrices, 0, 0, 0.0F, 0.0F, 16, 16, 16, 16);
+        matrices.pop();
         return 10;
     }
 
-    public int renderVerified(int x, int y) {
-        this.minecraft.getTextureManager().bindTexture(VERIFIED);
-        RenderSystem.pushMatrix();
-        RenderSystem.translatef(x, y, 0.0F);
-        RenderSystem.scalef(0.625F, 0.625F, 0.625F);
-        DrawableHelper.blit(0, 0, 0, 0, 16, 16, 16, 16);
-        RenderSystem.popMatrix();
+    public int renderVerified(MatrixStack matrices, int x, int y) {
+        this.client.getTextureManager().bindTexture(VERIFIED);
+        matrices.push();
+        matrices.translate(x, y, 0.0F);
+        matrices.scale(0.625F, 0.625F, 0.625F);
+        DrawableHelper.drawTexture(matrices, 0, 0, 0, 0, 16, 16, 16, 16);
+        matrices.pop();
         return 10;
     }
 
@@ -288,7 +296,7 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
             super.tick();
         }
 
-        protected int getScrollbarPosition() {
+        protected int getScrollbarPositionX() {
             return AbstractTwitterScreen.this.width - 5;
         }
 
@@ -296,26 +304,26 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
             return AbstractTwitterScreen.this.width / 2;
         }
 
-        protected void renderBackground() {
+        protected void renderBackground(MatrixStack matrices) {
         }
 
-        protected void renderHoleBackground(int top, int bottom, int alphaTop, int alphaBottom) {
-            this.fillGradient(this.left + this.width, bottom, this.left, top, -15392725, -15392725);
+        protected void renderHoleBackground(MatrixStack matrices, int top, int bottom, int alphaTop, int alphaBottom) {
+            this.fillGradient(matrices, this.left + this.width, bottom, this.left, top, -15392725, -15392725);
         }
 
-        public void render(int p_render_1_, int p_render_2_, float p_render_3_) {
-            super.render(p_render_1_, p_render_2_, p_render_3_);
+        public void render(MatrixStack matrices, int p_render_1_, int p_render_2_, float p_render_3_) {
+            super.render(matrices, p_render_1_, p_render_2_, p_render_3_);
 
             AbstractTwitterScreen.TweetList.TweetEntry e = this.getEntryAtPosition(p_render_1_, p_render_2_);
             if (this.hoveringEntry != null && this.hoveringEntry.summary != null) {
-                this.isHovering = AbstractTwitterScreen.this.renderTwitterUser(this.hoveringEntry.summary, this.getRowLeft() - 60, this.hoveringEntry.getY() + this.hoveringEntry.retweetedUserNameHeight + 2 + 22, p_render_1_, p_render_2_);
+                this.isHovering = AbstractTwitterScreen.this.renderTwitterUser(matrices, this.hoveringEntry.summary, this.getRowLeft() - 60, this.hoveringEntry.getY() + this.hoveringEntry.retweetedUserNameHeight + 2 + 22, p_render_1_, p_render_2_);
                 if (!this.isHovering && this.fade < 0) {
                     this.hoveringEntry = null;
                     this.fade = 0;
                 }
             } else if (e != null && e.summary != null && e.mayClickIcon(p_render_1_, p_render_2_)) {
                 this.hoveringEntry = e;
-                this.isHovering = AbstractTwitterScreen.this.renderTwitterUser(e.summary, this.getRowLeft() - 60, e.getY() + e.retweetedUserNameHeight + 2 + 22, p_render_1_, p_render_2_);
+                this.isHovering = AbstractTwitterScreen.this.renderTwitterUser(matrices, e.summary, this.getRowLeft() - 60, e.getY() + e.retweetedUserNameHeight + 2 + 22, p_render_1_, p_render_2_);
                 this.fade = 10;
             }
         }
@@ -355,15 +363,15 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
                     this.summary = flag ? tweet.getRetweetedSummary() : tweet;
                     this.retweetedSummary = flag ? tweet : null;
                     this.quoteSourceSummary = this.summary.getQuotedTweetSummary();
-                    this.strings = AbstractTwitterScreen.this.font.wrapStringToWidthAsList(this.summary.getText(), AbstractTwitterScreen.TweetList.this.getRowWidth() - 25);
-                    this.quotedTweetStrings = this.quoteSourceSummary != null ? AbstractTwitterScreen.this.font.wrapStringToWidthAsList(this.quoteSourceSummary.getText(), AbstractTwitterScreen.TweetList.this.getRowWidth() - 40) : Lists.newArrayList();
+                    this.strings = Lists.transform(AbstractTwitterScreen.this.textRenderer.getTextHandler().wrapLines(this.summary.getText(), AbstractTwitterScreen.TweetList.this.getRowWidth() - 25, Style.EMPTY), StringVisitable::getString);
+                    this.quotedTweetStrings = this.quoteSourceSummary != null ? Lists.transform(AbstractTwitterScreen.this.textRenderer.getTextHandler().wrapLines(this.quoteSourceSummary.getText(), AbstractTwitterScreen.TweetList.this.getRowWidth() - 40, Style.EMPTY), StringVisitable::getString) : Lists.newArrayList();
                     this.photoRenderingWidth = TweetList.this.getRowWidth() - 30;
                     this.photoRenderingHeight = (int) (0.5625F * this.photoRenderingWidth);
-                    this.height = ((this.strings.size() - 1) * AbstractTwitterScreen.this.font.fontHeight) + 10 + 30;
+                    this.height = ((this.strings.size() - 1) * AbstractTwitterScreen.this.textRenderer.fontHeight) + 10 + 30;
                     this.height += this.summary.isIncludeImages() || this.summary.isIncludeVideo() ? this.photoRenderingHeight + 3 : 0;
-                    this.retweetedUserNameHeight = flag ? AbstractTwitterScreen.this.wrapUserNameToWidth(this.retweetedSummary, AbstractTwitterScreen.TweetList.this.getRowWidth() - 24).size() * AbstractTwitterScreen.this.font.fontHeight : 0;
+                    this.retweetedUserNameHeight = flag ? AbstractTwitterScreen.this.wrapUserNameToWidth(this.retweetedSummary, AbstractTwitterScreen.TweetList.this.getRowWidth() - 24).size() * AbstractTwitterScreen.this.textRenderer.fontHeight : 0;
                     this.height += this.retweetedUserNameHeight;
-                    this.height += this.quoteSourceSummary != null ? 20 + this.quotedTweetStrings.size() * AbstractTwitterScreen.this.font.fontHeight : 0;
+                    this.height += this.quoteSourceSummary != null ? 20 + this.quotedTweetStrings.size() * AbstractTwitterScreen.this.textRenderer.fontHeight : 0;
                     this.fourBtnHeightOffset = this.height - 14;
                 } else {
                     this.summary = this.retweetedSummary = this.quoteSourceSummary = null;
@@ -414,105 +422,105 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
                 }));
             }
 
-            public void render(int itemIndex, int rowTop, int rowLeft, int rowWidth, int height2, int mouseX, int mouseY, boolean isMouseOverAndObjectEquals, float delta) {
-                RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+            public void render(MatrixStack matrices, int itemIndex, int rowTop, int rowLeft, int rowWidth, int height2, int mouseX, int mouseY, boolean isMouseOverAndObjectEquals, float delta) {
+                RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                 RenderSystem.enableBlend();
                 int nowY = rowTop;
-                nowY = AbstractTwitterScreen.this.renderRetweetedUser(this.retweetedSummary, rowLeft + 6, rowLeft + 24, nowY, rowWidth - 24);
+                nowY = AbstractTwitterScreen.this.renderRetweetedUser(matrices, this.retweetedSummary, rowLeft + 6, rowLeft + 24, nowY, rowWidth - 24);
 
-                this.renderIcon(rowLeft, nowY);
+                this.renderIcon(matrices, rowLeft, nowY);
                 RenderSystem.disableBlend();
 
                 if (this.summary != null) {
-                    this.renderUserName(this.summary, rowLeft + 24, nowY, rowWidth - 24);
+                    this.renderUserName(matrices, this.summary, rowLeft + 24, nowY, rowWidth - 24);
                 }
 
                 for (int i = 0; i < this.strings.size(); i++) {
-                    AbstractTwitterScreen.this.font.drawWithShadow(this.strings.get(i), (float) (rowLeft + 24), (float) (nowY + 10 + i * AbstractTwitterScreen.this.font.fontHeight), 16777215);
+                    AbstractTwitterScreen.this.drawWithShadowAndEmoji(matrices, this.strings.get(i), (float) (rowLeft + 24), (float) (nowY + 10 + i * AbstractTwitterScreen.this.textRenderer.fontHeight), 16777215);
                 }
-                nowY += 10 + this.strings.size() * AbstractTwitterScreen.this.font.fontHeight;
+                nowY += 10 + this.strings.size() * AbstractTwitterScreen.this.textRenderer.fontHeight;
 
                 if (this.summary != null && this.summary.isIncludeVideo()) {
-                    AbstractTwitterScreen.this.fillGradient(rowLeft + 24, nowY, rowLeft + 24 + this.photoRenderingWidth, nowY + this.photoRenderingHeight, -1072689136, -804253680);
+                    AbstractTwitterScreen.this.fillGradient(matrices, rowLeft + 24, nowY, rowLeft + 24 + this.photoRenderingWidth, nowY + this.photoRenderingHeight, -1072689136, -804253680);
                     if (mouseX >= rowLeft + 24 && mouseX <= rowLeft + 24 + this.photoRenderingWidth && mouseY >= nowY && mouseY <= nowY + this.photoRenderingHeight) {
-                        AbstractTwitterScreen.this.renderTooltip(I18n.translate("tw.play.video"), mouseX, mouseY);
+                        AbstractTwitterScreen.this.renderTooltip(matrices, new TranslatableText("tw.play.video"), mouseX, mouseY);
                     }
                     nowY += this.photoRenderingHeight;
                 }
 
-                nowY += this.renderPhotos(rowLeft, nowY);
+                nowY += this.renderPhotos(matrices, rowLeft, nowY);
 
                 if (this.quoteSourceSummary != null) {
                     nowY += 10;
                     InputStream qsIco = this.quoteSourceSummary.getUserIconData();
                     if (qsIco != null) {
                         TwitterForMC.getTextureManager().bindTexture(qsIco);
-                        blit(rowLeft + 24 + 5, nowY, 0.0F, 0.0F, 10, 10, 10, 10);
+                        drawTexture(matrices, rowLeft + 24 + 5, nowY, 0.0F, 0.0F, 10, 10, 10, 10);
                     }
-                    this.renderUserName(this.quoteSourceSummary, rowLeft + 24 + 5 + 10 + 4, nowY, AbstractTwitterScreen.TweetList.this.getRowWidth() - 24 - 5 - 10 - 4 - 10);
+                    this.renderUserName(matrices, this.quoteSourceSummary, rowLeft + 24 + 5 + 10 + 4, nowY, AbstractTwitterScreen.TweetList.this.getRowWidth() - 24 - 5 - 10 - 4 - 10);
                     for (int i = 0; i < this.quotedTweetStrings.size(); i++) {
-                        AbstractTwitterScreen.this.font.drawWithShadow(this.quotedTweetStrings.get(i), rowLeft + 24 + 5, nowY + 10 + i * AbstractTwitterScreen.this.font.fontHeight, 16777215);
+                        AbstractTwitterScreen.this.drawWithShadowAndEmoji(matrices, this.quotedTweetStrings.get(i), rowLeft + 24 + 5, nowY + 10 + i * AbstractTwitterScreen.this.textRenderer.fontHeight, 16777215);
                     }
-                    nowY += 10 + this.quotedTweetStrings.size() * AbstractTwitterScreen.this.font.fontHeight;
+                    nowY += 10 + this.quotedTweetStrings.size() * AbstractTwitterScreen.this.textRenderer.fontHeight;
                 }
 
-                this.renderButtons(mouseX, mouseY, delta);
+                this.renderButtons(matrices, mouseX, mouseY, delta);
 
                 if (this.summary != null) {
                     if (this.summary.getRetweetCount() != 0 && this.retweetButton != null) {
-                        AbstractTwitterScreen.this.font.drawWithShadow("" + this.summary.getRetweetCountF(), this.retweetButton.x + 16.0F, this.retweetButton.y, 11184810);
+                        AbstractTwitterScreen.this.drawWithShadowAndEmoji(matrices, "" + this.summary.getRetweetCountF(), this.retweetButton.x + 16.0F, this.retweetButton.y, 11184810);
                     }
                     if (this.summary.getFavoriteCount() != 0 && this.favoriteButton != null) {
-                        AbstractTwitterScreen.this.font.drawWithShadow("" + this.summary.getFavoriteCountF(), this.favoriteButton.x + 16.0F, this.favoriteButton.y, 11184810);
+                        AbstractTwitterScreen.this.drawWithShadowAndEmoji(matrices, "" + this.summary.getFavoriteCountF(), this.favoriteButton.x + 16.0F, this.favoriteButton.y, 11184810);
                     }
                 }
             }
 
-            public void renderUserName(TweetSummary summary, int x, int y, int width) {
+            public void renderUserName(MatrixStack matrices, TweetSummary summary, int x, int y, int width) {
                 boolean p = summary.getUser().isProtected();
                 boolean v = summary.getUser().isVerified();
 
-                int threeBoldWidth = AbstractTwitterScreen.this.font.getStringWidth(THREE_PERIOD);
-                int threeWidth = AbstractTwitterScreen.this.font.getStringWidth(THREE_PERIOD_GRAY);
-                String time = new LiteralText("・" + summary.getDifferenceTime()).formatted(Formatting.GRAY).asFormattedString();
-                int timeWidth = AbstractTwitterScreen.this.font.getStringWidth(time);
-                String screenName = new LiteralText(summary.getScreenName()).formatted(Formatting.GRAY).asFormattedString();
-                String name = new LiteralText(summary.getUser().getName()).formatted(Formatting.BOLD).asFormattedString();
+                int threeBoldWidth = AbstractTwitterScreen.this.textRenderer.getWidth(THREE_PERIOD);
+                int threeWidth = AbstractTwitterScreen.this.textRenderer.getWidth(THREE_PERIOD_GRAY);
+                String time = new LiteralText("・" + summary.getDifferenceTime()).formatted(Formatting.GRAY).asString();
+                int timeWidth = AbstractTwitterScreen.this.textRenderer.getWidth(time);
+                String screenName = new LiteralText(summary.getScreenName()).formatted(Formatting.GRAY).asString();
+                String name = new LiteralText(summary.getUser().getName()).formatted(Formatting.BOLD).asString();
 
                 int protectedVerifiedWidth = (p ? 10 : 0) + (v ? 10 : 0);
-                List<String> nameFormatted = AbstractTwitterScreen.this.font.wrapStringToWidthAsList(name, width - protectedVerifiedWidth - timeWidth);
+                List<StringVisitable> nameFormatted = AbstractTwitterScreen.this.textRenderer.getTextHandler().wrapLines(name, width - protectedVerifiedWidth - timeWidth, Style.EMPTY);
                 boolean isOver = nameFormatted.size() > 1;
-                List<String> nameFormatted2 = isOver ? AbstractTwitterScreen.this.font.wrapStringToWidthAsList(name, width - protectedVerifiedWidth - timeWidth - threeBoldWidth) : nameFormatted;
+                List<StringVisitable> nameFormatted2 = isOver ? AbstractTwitterScreen.this.textRenderer.getTextHandler().wrapLines(name, width - protectedVerifiedWidth - timeWidth - threeBoldWidth, Style.EMPTY) : nameFormatted;
 
-                String formattedName = nameFormatted2.size() == 1 ? nameFormatted2.get(0) : nameFormatted2.get(0) + THREE_PERIOD;
-                int formattedNameWidth = AbstractTwitterScreen.this.font.getStringWidth(formattedName);
-                AbstractTwitterScreen.this.font.drawWithShadow(formattedName, x, y, 16777215);
+                String formattedName = nameFormatted2.size() == 1 ? nameFormatted2.get(0).getString() : nameFormatted2.get(0).getString() + THREE_PERIOD;
+                int formattedNameWidth = AbstractTwitterScreen.this.getWidthWithEmoji(formattedName);
+                AbstractTwitterScreen.this.drawWithShadowAndEmoji(matrices, formattedName, x, y, 16777215);
                 x += formattedNameWidth;
                 if (p) {
-                    x += AbstractTwitterScreen.this.renderProtected(x, y);
+                    x += AbstractTwitterScreen.this.renderProtected(matrices, x, y);
                 }
                 if (v) {
-                    x += AbstractTwitterScreen.this.renderVerified(x, y);
+                    x += AbstractTwitterScreen.this.renderVerified(matrices, x, y);
                 }
 
-                List<String> screenNameFormatted = AbstractTwitterScreen.this.font.wrapStringToWidthAsList(screenName, width - formattedNameWidth - protectedVerifiedWidth - timeWidth - threeWidth);
+                List<StringVisitable> screenNameFormatted = AbstractTwitterScreen.this.textRenderer.getTextHandler().wrapLines(screenName, width - formattedNameWidth - protectedVerifiedWidth - timeWidth - threeWidth, Style.EMPTY);
                 if (!isOver) {
-                    String s = screenNameFormatted.size() == 1 ? screenNameFormatted.get(0) : screenNameFormatted.get(0) + THREE_PERIOD_GRAY;
-                    AbstractTwitterScreen.this.font.drawWithShadow(s, x, y, 11184810);
-                    x += AbstractTwitterScreen.this.font.getStringWidth(s);
+                    String s = screenNameFormatted.size() == 1 ? screenNameFormatted.get(0).getString() : screenNameFormatted.get(0).getString() + THREE_PERIOD_GRAY;
+                    AbstractTwitterScreen.this.drawWithShadowAndEmoji(matrices, s, x, y, 11184810);
+                    x += AbstractTwitterScreen.this.getWidthWithEmoji(s);
                 }
-                AbstractTwitterScreen.this.font.drawWithShadow(time, x, y, 11184810);
+                AbstractTwitterScreen.this.drawWithShadowAndEmoji(matrices, time, x, y, 11184810);
             }
 
-            public void renderIcon(int x, int y) {
+            public void renderIcon(MatrixStack matrices, int x, int y) {
                 InputStream icon = this.summary != null ? this.summary.getUserIconData() : null;
                 if (icon != null) {
                     TwitterForMC.getTextureManager().bindTexture(icon);
-                    DrawableHelper.blit(x, y, 0.0F, 0.0F, 16, 16, 16, 16);
+                    DrawableHelper.drawTexture(matrices, x, y, 0.0F, 0.0F, 16, 16, 16, 16);
                 }
             }
 
-            public int renderPhotos(int rowLeft, int rowTop) {
+            public int renderPhotos(MatrixStack matrices, int rowLeft, int rowTop) {
                 if (this.summary != null) {
                     int w2 = this.photoRenderingWidth / 2;
                     int h2 = this.photoRenderingHeight / 2;
@@ -523,7 +531,7 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
                         if (data != null && media.canRendering()) {
                             Dimension d = TwitterUtil.wrapImageSizeToMax(new Dimension(media.getWidth(), media.getHeight()), new Dimension(this.photoRenderingWidth, this.photoRenderingHeight));
                             TwitterForMC.getTextureManager().bindTexture(data);
-                            DrawableHelper.blit(rowLeft + 24, rowTop, 0.0F, (float) (d.height - this.photoRenderingHeight) / 2, this.photoRenderingWidth, this.photoRenderingHeight, d.width, d.height);
+                            DrawableHelper.drawTexture(matrices, rowLeft + 24, rowTop, 0.0F, (float) (d.height - this.photoRenderingHeight) / 2, this.photoRenderingWidth, this.photoRenderingHeight, d.width, d.height);
                         }
                     } else if (p.size() == 2) {
                         for (int i = 0; i < 2; i++) {
@@ -532,7 +540,7 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
                             if (data != null && media.canRendering()) {
                                 Dimension d = TwitterUtil.wrapImageSizeToMax(new Dimension(media.getWidth(), media.getHeight()), new Dimension(w2, this.photoRenderingHeight));
                                 TwitterForMC.getTextureManager().bindTexture(data);
-                                DrawableHelper.blit(rowLeft + 24 + i * w2 + 1, rowTop, 0.0F, (float) (d.height - this.photoRenderingHeight) / 2, w2, this.photoRenderingHeight, d.width, d.height);
+                                DrawableHelper.drawTexture(matrices, rowLeft + 24 + i * w2 + 1, rowTop, 0.0F, (float) (d.height - this.photoRenderingHeight) / 2, w2, this.photoRenderingHeight, d.width, d.height);
                             }
                         }
                     } else if (p.size() == 3) {
@@ -544,13 +552,13 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
                                 TwitterForMC.getTextureManager().bindTexture(data);
                                 if (i == 0) {
                                     d = TwitterUtil.wrapImageSizeToMax(new Dimension(media.getWidth(), media.getHeight()), new Dimension(w2, this.photoRenderingHeight));
-                                    DrawableHelper.blit(rowLeft + 24, rowTop, 0.0F, (float) (d.height - this.photoRenderingHeight) / 2, w2, this.photoRenderingHeight, d.width, d.height);
-                                } else if(i == 1) {
+                                    DrawableHelper.drawTexture(matrices, rowLeft + 24, rowTop, 0.0F, (float) (d.height - this.photoRenderingHeight) / 2, w2, this.photoRenderingHeight, d.width, d.height);
+                                } else if (i == 1) {
                                     d = TwitterUtil.wrapImageSizeToMax(new Dimension(media.getWidth(), media.getHeight()), new Dimension(w2, h2 - 1));
-                                    DrawableHelper.blit(rowLeft + 24 + w2 + 1, rowTop, 0.0F, (float) (d.height - h2 - 1) / 2, w2, h2 - 1, d.width, d.height - 1);
+                                    DrawableHelper.drawTexture(matrices, rowLeft + 24 + w2 + 1, rowTop, 0.0F, (float) (d.height - h2 - 1) / 2, w2, h2 - 1, d.width, d.height - 1);
                                 } else {
                                     d = TwitterUtil.wrapImageSizeToMax(new Dimension(media.getWidth(), media.getHeight()), new Dimension(w2, h2 - 1));
-                                    DrawableHelper.blit(rowLeft + 24 + w2 + 1, rowTop + h2 + 1, 0.0F, (float) (d.height - h2 - 1) / 2, w2, h2 - 1, d.width, d.height - 1);
+                                    DrawableHelper.drawTexture(matrices, rowLeft + 24 + w2 + 1, rowTop + h2 + 1, 0.0F, (float) (d.height - h2 - 1) / 2, w2, h2 - 1, d.width, d.height - 1);
                                 }
                             }
                         }
@@ -562,9 +570,9 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
                                 Dimension d = TwitterUtil.wrapImageSizeToMax(new Dimension(media.getWidth(), media.getHeight()), new Dimension(w2, h2));
                                 TwitterForMC.getTextureManager().bindTexture(data);
                                 if (i % 2 == 0) {
-                                    DrawableHelper.blit(rowLeft + 24, rowTop + ((i / 2) * (h2 + 1)), 0.0F, (float) (d.height - h2) / 2, w2, h2, d.width, d.height);
+                                    DrawableHelper.drawTexture(matrices, rowLeft + 24, rowTop + ((i / 2) * (h2 + 1)), 0.0F, (float) (d.height - h2) / 2, w2, h2, d.width, d.height);
                                 } else {
-                                    DrawableHelper.blit(rowLeft + 24 + w2 + 1, rowTop + ((i / 3) * (h2 + 1)), 0.0F, (float) (d.height - h2) / 2, w2, h2, d.width, d.height);
+                                    DrawableHelper.drawTexture(matrices, rowLeft + 24 + w2 + 1, rowTop + ((i / 3) * (h2 + 1)), 0.0F, (float) (d.height - h2) / 2, w2, h2, d.width, d.height);
                                 }
                             }
                         }
@@ -579,7 +587,7 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
             public boolean mouseClicked(double x, double y, int button) {
                 if (this.summary != null) {
                     int i = AbstractTwitterScreen.TweetList.this.getRowLeft() + 24;
-                    int j = this.y + this.retweetedUserNameHeight + 11 + this.strings.size() * AbstractTwitterScreen.this.font.fontHeight;
+                    int j = this.y + this.retweetedUserNameHeight + 11 + this.strings.size() * AbstractTwitterScreen.this.textRenderer.fontHeight;
                     int k = this.summary.getPhotoMediaLength();
                     int w2 = this.photoRenderingWidth / 2;
                     int h2 = this.photoRenderingHeight / 2;
@@ -626,7 +634,7 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
                     }
                 }
 
-                for (AbstractButtonWidget w : this.buttons) {
+                for (ClickableWidget w : this.buttons) {
                     if (w.mouseClicked(x, y, button)) {
                         return true;
                     }
@@ -634,7 +642,7 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
 
                 if (button == 0) {
                     if (this.summary != null && TweetList.this.getSelected() == this) {
-                        AbstractTwitterScreen.this.minecraft.openScreen(new TwitterShowStatusScreen(AbstractTwitterScreen.this, this.summary));
+                        AbstractTwitterScreen.this.client.setScreen(new TwitterShowStatusScreen(AbstractTwitterScreen.this, this.summary));
                     } else {
                         TweetList.this.setSelected(this);
                     }
@@ -652,9 +660,9 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
 
             protected boolean displayTwitterPhotoAndShowStatusScreen(int mouseButton, int index) {
                 if (this.summary != null) {
-                    AbstractTwitterScreen.this.minecraft.getSoundManager().play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
+                    AbstractTwitterScreen.this.client.getSoundManager().play(PositionedSoundInstance.master(SoundEvents.UI_BUTTON_CLICK, 1.0F));
                     if (mouseButton == 0) {
-                        AbstractTwitterScreen.this.minecraft.openScreen(new TwitterPhotoAndShowStatusScreen(AbstractTwitterScreen.this, this.summary, index));
+                        AbstractTwitterScreen.this.client.setScreen(new TwitterPhotoAndShowStatusScreen(AbstractTwitterScreen.this, this.summary, index));
                     } else if (mouseButton == 1) {
                         //TODO save picture action;
                     }
@@ -668,13 +676,17 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
             protected boolean videoClicked(int mouseButton) {
                 if (this.summary != null && !this.summary.isVideoNull()) {
                     if (mouseButton == 0) {
-                        this.summary.getPlayer().play(AbstractTwitterScreen.this.minecraft.getWindow().getX(), AbstractTwitterScreen.this.minecraft.getWindow().getY(), AbstractTwitterScreen.this.minecraft.getWindow().getWidth() / 2, AbstractTwitterScreen.this.minecraft.getWindow().getHeight() / 2);
+                        this.summary.getPlayer().play(AbstractTwitterScreen.this.client.getWindow().getX(), AbstractTwitterScreen.this.client.getWindow().getY(), AbstractTwitterScreen.this.client.getWindow().getWidth() / 2, AbstractTwitterScreen.this.client.getWindow().getHeight() / 2);
                     } else if (mouseButton == 1) {
                         //TODO save video action;
                     }
                 }
 
                 return false;
+            }
+
+            public int getHeight() {
+                return this.height;
             }
 
             public void setHeight(int height) {
@@ -685,10 +697,6 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
                 TweetList.this.calcAllHeight();
                 TweetList.this.calcAverage();
                 TweetList.this.setY(-(int) TweetList.this.getScrollAmount());
-            }
-
-            public int getHeight() {
-                return this.height;
             }
 
             public int getY() {

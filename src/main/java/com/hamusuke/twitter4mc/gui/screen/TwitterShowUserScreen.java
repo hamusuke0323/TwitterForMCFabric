@@ -10,7 +10,10 @@ import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.texture.MissingSprite;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
+import net.minecraft.text.StringVisitable;
+import net.minecraft.text.Style;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.Nullable;
@@ -22,7 +25,7 @@ import java.util.List;
 @Environment(EnvType.CLIENT)
 public class TwitterShowUserScreen extends AbstractTwitterScreen {
 	private final UserSummary user;
-	private List<String> name = Lists.newArrayList();
+	private List<StringVisitable> name = Lists.newArrayList();
 
 	public TwitterShowUserScreen(@Nullable Screen parent, User user) {
 		super(new LiteralText(user.getName()).formatted(Formatting.BOLD), parent);
@@ -30,9 +33,9 @@ public class TwitterShowUserScreen extends AbstractTwitterScreen {
 	}
 
 	protected void init() {
-		List<String> wrapped = this.font.wrapStringToWidthAsList(this.title.asFormattedString(), this.width / 2 - 20);
+		List<StringVisitable> wrapped = this.textRenderer.getTextHandler().wrapLines(this.title, this.width / 2 - 20, Style.EMPTY);
 		this.name = wrapped;
-		int fontHeight = this.font.fontHeight;
+		int fontHeight = this.textRenderer.fontHeight;
 		int top = fontHeight * wrapped.size() + fontHeight;
 
 		if (!this.user.isGettingUserTimeline()) {
@@ -41,48 +44,47 @@ public class TwitterShowUserScreen extends AbstractTwitterScreen {
 					double scroll = 0.0D;
 					if (this.list != null) {
 						scroll = this.list.getScrollAmount();
-						this.children.remove(this.list);
+						this.remove(this.list);
 					}
 
-					this.list = new TweetList(this.minecraft, top, this.user);
+					this.list = new TweetList(this.client, top, this.user);
 					this.list.setScrollAmount(scroll);
-					this.children.add(this.list);
+					this.addDrawableChild(this.list);
 				});
 			} else {
 				double scroll = this.list != null ? this.list.getScrollAmount() : 0.0D;
-				this.list = new TweetList(this.minecraft, top, this.user);
+				this.list = new TweetList(this.client, top, this.user);
 				this.list.setScrollAmount(scroll);
-				this.children.add(this.list);
+				this.addDrawableChild(this.list);
 			}
 		}
 
 		super.init();
 	}
 
-	public void render(int mouseX, int mouseY, float delta) {
+	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
 		if (this.parent != null) {
-			this.parent.render(-1, -1, delta);
+			this.parent.render(matrices, -1, -1, delta);
 		}
-		if (this.minecraft.currentScreen == this) {
-			this.fillGradient(0, 0, this.width, this.height, -1072689136, -804253680);
+		if (this.client.currentScreen == this) {
+			this.fillGradient(matrices, 0, 0, this.width, this.height, -1072689136, -804253680);
 		} else {
 			return;
 		}
 
 		if (this.list != null) {
-			this.list.render(mouseX, mouseY, delta);
+			this.list.render(matrices, mouseX, mouseY, delta);
 		}
-		super.render(mouseX, mouseY, delta);
+		super.render(matrices, mouseX, mouseY, delta);
 		float left = (float) (this.width / 2 - this.width / 4 + 2);
 		float y = 0.0F;
-		List<String> name = this.name;
-		for (int i = 0; i < name.size(); i++) {
-			this.font.drawWithShadow(name.get(i), left + 20, y, 16777215);
-			y += this.font.fontHeight;
+		for (StringVisitable stringVisitable : this.name) {
+			this.drawWithShadowAndEmoji(matrices, stringVisitable.getString(), left + 20, y, 16777215);
+			y += this.textRenderer.fontHeight;
 		}
-		this.font.drawWithShadow(new TranslatableText("tw.statuses.count", this.user.getStatusesCount()).formatted(Formatting.GRAY).asFormattedString(), left + 20, y, 16777215);
+		this.textRenderer.drawWithShadow(matrices, new TranslatableText("tw.statuses.count", this.user.getStatusesCount()).formatted(Formatting.GRAY), left + 20, y, 16777215);
 
-		this.renderMessage();
+		this.renderMessage(matrices);
 	}
 
 	@Environment(EnvType.CLIENT)
@@ -108,8 +110,8 @@ public class TwitterShowUserScreen extends AbstractTwitterScreen {
 		@Environment(EnvType.CLIENT)
 		private class UserProfile extends TweetEntry {
 			private final UserSummary summary;
-			private final List<String> name;
-			private final List<String> desc;
+			private final List<StringVisitable> name;
+			private final List<StringVisitable> desc;
 
 			private UserProfile(UserSummary summary) {
 				super(null);
@@ -117,16 +119,16 @@ public class TwitterShowUserScreen extends AbstractTwitterScreen {
 				boolean p = this.summary.isProtected();
 				boolean v = this.summary.isVerified();
 				int protectedVerifiedWidth = (p ? 10 : 0) + (v ? 10 : 0);
-				this.name = TwitterShowUserScreen.this.font.wrapStringToWidthAsList(new LiteralText(this.summary.getName()).formatted(Formatting.BOLD).asFormattedString(), TweetList.this.getRowWidth() - 10 - protectedVerifiedWidth);
-				this.desc = TwitterShowUserScreen.this.font.wrapStringToWidthAsList(this.summary.getDescription(), TweetList.this.getRowWidth() - 20);
-				this.height = TwitterShowUserScreen.TweetList.this.getRowWidth() / 3 + 60 + this.desc.size() * TwitterShowUserScreen.this.font.fontHeight;
+				this.name = TwitterShowUserScreen.this.textRenderer.getTextHandler().wrapLines(new LiteralText(this.summary.getName()).formatted(Formatting.BOLD), TweetList.this.getRowWidth() - 10 - protectedVerifiedWidth, Style.EMPTY);
+				this.desc = TwitterShowUserScreen.this.textRenderer.getTextHandler().wrapLines(this.summary.getDescription(), TweetList.this.getRowWidth() - 20, Style.EMPTY);
+				this.height = TwitterShowUserScreen.TweetList.this.getRowWidth() / 3 + 60 + this.desc.size() * TwitterShowUserScreen.this.textRenderer.fontHeight;
 			}
 
 			public void init() {
 			}
 
-			public void render(int itemIndex, int rowTop, int rowLeft, int rowWidth, int height2, int mouseX, int mouseY, boolean isMouseOverAndObjectEquals, float delta) {
-				RenderSystem.color4f(1.0F, 1.0F, 1.0F, 1.0F);
+			public void render(MatrixStack matrices, int itemIndex, int rowTop, int rowLeft, int rowWidth, int height2, int mouseX, int mouseY, boolean isMouseOverAndObjectEquals, float delta) {
+				RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 				RenderSystem.enableBlend();
 
 				int i = rowWidth / 3;
@@ -136,38 +138,38 @@ public class TwitterShowUserScreen extends AbstractTwitterScreen {
 				InputStream icon = this.summary.getIcon();
 
 				if (header == null) {
-					TwitterShowUserScreen.this.minecraft.getTextureManager().bindTexture(MissingSprite.getMissingSpriteId());
+					TwitterShowUserScreen.this.client.getTextureManager().bindTexture(MissingSprite.getMissingSpriteId());
 				} else {
 					TwitterForMC.getTextureManager().bindTexture(this.summary.getHeader());
 				}
-				blit(rowLeft, rowTop, 0.0F, 0.0F, rowWidth, i, rowWidth, i);
+				drawTexture(matrices, rowLeft, rowTop, 0.0F, 0.0F, rowWidth, i, rowWidth, i);
 
 				if (icon == null) {
-					TwitterShowUserScreen.this.minecraft.getTextureManager().bindTexture(MissingSprite.getMissingSpriteId());
+					TwitterShowUserScreen.this.client.getTextureManager().bindTexture(MissingSprite.getMissingSpriteId());
 				} else {
 					TwitterForMC.getTextureManager().bindTexture(this.summary.getIcon());
 				}
-				blit(rowLeft + 10, rowTop + (i - i / 3), 0.0F, 0.0F, j, j, j, j);
+				drawTexture(matrices, rowLeft + 10, rowTop + (i - i / 3), 0.0F, 0.0F, j, j, j, j);
 
 				int k = rowTop + (i - i / 3) + j;
 				int x = 0;
 				for (int index = 0; index < this.name.size(); index++) {
-					int xx = TwitterShowUserScreen.this.font.drawWithShadow(this.name.get(index), rowLeft + 10, k, 16777215);
-					k += TwitterShowUserScreen.this.font.fontHeight;
+					int xx = TwitterShowUserScreen.this.drawWithShadowAndEmoji(matrices, this.name.get(index).getString(), rowLeft + 10, k, 16777215);
+					k += TwitterShowUserScreen.this.textRenderer.fontHeight;
 					x = index == this.name.size() - 1 ? xx : rowLeft + 10;
 				}
 
 				if (this.summary.isProtected()) {
-					x += TwitterShowUserScreen.this.renderProtected(x, k);
+					x += TwitterShowUserScreen.this.renderProtected(matrices, x, k);
 				}
 				if (this.summary.isVerified()) {
-					TwitterShowUserScreen.this.renderVerified(x, k);
+					TwitterShowUserScreen.this.renderVerified(matrices, x, k);
 				}
 
-				TwitterShowUserScreen.this.font.drawWithShadow(new LiteralText(this.summary.getScreenName()).formatted(Formatting.GRAY).asFormattedString(), rowLeft + 10, k, 0);
+				TwitterShowUserScreen.this.drawWithShadowAndEmoji(matrices, new LiteralText(this.summary.getScreenName()).formatted(Formatting.GRAY).asString(), rowLeft + 10, k, 0);
 
 				for (int index = 0; index < this.desc.size(); index++) {
-					TwitterShowUserScreen.this.font.drawWithShadow(this.desc.get(index), rowLeft + 10, k + TwitterShowUserScreen.this.font.fontHeight * 2 + index * TwitterShowUserScreen.this.font.fontHeight, 16777215);
+					TwitterShowUserScreen.this.drawWithShadowAndEmoji(matrices, this.desc.get(index).getString(), rowLeft + 10, k + TwitterShowUserScreen.this.textRenderer.fontHeight * 2 + index * TwitterShowUserScreen.this.textRenderer.fontHeight, 16777215);
 				}
 			}
 		}

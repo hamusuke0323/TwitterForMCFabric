@@ -7,9 +7,12 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.util.NarratorManager;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.TranslatableText;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import twitter4j.TwitterException;
@@ -35,16 +38,14 @@ public class TwitterTweetScreen extends ParentalScreen {
 	protected void init() {
 		super.init();
 		int i = this.width / 4;
-		this.minecraft.keyboard.enableRepeatEvents(true);
-		this.tweetText = new TwitterTweetFieldWidget(this.font, i, this.height / 4, i * 2, this.height / 2, "");
+		this.client.keyboard.setRepeatEvents(true);
+		this.tweetText = new TwitterTweetFieldWidget(this.textRenderer, i, this.height / 4, i * 2, this.height / 2, NarratorManager.EMPTY);
 		this.tweetText.setEditableColor(-1);
 		this.tweetText.setMaxLength(CharacterUtil.MAX_TWEET_LENGTH);
 
-		this.addButton(new ButtonWidget(i, (this.height / 4 + this.height / 2) + 10, i, 20, I18n.translate("gui.back"), (a) -> {
-			this.onClose();
-		}));
+		this.addDrawableChild(new ButtonWidget(i, (this.height / 4 + this.height / 2) + 10, i, 20, ScreenTexts.BACK, a -> this.onClose()));
 
-		this.addButton(new ButtonWidget(i * 2, (this.height / 4 + this.height / 2) + 10, i, 20, I18n.translate("tweet"), (a) -> {
+		this.addDrawableChild(new ButtonWidget(i * 2, (this.height / 4 + this.height / 2) + 10, i, 20, new TranslatableText("tweet"), a -> {
 			try {
 				TwitterForMC.mcTwitter.updateStatus(this.tweetText.getText());
 				this.accept(I18n.translate("sent.tweet"));
@@ -56,7 +57,7 @@ public class TwitterTweetScreen extends ParentalScreen {
 			this.onClose();
 		}));
 
-		this.children.add(this.tweetText);
+		this.addDrawableChild(this.tweetText);
 	}
 
 	private void accept(String msg) {
@@ -73,7 +74,7 @@ public class TwitterTweetScreen extends ParentalScreen {
 
 	public void removed() {
 		super.removed();
-		this.minecraft.keyboard.enableRepeatEvents(false);
+		this.client.keyboard.setRepeatEvents(false);
 	}
 
 	public boolean keyPressed(int p_keyPressed_1_, int p_keyPressed_2_, int p_keyPressed_3_) {
@@ -84,13 +85,13 @@ public class TwitterTweetScreen extends ParentalScreen {
 		return this.tweetText.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_) || this.tweetText.isActive() || super.keyPressed(p_keyPressed_1_, p_keyPressed_2_, p_keyPressed_3_);
 	}
 
-	public void render(int p_render_1_, int p_render_2_, float p_render_3_) {
+	public void render(MatrixStack matrices, int p_render_1_, int p_render_2_, float p_render_3_) {
 		if (this.parent != null) {
-			this.parent.render(-1, -1, p_render_3_);
+			this.parent.render(matrices, -1, -1, p_render_3_);
 		}
-		this.fillGradient(0, 0, this.width, this.height, -1072689136, -804253680);
+		this.fillGradient(matrices, 0, 0, this.width, this.height, -1072689136, -804253680);
 		RenderSystem.disableBlend();
-		this.tweetText.render(p_render_1_, p_render_2_, p_render_3_);
-		super.render(p_render_1_, p_render_2_, p_render_3_);
+		this.tweetText.render(matrices, p_render_1_, p_render_2_, p_render_3_);
+		super.render(matrices, p_render_1_, p_render_2_, p_render_3_);
 	}
 }

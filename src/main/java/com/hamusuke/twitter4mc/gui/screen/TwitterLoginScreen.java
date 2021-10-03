@@ -7,10 +7,12 @@ import com.hamusuke.twitter4mc.utils.TwitterUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.CheckboxWidget;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.toast.SystemToast;
+import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Util;
 import org.apache.logging.log4j.LogManager;
@@ -38,36 +40,36 @@ public class TwitterLoginScreen extends ParentalScreen {
         int k = this.width / 3;
 
         boolean flag = TwitterForMC.consumer == null;
-        TwitterForMC.consumer = new MaskableTextFieldWidget(this.font, j, 20, i, 20, TwitterForMC.consumer, I18n.translate("tw.consumer.key"), '●', 1000);
-        this.addButton(TwitterForMC.consumer);
+        TwitterForMC.consumer = new MaskableTextFieldWidget(this.textRenderer, j, 20, i, 20, TwitterForMC.consumer, new TranslatableText("tw.consumer.key"), '●', 1000);
+        this.addDrawableChild(TwitterForMC.consumer);
 
-        TwitterForMC.consumerS = new MaskableTextFieldWidget(this.font, j, 60, i, 20, TwitterForMC.consumerS, I18n.translate("tw.consumer.secret"), '●', 1000);
-        this.addButton(TwitterForMC.consumerS);
+        TwitterForMC.consumerS = new MaskableTextFieldWidget(this.textRenderer, j, 60, i, 20, TwitterForMC.consumerS, new TranslatableText("tw.consumer.secret"), '●', 1000);
+        this.addDrawableChild(TwitterForMC.consumerS);
 
-        TwitterForMC.access = new MaskableTextFieldWidget(this.font, j, 100, i, 20, TwitterForMC.access, I18n.translate("tw.access.token"), '●', 1000);
-        this.addButton(TwitterForMC.access);
+        TwitterForMC.access = new MaskableTextFieldWidget(this.textRenderer, j, 100, i, 20, TwitterForMC.access, new TranslatableText("tw.access.token"), '●', 1000);
+        this.addDrawableChild(TwitterForMC.access);
 
-        TwitterForMC.accessS = new MaskableTextFieldWidget(this.font, j, 140, i, 20, TwitterForMC.accessS, I18n.translate("tw.access.token.secret"), '●', 1000);
-        this.addButton(TwitterForMC.accessS);
+        TwitterForMC.accessS = new MaskableTextFieldWidget(this.textRenderer, j, 140, i, 20, TwitterForMC.accessS, new TranslatableText("tw.access.token.secret"), '●', 1000);
+        this.addDrawableChild(TwitterForMC.accessS);
 
         if (flag) {
             TwitterForMC.update();
         }
 
-        TwitterForMC.save = this.addButton(new CheckboxWidget(j, 170, 20, 20, I18n.translate("tw.save.keys"), TwitterForMC.save != null ? TwitterForMC.save.isChecked() : TwitterForMC.readToken()));
+        TwitterForMC.save = this.addDrawableChild(new CheckboxWidget(j, 170, 20, 20, new TranslatableText("tw.save.keys"), TwitterForMC.save != null ? TwitterForMC.save.isChecked() : TwitterForMC.readToken()));
 
-        TwitterForMC.autoLogin = this.addButton(new CheckboxWidget(j, 200, 20, 20, I18n.translate("tw.auto.login"), TwitterForMC.autoLogin != null ? TwitterForMC.autoLogin.isChecked() : TwitterForMC.readToken() && TwitterForMC.isAutoLogin()));
+        TwitterForMC.autoLogin = this.addDrawableChild(new CheckboxWidget(j, 200, 20, 20, new TranslatableText("tw.auto.login"), TwitterForMC.autoLogin != null ? TwitterForMC.autoLogin.isChecked() : TwitterForMC.readToken() && TwitterForMC.isAutoLogin()));
 
-        TwitterForMC.login = TwitterForMC.login != null ? TwitterForMC.login : new ButtonWidget(0, this.height - 20, this.width / 2, 20, this.title.asFormattedString(), (b) -> {
+        TwitterForMC.login = TwitterForMC.login != null ? TwitterForMC.login : new ButtonWidget(0, this.height - 20, this.width / 2, 20, this.title, b -> {
             this.active(false);
             if (TwitterForMC.access.getText().isEmpty() || TwitterForMC.accessS.getText().isEmpty()) {
                 this.pinLogin((twitter) -> {
-                    this.minecraft.openScreen(TwitterForMC.twitterScreen);
+                    this.client.setScreen(TwitterForMC.twitterScreen);
                     this.addToast(twitter);
                 });
             } else {
                 this.simpleLogin((twitter) -> {
-                    this.minecraft.openScreen(TwitterForMC.twitterScreen);
+                    this.client.setScreen(TwitterForMC.twitterScreen);
                     this.addToast(twitter);
                 });
             }
@@ -75,19 +77,19 @@ public class TwitterLoginScreen extends ParentalScreen {
         });
         TwitterForMC.login.y = this.height - 20;
         TwitterForMC.login.setWidth(k);
-        TwitterForMC.login.setMessage(this.title.asFormattedString());
-        this.addButton(TwitterForMC.login);
+        TwitterForMC.login.setMessage(this.title);
+        this.addDrawableChild(TwitterForMC.login);
 
-        this.addButton(new ButtonWidget(k, this.height - 20, k, 20, I18n.translate("tw.token.file.choose"), (b) -> TwitterForMC.tokenFileChooser.choose()));
+        this.addDrawableChild(new ButtonWidget(k, this.height - 20, k, 20, new TranslatableText("tw.token.file.choose"), b -> TwitterForMC.tokenFileChooser.choose()));
 
-        this.addButton(new ButtonWidget(k * 2, this.height - 20, k, 20, I18n.translate("gui.back"), (b) -> this.onClose()));
+        this.addDrawableChild(new ButtonWidget(k * 2, this.height - 20, k, 20, ScreenTexts.BACK, b -> this.onClose()));
     }
 
     private void addToast(Twitter twitter) {
         try {
-            this.minecraft.getToastManager().add(new TwitterNotificationToast(TwitterUtil.getInputStream(twitter.showUser(twitter.getId()).get400x400ProfileImageURLHttps()), I18n.translate("tw.login.successful"), null));
+            this.client.getToastManager().add(new TwitterNotificationToast(TwitterUtil.getInputStream(twitter.showUser(twitter.getId()).get400x400ProfileImageURLHttps()), I18n.translate("tw.login.successful"), null));
         } catch (Throwable t) {
-            this.minecraft.getToastManager().add(new SystemToast(SystemToast.Type.TUTORIAL_HINT, new TranslatableText("tw.login.successful"), null));
+            this.client.getToastManager().add(new SystemToast(SystemToast.Type.TUTORIAL_HINT, new TranslatableText("tw.login.successful"), null));
         }
     }
 
@@ -108,12 +110,12 @@ public class TwitterLoginScreen extends ParentalScreen {
         super.tick();
     }
 
-    public void render(int mouseX, int mouseY, float delta) {
-        this.parent.render(-1, -1, delta);
-        this.fillGradient(0, 0, this.width, this.height, -1072689136, -804253680);
-        super.render(mouseX, mouseY, delta);
+    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+        this.parent.render(matrices, -1, -1, delta);
+        this.fillGradient(matrices, 0, 0, this.width, this.height, -1072689136, -804253680);
+        super.render(matrices, mouseX, mouseY, delta);
         if (TwitterForMC.save.isMouseOver(mouseX, mouseY)) {
-            this.renderTooltip(this.font.wrapStringToWidthAsList(I18n.translate("tw.save.keys.desc"), this.width / 3), mouseX, mouseY);
+            this.renderTooltip(matrices, new TranslatableText("tw.save.keys.desc"), mouseX, mouseY);
         }
     }
 
@@ -130,7 +132,7 @@ public class TwitterLoginScreen extends ParentalScreen {
         } catch (Throwable e) {
             TwitterForMC.mcTwitter = null;
             LOGGER.error("Error occurred while logging in twitter", e);
-            this.minecraft.openScreen(new ErrorScreen(new TranslatableText("tw.login.failed"), this, e.getLocalizedMessage()));
+            this.client.setScreen(new ErrorScreen(new TranslatableText("tw.login.failed"), this, e.getLocalizedMessage()));
         }
     }
 
@@ -140,7 +142,7 @@ public class TwitterLoginScreen extends ParentalScreen {
             twitter.setOAuthConsumer(TwitterForMC.consumer.getText(), TwitterForMC.consumerS.getText());
             RequestToken requestToken = twitter.getOAuthRequestToken();
             Util.getOperatingSystem().open(new URI(requestToken.getAuthorizationURL()));
-            this.minecraft.openScreen(new EnterPinScreen((pin) -> {
+            this.client.setScreen(new EnterPinScreen((pin) -> {
                 try {
                     AccessToken token = twitter.getOAuthAccessToken(requestToken, pin);
                     twitter.setOAuthAccessToken(token);
@@ -153,12 +155,12 @@ public class TwitterLoginScreen extends ParentalScreen {
                 } catch (Throwable e) {
                     TwitterForMC.mcTwitter = null;
                     LOGGER.error("Error occurred while logging in twitter", e);
-                    this.minecraft.openScreen(new ErrorScreen(new TranslatableText("tw.login.failed"), this, e.getLocalizedMessage()));
+                    this.client.setScreen(new ErrorScreen(new TranslatableText("tw.login.failed"), this, e.getLocalizedMessage()));
                 }
             }));
         } catch (Throwable e) {
             LOGGER.error("Error occurred while logging in twitter", e);
-            this.minecraft.openScreen(new ErrorScreen(new TranslatableText("tw.login.failed"), this, e.getLocalizedMessage()));
+            this.client.setScreen(new ErrorScreen(new TranslatableText("tw.login.failed"), this, e.getLocalizedMessage()));
         }
     }
 }

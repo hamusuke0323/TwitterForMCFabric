@@ -9,6 +9,8 @@ import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.AbstractParentElement;
 import net.minecraft.client.gui.Drawable;
 import net.minecraft.client.gui.DrawableHelper;
+import net.minecraft.client.gui.Selectable;
+import net.minecraft.client.gui.screen.narration.NarrationMessageBuilder;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.render.*;
 import net.minecraft.client.util.math.MatrixStack;
@@ -21,9 +23,8 @@ import java.util.List;
 import java.util.Objects;
 
 @Environment(EnvType.CLIENT)
-public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetList.AbstractTwitterListEntry<E>> extends AbstractParentElement implements Drawable {
+public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetList.AbstractTwitterListEntry<E>> extends AbstractParentElement implements Drawable, Selectable {
 	protected final MinecraftClient minecraft;
-	private int averageHeight;
 	private final SimpleArrayList children = new SimpleArrayList();
 	protected int width;
 	protected int height;
@@ -32,10 +33,11 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 	protected int right;
 	protected int left;
 	protected int yDrag = -2;
-	private double scrollAmount;
 	protected boolean renderSelection = true;
 	protected boolean renderHeader;
 	protected int headerHeight;
+	private int averageHeight;
+	private double scrollAmount;
 	private boolean scrolling;
 	private E selected;
 	private int allHeight;
@@ -135,7 +137,7 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 		int j = this.left + this.width / 2;
 		int k = j - i;
 		int l = j + i;
-		boolean flag = x < (double) this.getScrollbarPosition() && x >= (double) k && x <= (double) l;
+		boolean flag = x < (double) this.getScrollbarPositionX() && x >= (double) k && x <= (double) l;
 		if (flag) {
 			for (E e : this.children()) {
 				int ey = e.getY();
@@ -196,7 +198,7 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 
 	public void render(MatrixStack matrices, int p_render_1_, int p_render_2_, float p_render_3_) {
 		this.renderBackground(matrices);
-		int i = this.getScrollbarPosition();
+		int i = this.getScrollbarPositionX();
 		int j = i + 6;
 		Tessellator tessellator = Tessellator.getInstance();
 		BufferBuilder bufferBuilder = tessellator.getBuffer();
@@ -323,10 +325,10 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 	}
 
 	protected void updateScrollingState(double mouseX, double mouseY, int mouseButton) {
-		this.scrolling = mouseButton == 0 && mouseX >= (double) this.getScrollbarPosition() && mouseX < (double) (this.getScrollbarPosition() + 6);
+		this.scrolling = mouseButton == 0 && mouseX >= (double) this.getScrollbarPositionX() && mouseX < (double) (this.getScrollbarPositionX() + 6);
 	}
 
-	protected int getScrollbarPosition() {
+	protected int getScrollbarPositionX() {
 		return this.width / 2 + 124;
 	}
 
@@ -531,11 +533,22 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 		}
 	}
 
+	public SelectionType getType() {
+		return SelectionType.NONE;
+	}
+
+	public boolean isNarratable() {
+		return false;
+	}
+
+	public void appendNarrations(NarrationMessageBuilder builder) {
+	}
+
 	@Environment(EnvType.CLIENT)
 	public abstract static class AbstractTwitterListEntry<E extends AbstractTwitterTweetList.AbstractTwitterListEntry<E>> implements TweetElement {
+		public final List<ClickableWidget> buttons = Lists.newArrayList();
 		@Deprecated
 		AbstractTwitterTweetList<E> list;
-		public final List<ClickableWidget> buttons = Lists.newArrayList();
 
 		public void init() {
 		}

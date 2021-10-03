@@ -54,8 +54,6 @@ public class TwitterNotificationToast extends InputStreamToast implements Clicka
 				getInvoker(toastGui.getGame().textRenderer).drawWithEmoji(matrices, this.title, 30.0F, 7.0F, 16777215);
 				getInvoker(toastGui.getGame().textRenderer).drawWithEmoji(matrices, this.subtitle, 30.0F, 18.0F, 16777215);
 			} else {
-				int j = 1500;
-				float f = 300.0F;
 				if (delta < 1500L) {
 					int k = MathHelper.floor(MathHelper.clamp((float) (1500L - delta) / 300.0F, 0.0F, 1.0F) * 255.0F) << 24 | 67108864;
 					getInvoker(toastGui.getGame().textRenderer).drawWithEmoji(matrices, this.title, 30.0F, 7.0F, 16777215 | k);

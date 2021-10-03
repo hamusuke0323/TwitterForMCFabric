@@ -24,13 +24,10 @@ public class InputStreamTexture extends AbstractTexture {
         textureData.checkException();
         NativeImage nativeImage = textureData.getImage();
         if (!RenderSystem.isOnRenderThreadOrInit()) {
-            RenderSystem.recordRenderCall(() -> {
-                this.uploadTexture(nativeImage);
-            });
+            RenderSystem.recordRenderCall(() -> this.uploadTexture(nativeImage));
         } else {
             this.uploadTexture(nativeImage);
         }
-
     }
 
     private void uploadTexture(NativeImage nativeImage) {

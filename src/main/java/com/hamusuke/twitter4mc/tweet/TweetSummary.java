@@ -1,12 +1,7 @@
 package com.hamusuke.twitter4mc.tweet;
 
-import java.io.InputStream;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
-import java.util.concurrent.atomic.AtomicReference;
-
 import com.google.common.collect.ImmutableList;
+import com.google.common.collect.Lists;
 import com.hamusuke.twitter4mc.TwitterForMC;
 import com.hamusuke.twitter4mc.utils.ReplyObject;
 import com.hamusuke.twitter4mc.utils.TwitterThread;
@@ -15,12 +10,14 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-
-import com.google.common.collect.Lists;
-
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import twitter4j.*;
+
+import java.io.InputStream;
+import java.util.*;
+import java.util.concurrent.atomic.AtomicBoolean;
+import java.util.concurrent.atomic.AtomicInteger;
 
 @Environment(EnvType.CLIENT)
 public class TweetSummary implements Comparable<TweetSummary> {
@@ -69,10 +66,10 @@ public class TweetSummary implements Comparable<TweetSummary> {
 	//private final String formattedTweet;
 	private final URLEntity[] urls;
 	private final List<URLEntity> urlList;
-	private boolean isFavorited;
 	private final boolean isRetweet;
 	private final boolean isRetweeted;
 	private final boolean isRetweetedByMe;
+	private boolean isFavorited;
 
 	public TweetSummary(Status status) {
 		this.status = status;
@@ -336,8 +333,17 @@ public class TweetSummary implements Comparable<TweetSummary> {
 		return this.isRetweetedByMe;
 	}
 
-	public boolean equals(Object obj) {
-		return this.status.equals(obj);
+	public boolean equals(Object o) {
+		if (this == o) {
+			return true;
+		}
+
+		if (o == null || getClass() != o.getClass()) {
+			return false;
+		}
+
+		TweetSummary that = (TweetSummary) o;
+		return this.status.equals(that.status);
 	}
 
 	public int hashCode() {

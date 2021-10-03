@@ -7,8 +7,10 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.screen.Screen;
-import net.minecraft.client.gui.widget.AbstractButtonWidget;
 import net.minecraft.client.gui.widget.ButtonWidget;
+import net.minecraft.client.gui.widget.ClickableWidget;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.LiteralText;
 import net.minecraft.text.TranslatableText;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -32,44 +34,42 @@ public class TwitterShowStatusScreen extends AbstractTwitterScreen {
 					double scroll = 0.0D;
 					if (this.list != null) {
 						scroll = this.list.getScrollAmount();
-						this.children.remove(this.list);
+						this.remove(this.list);
 					}
 
-					this.list = new TwitterShowStatusScreen.TweetList(this.minecraft, this.summary);
+					this.list = new TwitterShowStatusScreen.TweetList(this.client, this.summary);
 					this.list.setScrollAmount(scroll);
-					this.children.add(this.list);
+					this.addDrawableChild(this.list);
 				});
 			} else {
 				double scroll = this.list != null ? this.list.getScrollAmount() : 0.0D;
-				this.list = new TwitterShowStatusScreen.TweetList(this.minecraft, this.summary);
+				this.list = new TwitterShowStatusScreen.TweetList(this.client, this.summary);
 				this.list.setScrollAmount(scroll);
-				this.children.add(this.list);
+				this.addDrawableChild(this.list);
 			}
 		}
 
-		this.addButton(new ButtonWidget(this.width / 2 - this.width / 4, 0, 20, 20, "←", button -> {
-			this.onClose();
-		}));
+		this.addDrawableChild(new ButtonWidget(this.width / 2 - this.width / 4, 0, 20, 20, new LiteralText("←"), button -> this.onClose()));
 
 		super.init();
 	}
 
-	public void render(int mouseX, int mouseY, float delta) {
+	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
 		if (this.parent != null) {
-			this.parent.render(-1, -1, delta);
+			this.parent.render(matrices, -1, -1, delta);
 		}
-		if (this.minecraft.currentScreen == this) {
-			this.fillGradient(0, 0, this.width, this.height, -1072689136, -804253680);
+		if (this.client.currentScreen == this) {
+			this.fillGradient(matrices, 0, 0, this.width, this.height, -1072689136, -804253680);
 		} else {
 			return;
 		}
 
 		if (this.list != null) {
-			this.list.render(mouseX, mouseY, delta);
+			this.list.render(matrices, mouseX, mouseY, delta);
 		}
-		super.render(mouseX, mouseY, delta);
-		this.font.drawWithShadow(this.title.asFormattedString(), (float) (this.width / 2 - this.width / 4 + 2) + 20, (float) (20 - this.font.fontHeight) / 2, 16777215);
-		this.renderMessage();
+		super.render(matrices, mouseX, mouseY, delta);
+		this.textRenderer.drawWithShadow(matrices, this.title, (float) (this.width / 2 - this.width / 4 + 2) + 20, (float) (20 - this.textRenderer.fontHeight) / 2, 16777215);
+		this.renderMessage(matrices);
 	}
 
 	@Environment(EnvType.CLIENT)
@@ -96,10 +96,10 @@ public class TwitterShowStatusScreen extends AbstractTwitterScreen {
 					TwitterPhotoMedia twitterPhotoMedia = this.summary.getPhotoMedias().get(0);
 					Dimension dimension = TwitterUtil.wrapImageSizeToMax(new Dimension(twitterPhotoMedia.getWidth(), twitterPhotoMedia.getHeight()), new Dimension(this.photoRenderingWidth, this.photoRenderingHeight));
 					this.photoRenderingHeight = dimension.height;
-					this.height = ((this.strings.size() - 1) * TwitterShowStatusScreen.this.font.fontHeight) + 10 + 30;
+					this.height = ((this.strings.size() - 1) * TwitterShowStatusScreen.this.textRenderer.fontHeight) + 10 + 30;
 					this.height += this.photoRenderingHeight + 3;
 					this.height += this.retweetedUserNameHeight;
-					this.height += this.quoteSourceSummary != null ? 20 + this.quotedTweetStrings.size() * TwitterShowStatusScreen.this.font.fontHeight : 0;
+					this.height += this.quoteSourceSummary != null ? 20 + this.quotedTweetStrings.size() * TwitterShowStatusScreen.this.textRenderer.fontHeight : 0;
 					this.fourBtnHeightOffset = this.height - 14;
 				}
 			}
@@ -107,7 +107,7 @@ public class TwitterShowStatusScreen extends AbstractTwitterScreen {
 			public boolean mouseClicked(double x, double y, int button) {
 				if (this.summary != null) {
 					int i = TweetList.this.getRowLeft() + 24;
-					int j = this.y + this.retweetedUserNameHeight + 11 + this.strings.size() * TwitterShowStatusScreen.this.font.fontHeight;
+					int j = this.y + this.retweetedUserNameHeight + 11 + this.strings.size() * TwitterShowStatusScreen.this.textRenderer.fontHeight;
 					int k = this.summary.getPhotoMediaLength();
 					int w2 = this.photoRenderingWidth / 2;
 					int h2 = this.photoRenderingHeight / 2;
@@ -152,7 +152,7 @@ public class TwitterShowStatusScreen extends AbstractTwitterScreen {
 					}
 				}
 
-				for (AbstractButtonWidget w : this.buttons) {
+				for (ClickableWidget w : this.buttons) {
 					if (w.mouseClicked(x, y, button)) {
 						return true;
 					}

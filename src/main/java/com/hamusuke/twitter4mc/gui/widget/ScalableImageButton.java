@@ -22,16 +22,16 @@ public class ScalableImageButton extends ButtonWidget {
     protected final int renderWidth;
     protected final int renderHeight;
 
-    public ScalableImageButton(int x, int y, int widgetwidth, int widgetheight, int renderWidth, int renderHeight, float scale, int u, int v, int hoveredVOffset, Identifier texture, ButtonWidget.PressAction pressAction) {
-        this(x, y, widgetwidth, widgetheight, renderWidth, renderHeight, scale, u, v, hoveredVOffset, texture, 256, 256, pressAction);
+    public ScalableImageButton(int x, int y, int widgetWidth, int widgetHeight, int renderWidth, int renderHeight, float scale, int u, int v, int hoveredVOffset, Identifier texture, ButtonWidget.PressAction pressAction) {
+        this(x, y, widgetWidth, widgetHeight, renderWidth, renderHeight, scale, u, v, hoveredVOffset, texture, 256, 256, pressAction);
     }
 
-    public ScalableImageButton(int x, int y, int wwidth, int wheight, int renderWidth, int renderHeight, float scale, int u, int v, int hoveredVOffset, Identifier texture, int textureWidth, int textureHeight, ButtonWidget.PressAction pressAction) {
-        this(x, y, wwidth, wheight, renderWidth, renderHeight, scale, u, v, hoveredVOffset, texture, textureWidth, textureHeight, pressAction, NarratorManager.EMPTY);
+    public ScalableImageButton(int x, int y, int widgetWidth, int widgetHeight, int renderWidth, int renderHeight, float scale, int u, int v, int hoveredVOffset, Identifier texture, int textureWidth, int textureHeight, ButtonWidget.PressAction pressAction) {
+        this(x, y, widgetWidth, widgetHeight, renderWidth, renderHeight, scale, u, v, hoveredVOffset, texture, textureWidth, textureHeight, pressAction, NarratorManager.EMPTY);
     }
 
-    public ScalableImageButton(int x, int y, int wwidth, int wheight, int renderWidth, int renderHeight, float scale, int u, int v, int hoveredVOffset, Identifier texture, int textureWidth, int textureHeight, ButtonWidget.PressAction pressAction, Text text) {
-        super(x, y, wwidth, wheight, text, pressAction);
+    public ScalableImageButton(int x, int y, int widgetWidth, int widgetHeight, int renderWidth, int renderHeight, float scale, int u, int v, int hoveredVOffset, Identifier texture, int textureWidth, int textureHeight, ButtonWidget.PressAction pressAction, Text text) {
+        super(x, y, widgetWidth, widgetHeight, text, pressAction);
         this.textureWidth = textureWidth;
         this.textureHeight = textureHeight;
         this.u = u;

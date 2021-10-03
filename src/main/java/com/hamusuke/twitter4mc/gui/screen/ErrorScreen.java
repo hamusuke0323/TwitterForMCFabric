@@ -3,8 +3,11 @@ package com.hamusuke.twitter4mc.gui.screen;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.client.gui.widget.ButtonWidget;
-import net.minecraft.client.resource.language.I18n;
+import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.StringVisitable;
+import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 
@@ -22,21 +25,22 @@ public class ErrorScreen extends ParentalScreen {
     protected void init() {
         super.init();
         int i = this.width / 2;
-        this.addButton(new ButtonWidget(i / 2, this.height - 20, i, 20, I18n.translate("gui.back"), (b) -> this.onClose()));
+        this.addDrawableChild(new ButtonWidget(i / 2, this.height - 20, i, 20, ScreenTexts.BACK, b -> this.onClose()));
     }
 
-    public void render(int mouseX, int mouseY, float delta) {
+    public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         if (this.parent != null) {
-            this.parent.render(-1, -1, delta);
-            this.fillGradient(0, 0, this.width, this.height, -1072689136, -804253680);
+            this.parent.render(matrices, -1, -1, delta);
+            this.fillGradient(matrices, 0, 0, this.width, this.height, -1072689136, -804253680);
         } else {
-            this.renderBackground();
+            this.renderBackground(matrices);
         }
-        super.render(mouseX, mouseY, delta);
-        this.drawCenteredString(this.font, this.title.asFormattedString(), this.width / 2, 20, 16777215);
-        List<String> list = this.font.wrapStringToWidthAsList(this.errorMsg, this.width / 2);
+
+        super.render(matrices, mouseX, mouseY, delta);
+        drawCenteredText(matrices, this.textRenderer, this.title, this.width / 2, 20, 16777215);
+        List<StringVisitable> list = this.textRenderer.getTextHandler().wrapLines(this.errorMsg, this.width / 2, Style.EMPTY);
         for (int i = 0; i < list.size(); i++) {
-            this.font.drawWithShadow(list.get(i), (float) this.width / 4, 50 + i * this.font.fontHeight, 16777215);
+            this.textRenderer.drawWithShadow(matrices, list.get(i).getString(), (float) this.width / 4, 50 + i * this.textRenderer.fontHeight, 16777215);
         }
     }
 }
