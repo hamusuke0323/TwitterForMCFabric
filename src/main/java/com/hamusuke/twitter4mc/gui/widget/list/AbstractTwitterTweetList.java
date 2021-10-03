@@ -257,19 +257,19 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 				l1 = this.top;
 			}
 
-			bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_TEXTURE_COLOR);
-			bufferBuilder.vertex(i, this.bottom, 0.0D).texture(0.0F, 1.0F).color(0, 0, 0, 255).next();
-			bufferBuilder.vertex(j, this.bottom, 0.0D).texture(1.0F, 1.0F).color(0, 0, 0, 255).next();
-			bufferBuilder.vertex(j, this.top, 0.0D).texture(1.0F, 0.0F).color(0, 0, 0, 255).next();
-			bufferBuilder.vertex(i, this.top, 0.0D).texture(0.0F, 0.0F).color(0, 0, 0, 255).next();
-			bufferBuilder.vertex(i, l1 + k1, 0.0D).texture(0.0F, 1.0F).color(128, 128, 128, 255).next();
-			bufferBuilder.vertex(j, l1 + k1, 0.0D).texture(1.0F, 1.0F).color(128, 128, 128, 255).next();
-			bufferBuilder.vertex(j, l1, 0.0D).texture(1.0F, 0.0F).color(128, 128, 128, 255).next();
-			bufferBuilder.vertex(i, l1, 0.0D).texture(0.0F, 0.0F).color(128, 128, 128, 255).next();
-			bufferBuilder.vertex(i, l1 + k1 - 1, 0.0D).texture(0.0F, 1.0F).color(192, 192, 192, 255).next();
-			bufferBuilder.vertex(j - 1, l1 + k1 - 1, 0.0D).texture(1.0F, 1.0F).color(192, 192, 192, 255).next();
-			bufferBuilder.vertex(j - 1, l1, 0.0D).texture(1.0F, 0.0F).color(192, 192, 192, 255).next();
-			bufferBuilder.vertex(i, l1, 0.0D).texture(0.0F, 0.0F).color(192, 192, 192, 255).next();
+			bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
+			bufferBuilder.vertex(i, this.bottom, 0.0D).color(0, 0, 0, 255).next();
+			bufferBuilder.vertex(j, this.bottom, 0.0D).color(0, 0, 0, 255).next();
+			bufferBuilder.vertex(j, this.top, 0.0D).color(0, 0, 0, 255).next();
+			bufferBuilder.vertex(i, this.top, 0.0D).color(0, 0, 0, 255).next();
+			bufferBuilder.vertex(i, l1 + k1, 0.0D).color(128, 128, 128, 255).next();
+			bufferBuilder.vertex(j, l1 + k1, 0.0D).color(128, 128, 128, 255).next();
+			bufferBuilder.vertex(j, l1, 0.0D).color(128, 128, 128, 255).next();
+			bufferBuilder.vertex(i, l1, 0.0D).color(128, 128, 128, 255).next();
+			bufferBuilder.vertex(i, l1 + k1 - 1, 0.0D).color(192, 192, 192, 255).next();
+			bufferBuilder.vertex(j - 1, l1 + k1 - 1, 0.0D).color(192, 192, 192, 255).next();
+			bufferBuilder.vertex(j - 1, l1, 0.0D).color(192, 192, 192, 255).next();
+			bufferBuilder.vertex(i, l1, 0.0D).color(192, 192, 192, 255).next();
 			tessellator.draw();
 		}
 
