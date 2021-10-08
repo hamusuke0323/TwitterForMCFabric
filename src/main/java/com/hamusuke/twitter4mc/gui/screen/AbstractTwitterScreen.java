@@ -56,7 +56,7 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
     @Nullable
     protected AbstractTwitterScreen.TweetList list;
     @Nullable
-    protected String message;
+    protected Text message;
     protected int fade;
     protected boolean isFade;
     @Nullable
@@ -110,13 +110,13 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
 
     public void renderMessage(MatrixStack matrices) {
         if (this.message != null) {
-            List<OrderedText> list = this.textRenderer.wrapLines(StringVisitable.plain(this.message), this.width / 2);
+            List<OrderedText> list = this.textRenderer.wrapLines(this.message, this.width / 2);
             this.renderOrderedTooltip(matrices, list, (this.width - this.textRenderer.getWidth(list.get(0))) / 2, this.height - list.size() * this.textRenderer.fontHeight);
         }
     }
 
-    public void accept(String errorMsg) {
-        this.message = errorMsg;
+    public void accept(Text text) {
+        this.message = text;
         this.fade = 100;
     }
 
@@ -146,6 +146,7 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
         User user = summary.getUser();
         InputStream icon = summary.getUserIconData();
         List<StringVisitable> desc = this.textRenderer.getTextHandler().wrapLines(user.getDescription(), Math.min(this.width / 2, 150), Style.EMPTY);
+        OrderedText followMutable = OrderedText.concat(new LiteralText(user.getFriendsCount() + "").formatted(Formatting.BOLD).asOrderedText(), Text.of(" ").asOrderedText(), FOLLOW.asOrderedText());
         StringVisitable follow = StringVisitable.concat(new LiteralText(user.getFriendsCount() + "").formatted(Formatting.BOLD), new LiteralText(" "), FOLLOW);
         StringVisitable follower = StringVisitable.concat(new LiteralText(user.getFollowersCount() + "").formatted(Formatting.BOLD), new LiteralText(" "), FOLLOWER);
         List<StringVisitable> ff = this.textRenderer.getTextHandler().wrapLines(StringVisitable.concat(follow, new LiteralText("  "), follower), 150, Style.EMPTY);
@@ -220,7 +221,8 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
         if (ff.size() == 1) {
             ((TextRendererInvoker) this.textRenderer).drawWithEmoji(ff.get(0).getString(), (float) x, (float) i2 + 30, -1, true, matrix4f, vertexConsumerProvider$immediate, false, 0, 15728880);
         } else {
-            ((TextRendererInvoker) this.textRenderer).drawWithEmoji(follow.getString(), (float) x, (float) i2 + 30, -1, true, matrix4f, vertexConsumerProvider$immediate, false, 0, 15728880);
+            this.textRenderer.draw(followMutable, x, i2 + 30, -1, true, matrix4f, vertexConsumerProvider$immediate, false, 0, 15728880);
+            //((TextRendererInvoker) this.textRenderer).drawWithEmoji(follow.getString(), (float) x, (float) i2 + 30, -1, true, matrix4f, vertexConsumerProvider$immediate, false, 0, 15728880);
             ((TextRendererInvoker) this.textRenderer).drawWithEmoji(follower.getString(), (float) x, (float) i2 + 30 + 10, -1, true, matrix4f, vertexConsumerProvider$immediate, false, 0, 15728880);
         }
 
@@ -442,7 +444,7 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
                                 ((ChangeableImageButton) b).setSize(16, 16);
                             }
                         } catch (TwitterException e) {
-                            AbstractTwitterScreen.this.accept(I18n.translate("tw.failed.like", e.getErrorMessage()));
+                            AbstractTwitterScreen.this.accept(new TranslatableText("tw.failed.like", e.getErrorMessage()));
                         }
                     }));
                 }

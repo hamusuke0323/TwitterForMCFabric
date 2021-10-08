@@ -15,6 +15,8 @@ import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.NarratorManager;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Util;
 import org.jetbrains.annotations.Nullable;
@@ -91,7 +93,7 @@ public class TwitterScreen extends AbstractTwitterScreen {
 				try {
 					this.client.setScreen(new TwitterShowUserScreen(this, TwitterForMC.mcTwitter.showUser(TwitterForMC.mcTwitter.getId())));
 				} catch (TwitterException e) {
-					this.accept(e.getErrorMessage());
+					this.accept(Text.of(e.getErrorMessage()));
 					press.active = true;
 				}
 			}));
@@ -103,7 +105,7 @@ public class TwitterScreen extends AbstractTwitterScreen {
 				try {
 					t.addAll(TwitterForMC.mcTwitter.getHomeTimeline());
 				} catch (TwitterException e) {
-					this.accept(e.getErrorMessage());
+					this.accept(Text.of(e.getErrorMessage()));
 				}
 				Collections.reverse(t);
 				new TweetSummaryCreator(t, (tweetSummary) -> {
@@ -126,7 +128,7 @@ public class TwitterScreen extends AbstractTwitterScreen {
 				try {
 					TwitterForMC.saveTimeline();
 				} catch (IOException e) {
-					this.accept(e.getLocalizedMessage());
+					this.accept(Text.of(e.getLocalizedMessage()));
 				}
 				b.active = true;
 			}));

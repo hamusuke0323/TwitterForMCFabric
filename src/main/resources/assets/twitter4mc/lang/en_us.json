@@ -64,7 +64,7 @@
   "tw.year.month.day.11": "Nov %2$s, %1$s",
   "tw.year.month.day.12": "Dec %2$s, %1$s",
   "sent.tweet": "Sent Tweet.",
-  "failed.send.tweet": "Failed to send Tweet: ",
+  "failed.send.tweet": "Failed to send Tweet: %s",
   "replied.to.your.tweet": "%s replied:",
   "retweeted.your.tweet": "%s Retweeted your Tweet:",
   "liked.your.tweet": "%s liked your Tweet",

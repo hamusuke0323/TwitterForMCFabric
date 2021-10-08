@@ -12,6 +12,7 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.util.NarratorManager;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
@@ -48,10 +49,10 @@ public class TwitterTweetScreen extends ParentalScreen {
 		this.addDrawableChild(new ButtonWidget(i * 2, (this.height / 4 + this.height / 2) + 10, i, 20, new TranslatableText("tweet"), a -> {
 			try {
 				TwitterForMC.mcTwitter.updateStatus(this.tweetText.getText());
-				this.accept(I18n.translate("sent.tweet"));
+				this.accept(new TranslatableText("sent.tweet"));
 			} catch (TwitterException e) {
 				LOGGER.error("Error occurred while sending tweet", e);
-				this.accept(I18n.translate("failed.send.tweet") + e.getErrorMessage());
+				this.accept(new TranslatableText("failed.send.tweet", e.getErrorMessage()));
 			}
 
 			this.onClose();
@@ -60,7 +61,7 @@ public class TwitterTweetScreen extends ParentalScreen {
 		this.addDrawableChild(this.tweetText);
 	}
 
-	private void accept(String msg) {
+	private void accept(Text msg) {
 		if (this.parent instanceof DisplayableMessage) {
 			((DisplayableMessage) this.parent).accept(msg);
 		}

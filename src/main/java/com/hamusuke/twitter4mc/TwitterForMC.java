@@ -190,7 +190,7 @@ public final class TwitterForMC implements ClientModInitializer {
 
         ClientLifecycleEvents.CLIENT_STOPPING.register((client) -> Platform.exit());
 
-        new TwitterThread(() -> {
+        //new TwitterThread(() -> {
             token = read(tokenFile);
             getNewToken().ifPresent(token -> {
                 AccessToken var1 = new AccessToken(token.getAccessToken(), token.getAccessTokenSecret());
@@ -216,7 +216,7 @@ public final class TwitterForMC implements ClientModInitializer {
                     tweetSummaries.add(new TweetSummary(s));
                 }
             }
-        }).start();
+        //}).start();
     }
 
     public static void update() {

@@ -40,7 +40,7 @@ public class TwitterShowUserScreen extends AbstractTwitterScreen {
 		int fontHeight = this.textRenderer.fontHeight + 1;
 		int top = fontHeight * wrapped.size() + fontHeight;
 
-		this.addDrawableChild(new ButtonWidget(this.width / 2 - this.width / 4 + 2, 0, 20, 20, new LiteralText("←"), button -> this.onClose(), (button, matrices, mouseX, mouseY) -> {
+		this.addDrawableChild(new ButtonWidget(this.width / 2 - this.width / 4, 0, 20, 20, new LiteralText("←"), button -> this.onClose(), (button, matrices, mouseX, mouseY) -> {
 			this.renderTooltip(matrices, ScreenTexts.BACK, mouseX, mouseY);
 		}));
 
