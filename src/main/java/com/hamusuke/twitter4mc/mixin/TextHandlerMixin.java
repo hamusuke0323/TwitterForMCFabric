@@ -33,13 +33,13 @@ public class TextHandlerMixin implements TextHandlerInvoker {
             return 0.0F;
         } else {
             MutableFloat mutableFloat = new MutableFloat();
-            TweetTextVisitFactory.visitCharacterOrEmoji(text, style, (unused, style2, codePoint) -> {
+            TweetTextVisitFactory.visitForwardsCharacterOrEmoji(text, style, (unused, style2, codePoint) -> {
                 mutableFloat.add(this.widthRetriever.getWidth(codePoint, style2));
                 return true;
-            }, emoji -> {
-                mutableFloat.add(emoji.getEmojiWidth());
-                return true;
-            });
+            });//, emoji -> {
+                //mutableFloat.add(emoji.getEmojiWidth());
+                //return true;
+            //});
             return mutableFloat.floatValue();
         }
     }

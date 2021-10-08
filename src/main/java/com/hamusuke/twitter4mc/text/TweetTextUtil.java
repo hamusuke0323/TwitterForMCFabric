@@ -7,7 +7,6 @@ import com.ibm.icu.text.Bidi;
 import com.ibm.icu.text.BidiRun;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.resource.language.TextReorderingProcessor;
 import net.minecraft.text.OrderedText;
 import net.minecraft.text.StringVisitable;
 
@@ -16,15 +15,15 @@ import java.util.List;
 @Environment(EnvType.CLIENT)
 public class TweetTextUtil {
     public static OrderedText reorderIgnoreStyleChar(StringVisitable text, boolean rightToLeft) {
-        TextReorderingProcessor textReorderingProcessor = TextReorderingProcessor.create(text, UCharacter::getMirror, TweetTextUtil::shapeArabic);
-        Bidi bidi = new Bidi(textReorderingProcessor.getString(), rightToLeft ? 127 : 126);
+        TweetTextReorderingProcessor tweetTextReorderingProcessor = TweetTextReorderingProcessor.create(text, UCharacter::getMirror, TweetTextUtil::shapeArabic);
+        Bidi bidi = new Bidi(tweetTextReorderingProcessor.getString(), rightToLeft ? Bidi.DIRECTION_DEFAULT_RIGHT_TO_LEFT : Bidi.DIRECTION_DEFAULT_LEFT_TO_RIGHT);
         bidi.setReorderingMode(0);
         List<OrderedText> list = Lists.newArrayList();
         int i = bidi.countRuns();
 
         for (int j = 0; j < i; ++j) {
             BidiRun bidiRun = bidi.getVisualRun(j);
-            list.addAll(textReorderingProcessor.process(bidiRun.getStart(), bidiRun.getLength(), bidiRun.isOddRun()));
+            list.addAll(tweetTextReorderingProcessor.process(bidiRun.getStart(), bidiRun.getLength(), bidiRun.isOddRun()));
         }
 
         return OrderedText.concat(list);

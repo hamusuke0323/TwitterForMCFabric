@@ -1,14 +1,14 @@
 package com.hamusuke.twitter4mc.font;
 
 import com.google.common.collect.Lists;
+import com.hamusuke.twitter4mc.TwitterForMC;
 import com.hamusuke.twitter4mc.emoji.Emoji;
-import com.hamusuke.twitter4mc.text.EmojiVisitor;
+import com.hamusuke.twitter4mc.text.CharacterAndEmojiVisitor;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.font.*;
 import net.minecraft.client.render.VertexConsumer;
 import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.text.CharacterVisitor;
 import net.minecraft.text.Style;
 import net.minecraft.text.TextColor;
 import net.minecraft.util.Identifier;
@@ -19,7 +19,7 @@ import java.util.List;
 import java.util.function.Function;
 
 @Environment(EnvType.CLIENT)
-public class TweetTextDrawer implements CharacterVisitor, EmojiVisitor {
+public class TweetTextDrawer implements CharacterAndEmojiVisitor {
     private final Function<Identifier, FontStorage> fontStorageAccessor;
     final VertexConsumerProvider vertexConsumers;
     private final boolean shadow;
@@ -35,6 +35,7 @@ public class TweetTextDrawer implements CharacterVisitor, EmojiVisitor {
     float y;
     @Nullable
     private List<GlyphRenderer.Rectangle> rectangles;
+    private StringBuilder emoji = new StringBuilder();
 
     private void addRectangle(GlyphRenderer.Rectangle rectangle) {
         if (this.rectangles == null) {
@@ -62,12 +63,6 @@ public class TweetTextDrawer implements CharacterVisitor, EmojiVisitor {
         this.matrix = matrix;
         this.layerType = layerType;
         this.light = light;
-    }
-
-    public boolean accept(Emoji emoji) {
-        emoji.renderEmoji(this.matrix, this.vertexConsumers, this.x, this.y, this.alpha, this.light);
-        this.x += emoji.getEmojiWidth();
-        return true;
     }
 
     public boolean accept(int index, Style style, int codePoint) {
@@ -114,6 +109,12 @@ public class TweetTextDrawer implements CharacterVisitor, EmojiVisitor {
         }
 
         this.x += r;
+        return true;
+    }
+
+    public boolean acceptEmoji(Emoji emoji) {
+        emoji.renderEmoji(this.matrix, this.vertexConsumers, this.x, this.y, this.alpha, this.light);
+        this.x += emoji.getEmojiWidth();
         return true;
     }
 

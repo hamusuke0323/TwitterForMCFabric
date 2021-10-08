@@ -2,7 +2,6 @@ package com.hamusuke.twitter4mc.text;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
-import com.hamusuke.twitter4mc.font.TweetTextVisitFactory;
 import it.unimi.dsi.fastutil.ints.Int2IntFunction;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -36,15 +35,15 @@ public class TweetTextReorderingProcessor {
             return ImmutableList.of();
         } else {
             List<OrderedText> list = Lists.newArrayList();
-            Style style = (Style) this.styles.get(start);
+            Style style = this.styles.get(start);
             int i = start;
 
             for (int j = 1; j < length; ++j) {
                 int k = start + j;
-                Style style2 = (Style) this.styles.get(k);
+                Style style2 = this.styles.get(k);
                 if (!style2.equals(style)) {
                     String string = this.string.substring(i, k);
-                    list.add(reverse ? OrderedText.styledBackwardsVisitedString(string, style, this.reverser) : OrderedText.styledForwardsVisitedString(string, style));
+                    list.add(reverse ? OrderedTweetText.styledBackwardsVisitedString(string, style, this.reverser) : OrderedTweetText.styledForwardsVisitedString(string, style));
                     style = style2;
                     i = k;
                 }
@@ -52,7 +51,7 @@ public class TweetTextReorderingProcessor {
 
             if (i < start + length) {
                 String string2 = this.string.substring(i, start + length);
-                list.add(reverse ? OrderedText.styledBackwardsVisitedString(string2, style, this.reverser) : OrderedText.styledForwardsVisitedString(string2, style));
+                list.add(reverse ? OrderedTweetText.styledBackwardsVisitedString(string2, style, this.reverser) : OrderedTweetText.styledForwardsVisitedString(string2, style));
             }
 
             return reverse ? Lists.reverse(list) : list;
@@ -63,20 +62,18 @@ public class TweetTextReorderingProcessor {
         StringBuilder stringBuilder = new StringBuilder();
         List<Style> list = Lists.newArrayList();
         visitable.visit((style, text) -> {
-            TweetTextVisitFactory.visitCharacterOrEmoji(text, style, (charIndex, stylex, codePoint) -> {
+            TextVisitFactory.visitForwards(text, style, (index, style1, codePoint) -> {
                 stringBuilder.appendCodePoint(codePoint);
                 int i = Character.charCount(codePoint);
 
                 for (int j = 0; j < i; ++j) {
-                    list.add(stylex);
+                    list.add(style1);
                 }
 
                 return true;
-            }, emoji -> {
-
             });
             return Optional.empty();
-        });
+        }, Style.EMPTY);
         return new TweetTextReorderingProcessor(shaper.apply(stringBuilder.toString()), list, reverser);
     }
 }

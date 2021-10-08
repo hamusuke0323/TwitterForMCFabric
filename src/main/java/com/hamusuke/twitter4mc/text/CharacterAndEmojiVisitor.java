@@ -6,6 +6,8 @@ import net.fabricmc.api.Environment;
 import net.minecraft.text.CharacterVisitor;
 
 @Environment(EnvType.CLIENT)
-public interface EmojiVisitor extends CharacterVisitor {
-    boolean accept(Emoji emoji);
+public interface CharacterAndEmojiVisitor extends CharacterVisitor {
+    default boolean acceptEmoji(Emoji emoji) {
+        return true;
+    }
 }

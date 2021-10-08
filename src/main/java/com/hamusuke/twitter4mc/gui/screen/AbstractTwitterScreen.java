@@ -146,7 +146,6 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
         User user = summary.getUser();
         InputStream icon = summary.getUserIconData();
         List<StringVisitable> desc = this.textRenderer.getTextHandler().wrapLines(user.getDescription(), Math.min(this.width / 2, 150), Style.EMPTY);
-        OrderedText followMutable = OrderedText.concat(new LiteralText(user.getFriendsCount() + "").formatted(Formatting.BOLD).asOrderedText(), Text.of(" ").asOrderedText(), FOLLOW.asOrderedText());
         StringVisitable follow = StringVisitable.concat(new LiteralText(user.getFriendsCount() + "").formatted(Formatting.BOLD), new LiteralText(" "), FOLLOW);
         StringVisitable follower = StringVisitable.concat(new LiteralText(user.getFollowersCount() + "").formatted(Formatting.BOLD), new LiteralText(" "), FOLLOWER);
         List<StringVisitable> ff = this.textRenderer.getTextHandler().wrapLines(StringVisitable.concat(follow, new LiteralText("  "), follower), 150, Style.EMPTY);

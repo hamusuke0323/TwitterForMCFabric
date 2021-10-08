@@ -27,7 +27,7 @@ public class TweetText extends BaseText {
     public OrderedText asOrderedText() {
         Language language = Language.getInstance();
         if (this.previousLanguage != language) {
-            this.orderedText = language.reorder(this);
+            this.orderedText = TweetTextUtil.reorderIgnoreStyleChar(this, language.isRightToLeft());
             this.previousLanguage = language;
         }
 
