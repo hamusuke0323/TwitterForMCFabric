@@ -49,6 +49,14 @@ public abstract class TextRendererMixin implements TextRendererInvoker {
         return this.drawWithEmoji(text.asOrderedText(), x, y, color, matrices.peek().getModel(), false);
     }
 
+    public int drawWithShadowAndEmoji(MatrixStack matrices, OrderedText text, float x, float y, int color) {
+        return this.drawWithEmoji(text, x, y, color, matrices.peek().getModel(), true);
+    }
+
+    public int drawWithEmoji(MatrixStack matrices, OrderedText text, float x, float y, int color) {
+        return this.drawWithEmoji(text, x, y, color, matrices.peek().getModel(), false);
+    }
+
     private int drawWithEmoji(OrderedText text, float x, float y, int color, Matrix4f matrix, boolean shadow) {
         VertexConsumerProvider.Immediate immediate = VertexConsumerProvider.immediate(Tessellator.getInstance().getBuffer());
         int i = this.drawInternalWithEmoji(text, x, y, color, shadow, matrix, immediate, false, 0, 15728880);
@@ -60,7 +68,11 @@ public abstract class TextRendererMixin implements TextRendererInvoker {
         return this.drawInternalWithEmoji(text.asOrderedText(), x, y, color, shadow, matrix, vertexConsumers, seeThrough, backgroundColor, light);
     }
 
-    public int getWidthWithEmoji(Text text) {
+    public int drawWithEmoji(OrderedText text, float x, float y, int color, boolean shadow, Matrix4f matrix, VertexConsumerProvider vertexConsumers, boolean seeThrough, int backgroundColor, int light) {
+        return this.drawInternalWithEmoji(text, x, y, color, shadow, matrix, vertexConsumers, seeThrough, backgroundColor, light);
+    }
+
+    public int getWidthWithEmoji(OrderedText text) {
         return MathHelper.ceil(((TextHandlerInvoker) this.handler).getWidthWithEmoji(text));
     }
 

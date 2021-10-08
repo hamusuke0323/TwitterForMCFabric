@@ -10,7 +10,6 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.CheckboxWidget;
-import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.toast.SystemToast;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.TranslatableText;
@@ -87,7 +86,7 @@ public class TwitterLoginScreen extends ParentalScreen {
 
     private void addToast(Twitter twitter) {
         try {
-            this.client.getToastManager().add(new TwitterNotificationToast(TwitterUtil.getInputStream(twitter.showUser(twitter.getId()).get400x400ProfileImageURLHttps()), I18n.translate("tw.login.successful"), null));
+            this.client.getToastManager().add(new TwitterNotificationToast(TwitterUtil.getInputStream(twitter.showUser(twitter.getId()).get400x400ProfileImageURLHttps()), new TranslatableText("tw.login.successful"), null));
         } catch (Throwable t) {
             this.client.getToastManager().add(new SystemToast(SystemToast.Type.TUTORIAL_HINT, new TranslatableText("tw.login.successful"), null));
         }

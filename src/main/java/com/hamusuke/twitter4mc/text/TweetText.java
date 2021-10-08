@@ -1,7 +1,8 @@
 package com.hamusuke.twitter4mc.text;
 
-import com.hamusuke.twitter4mc.font.TweetTextVisitFactory;
-import net.minecraft.text.*;
+import net.minecraft.text.BaseText;
+import net.minecraft.text.LiteralText;
+import net.minecraft.text.OrderedText;
 import net.minecraft.util.Language;
 import org.jetbrains.annotations.Nullable;
 

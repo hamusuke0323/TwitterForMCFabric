@@ -1,14 +1,11 @@
 package com.hamusuke.twitter4mc.mixin;
 
-import com.hamusuke.twitter4mc.font.TweetTextVisitFactory;
 import com.hamusuke.twitter4mc.invoker.TextHandlerInvoker;
+import com.hamusuke.twitter4mc.text.TweetTextUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.font.TextHandler;
-import net.minecraft.text.Style;
-import net.minecraft.text.Text;
-import org.apache.commons.lang3.mutable.MutableFloat;
-import org.jetbrains.annotations.Nullable;
+import net.minecraft.text.OrderedText;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -20,27 +17,7 @@ public class TextHandlerMixin implements TextHandlerInvoker {
     @Final
     TextHandler.WidthRetriever widthRetriever;
 
-    public float getWidthWithEmoji(Text text) {
-        return this.getWidthWithEmoji(text.asString(), text.getStyle());
-    }
-
-    public float getWidthWithEmoji(@Nullable String text) {
-        return this.getWidthWithEmoji(text, Style.EMPTY);
-    }
-
-    private float getWidthWithEmoji(@Nullable String text, Style style) {
-        if (text == null) {
-            return 0.0F;
-        } else {
-            MutableFloat mutableFloat = new MutableFloat();
-            TweetTextVisitFactory.visitForwardsCharacterOrEmoji(text, style, (unused, style2, codePoint) -> {
-                mutableFloat.add(this.widthRetriever.getWidth(codePoint, style2));
-                return true;
-            });//, emoji -> {
-                //mutableFloat.add(emoji.getEmojiWidth());
-                //return true;
-            //});
-            return mutableFloat.floatValue();
-        }
+    public float getWidthWithEmoji(OrderedText text) {
+        return TweetTextUtil.getWidthWithEmoji(text, this.widthRetriever);
     }
 }

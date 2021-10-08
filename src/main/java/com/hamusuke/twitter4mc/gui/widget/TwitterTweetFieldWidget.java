@@ -2,6 +2,7 @@ package com.hamusuke.twitter4mc.gui.widget;
 
 import com.google.common.collect.Lists;
 import com.hamusuke.twitter4mc.invoker.TextRendererInvoker;
+import com.hamusuke.twitter4mc.text.TweetText;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
@@ -22,6 +23,7 @@ import net.minecraft.client.render.VertexFormat;
 import net.minecraft.client.render.VertexFormats;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.MutableText;
+import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.math.MathHelper;
@@ -29,6 +31,7 @@ import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 
+import java.util.Arrays;
 import java.util.List;
 
 @Environment(EnvType.CLIENT)
@@ -36,7 +39,8 @@ public class TwitterTweetFieldWidget extends ClickableWidget implements Drawable
 	private static final Logger LOGGER = LogManager.getLogger();
 	private final TextRenderer textRenderer;
 	private String text;
-	private List<String> wrappedTextList = Lists.newArrayList();
+	private TweetText tweetText;
+	private List<OrderedText> wrappedTextList = Lists.newArrayList();
 	private int maxLength;
 	private int focusedTicks;
 	private boolean focused;
@@ -56,6 +60,7 @@ public class TwitterTweetFieldWidget extends ClickableWidget implements Drawable
 	public TwitterTweetFieldWidget(TextRenderer textRenderer, int x, int y, int width, int height, @Nullable TextFieldWidget copyFrom, Text message) {
 		super(x, y, width, height, message);
 		this.text = "";
+		this.tweetText = new TweetText("");
 		this.maxLength = 32;
 		this.focused = true;
 		this.focusUnlocked = true;
@@ -144,12 +149,13 @@ public class TwitterTweetFieldWidget extends ClickableWidget implements Drawable
 		return stringBuilder.toString();
 	}
 
-	private void onChanged(String newText) {
-		this.wrappedTextList = splitByLF(this.text);
+	private static List<OrderedText> wrapLines(String string) {
+		return Arrays.stream(string.split("\n")).map(TweetText::new).map(TweetText::asOrderedText).toList();
 	}
 
-	private static List<String> splitByLF(String input) {
-		return Lists.newArrayList(input.split("\n"));
+	private void onChanged(String newText) {
+		this.tweetText = new TweetText(newText);
+		this.wrappedTextList = wrapLines(this.text);
 	}
 
 	private void erase(int offset) {
@@ -589,7 +595,7 @@ public class TwitterTweetFieldWidget extends ClickableWidget implements Drawable
 	}
 
 	private int getWidth(String text) {
-		return ((TextRendererInvoker) this.textRenderer).getWidthWithEmoji(text);
+		return ((TextRendererInvoker) this.textRenderer).getWidthWithEmoji(new TweetText(text).asOrderedText());
 	}
 
 	public void setX(int x) {

@@ -2,6 +2,7 @@ package com.hamusuke.twitter4mc.gui.screen;
 
 import com.google.common.collect.Lists;
 import com.hamusuke.twitter4mc.TwitterForMC;
+import com.hamusuke.twitter4mc.text.TweetText;
 import com.hamusuke.twitter4mc.tweet.TweetSummary;
 import com.hamusuke.twitter4mc.tweet.UserSummary;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -14,8 +15,7 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.texture.MissingSprite;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.LiteralText;
-import net.minecraft.text.StringVisitable;
-import net.minecraft.text.Style;
+import net.minecraft.text.OrderedText;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.Nullable;
@@ -27,7 +27,7 @@ import java.util.List;
 @Environment(EnvType.CLIENT)
 public class TwitterShowUserScreen extends AbstractTwitterScreen {
 	private final UserSummary user;
-	private List<StringVisitable> name = Lists.newArrayList();
+	private List<OrderedText> name = Lists.newArrayList();
 
 	public TwitterShowUserScreen(@Nullable Screen parent, User user) {
 		super(new LiteralText(user.getName()).formatted(Formatting.BOLD), parent);
@@ -35,7 +35,7 @@ public class TwitterShowUserScreen extends AbstractTwitterScreen {
 	}
 
 	protected void init() {
-		List<StringVisitable> wrapped = this.textRenderer.getTextHandler().wrapLines(this.title, this.width / 2 - 20, Style.EMPTY);
+		List<OrderedText> wrapped = this.textRenderer.wrapLines(this.title, this.width / 2 - 20);
 		this.name = wrapped;
 		int fontHeight = this.textRenderer.fontHeight + 1;
 		int top = fontHeight * wrapped.size() + fontHeight;
@@ -84,8 +84,8 @@ public class TwitterShowUserScreen extends AbstractTwitterScreen {
 		super.render(matrices, mouseX, mouseY, delta);
 		float left = (float) (this.width / 2 - this.width / 4 + 2);
 		float y = 0.0F;
-		for (StringVisitable stringVisitable : this.name) {
-			this.drawWithShadowAndEmoji(matrices, stringVisitable.getString(), left + 20, y, 16777215);
+		for (OrderedText text : this.name) {
+			this.drawWithShadowAndEmoji(matrices, text, left + 20, y, 16777215);
 			y += this.textRenderer.fontHeight;
 		}
 		this.textRenderer.drawWithShadow(matrices, new TranslatableText("tw.statuses.count", this.user.getStatusesCount()).formatted(Formatting.GRAY), left + 20, y, 16777215);
@@ -116,8 +116,8 @@ public class TwitterShowUserScreen extends AbstractTwitterScreen {
 		@Environment(EnvType.CLIENT)
 		private class UserProfile extends TweetEntry {
 			private final UserSummary summary;
-			private final List<StringVisitable> name;
-			private final List<StringVisitable> desc;
+			private final List<OrderedText> name;
+			private final List<OrderedText> desc;
 
 			private UserProfile(UserSummary summary) {
 				super(null);
@@ -125,8 +125,8 @@ public class TwitterShowUserScreen extends AbstractTwitterScreen {
 				boolean p = this.summary.isProtected();
 				boolean v = this.summary.isVerified();
 				int protectedVerifiedWidth = (p ? 10 : 0) + (v ? 10 : 0);
-				this.name = TwitterShowUserScreen.this.textRenderer.getTextHandler().wrapLines(new LiteralText(this.summary.getName()).formatted(Formatting.BOLD), TweetList.this.getRowWidth() - 10 - protectedVerifiedWidth, Style.EMPTY);
-				this.desc = TwitterShowUserScreen.this.textRenderer.getTextHandler().wrapLines(this.summary.getDescription(), TweetList.this.getRowWidth() - 20, Style.EMPTY);
+				this.name = TwitterShowUserScreen.this.textRenderer.wrapLines(new TweetText(this.summary.getName()).formatted(Formatting.BOLD), TweetList.this.getRowWidth() - 10 - protectedVerifiedWidth);
+				this.desc = TwitterShowUserScreen.this.textRenderer.wrapLines(new TweetText(this.summary.getDescription()), TweetList.this.getRowWidth() - 20);
 				this.height = TwitterShowUserScreen.TweetList.this.getRowWidth() / 3 + 60 + this.desc.size() * TwitterShowUserScreen.this.textRenderer.fontHeight;
 			}
 
@@ -159,8 +159,8 @@ public class TwitterShowUserScreen extends AbstractTwitterScreen {
 
 				int k = rowTop + (i - i / 3) + j;
 				int x = 0;
-				for (StringVisitable stringVisitable : this.name) {
-					x = TwitterShowUserScreen.this.drawWithShadowAndEmoji(matrices, stringVisitable.getString(), rowLeft + 10, k, 16777215);
+				for (OrderedText text : this.name) {
+					x = TwitterShowUserScreen.this.drawWithShadowAndEmoji(matrices, text, rowLeft + 10, k, 16777215);
 				}
 
 				k += (this.name.size() - 1) * TwitterShowUserScreen.this.textRenderer.fontHeight;
@@ -174,10 +174,10 @@ public class TwitterShowUserScreen extends AbstractTwitterScreen {
 
 				k += TwitterShowUserScreen.this.textRenderer.fontHeight;
 
-				TwitterShowUserScreen.this.drawWithShadowAndEmoji(matrices, new LiteralText(this.summary.getScreenName()).formatted(Formatting.GRAY).asString(), rowLeft + 10, k, 0);
+				TwitterShowUserScreen.this.drawWithShadowAndEmoji(matrices, new TweetText(this.summary.getScreenName()).formatted(Formatting.GRAY), rowLeft + 10, k, 0);
 
 				for (int index = 0; index < this.desc.size(); index++) {
-					TwitterShowUserScreen.this.drawWithShadowAndEmoji(matrices, this.desc.get(index).getString(), rowLeft + 10, k + TwitterShowUserScreen.this.textRenderer.fontHeight * 2 + index * TwitterShowUserScreen.this.textRenderer.fontHeight, 16777215);
+					TwitterShowUserScreen.this.drawWithShadowAndEmoji(matrices, this.desc.get(index), rowLeft + 10, k + TwitterShowUserScreen.this.textRenderer.fontHeight * 2 + index * TwitterShowUserScreen.this.textRenderer.fontHeight, 16777215);
 				}
 			}
 		}

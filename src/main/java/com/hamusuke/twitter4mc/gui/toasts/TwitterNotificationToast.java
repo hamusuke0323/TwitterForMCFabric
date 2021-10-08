@@ -11,8 +11,8 @@ import net.minecraft.client.render.GameRenderer;
 import net.minecraft.client.toast.Toast;
 import net.minecraft.client.toast.ToastManager;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.StringVisitable;
-import net.minecraft.text.Style;
+import net.minecraft.text.OrderedText;
+import net.minecraft.text.Text;
 import net.minecraft.util.math.MathHelper;
 import org.apache.logging.log4j.LogManager;
 import org.jetbrains.annotations.Nullable;
@@ -22,11 +22,11 @@ import java.util.List;
 
 @Environment(EnvType.CLIENT)
 public class TwitterNotificationToast extends InputStreamToast implements ClickableToast {
-	private final String title;
+	private final Text title;
 	@Nullable
-	private final String subtitle;
+	private final Text subtitle;
 
-	public TwitterNotificationToast(@Nullable InputStream image, String title, @Nullable String subtitle) {
+	public TwitterNotificationToast(@Nullable InputStream image, Text title, @Nullable Text subtitle) {
 		super(image);
 		this.title = title;
 		this.subtitle = subtitle;
@@ -49,7 +49,7 @@ public class TwitterNotificationToast extends InputStreamToast implements Clicka
 		if (this.subtitle == null) {
 			getInvoker(toastGui.getGame().textRenderer).drawWithEmoji(matrices, this.title, 30.0F, 12.0F, -1);
 		} else {
-			List<StringVisitable> list = toastGui.getGame().textRenderer.getTextHandler().wrapLines(this.subtitle, 125, Style.EMPTY);
+			List<OrderedText> list = toastGui.getGame().textRenderer.wrapLines(this.subtitle, 125);
 			if (list.size() == 1) {
 				getInvoker(toastGui.getGame().textRenderer).drawWithEmoji(matrices, this.title, 30.0F, 7.0F, 16777215);
 				getInvoker(toastGui.getGame().textRenderer).drawWithEmoji(matrices, this.subtitle, 30.0F, 18.0F, 16777215);
@@ -62,8 +62,8 @@ public class TwitterNotificationToast extends InputStreamToast implements Clicka
 					int i1 = MathHelper.floor(MathHelper.clamp((float) (delta - 1500L) / 300.0F, 0.0F, 1.0F) * 252.0F) << 24 | 67108864;
 					int l = 16 - list.size() * 9 / 2;
 
-					for (StringVisitable s : list) {
-						getInvoker(toastGui.getGame().textRenderer).drawWithEmoji(matrices, s.getString(), 30.0F, (float) l, 16777215 | i1);
+					for (OrderedText text : list) {
+						getInvoker(toastGui.getGame().textRenderer).drawWithEmoji(matrices, text, 30.0F, (float) l, 16777215 | i1);
 						l += 9;
 					}
 				}

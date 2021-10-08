@@ -6,6 +6,7 @@ import com.hamusuke.twitter4mc.gui.widget.ChangeableImageButton;
 import com.hamusuke.twitter4mc.gui.widget.TwitterButton;
 import com.hamusuke.twitter4mc.gui.widget.list.ExtendedTwitterTweetList;
 import com.hamusuke.twitter4mc.invoker.TextRendererInvoker;
+import com.hamusuke.twitter4mc.text.TweetText;
 import com.hamusuke.twitter4mc.tweet.TweetSummary;
 import com.hamusuke.twitter4mc.tweet.TwitterPhotoMedia;
 import com.hamusuke.twitter4mc.utils.TwitterUtil;
@@ -19,7 +20,6 @@ import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexConsumerProvider;
-import net.minecraft.client.resource.language.I18n;
 import net.minecraft.client.sound.PositionedSoundInstance;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.sound.SoundEvents;
@@ -145,24 +145,23 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
     public boolean renderTwitterUser(MatrixStack matrices, TweetSummary summary, int x, int y, int mouseX, int mouseY) {
         User user = summary.getUser();
         InputStream icon = summary.getUserIconData();
-        List<StringVisitable> desc = this.textRenderer.getTextHandler().wrapLines(user.getDescription(), Math.min(this.width / 2, 150), Style.EMPTY);
-        StringVisitable follow = StringVisitable.concat(new LiteralText(user.getFriendsCount() + "").formatted(Formatting.BOLD), new LiteralText(" "), FOLLOW);
-        StringVisitable follower = StringVisitable.concat(new LiteralText(user.getFollowersCount() + "").formatted(Formatting.BOLD), new LiteralText(" "), FOLLOWER);
-        List<StringVisitable> ff = this.textRenderer.getTextHandler().wrapLines(StringVisitable.concat(follow, new LiteralText("  "), follower), 150, Style.EMPTY);
+        List<OrderedText> desc = this.textRenderer.wrapLines(new TweetText(user.getDescription()), Math.min(this.width / 2, 150));
+        Text follow = new LiteralText(user.getFriendsCount() + "").formatted(Formatting.BOLD).append(Text.of(" ")).append(FOLLOW);
+        Text follower = new LiteralText(user.getFollowersCount() + "").formatted(Formatting.BOLD).append(Text.of(" ")).append(FOLLOWER);
+        List<OrderedText> ff = this.textRenderer.wrapLines(StringVisitable.concat(follow, Text.of("  "), follower), 150);
 
         RenderSystem.disableDepthTest();
         int i = 0;
 
-        for (StringVisitable s : desc) {
-            int j = this.getWidthWithEmoji(s.getString());
-
+        for (OrderedText s : desc) {
+            int j = this.getWidthWithEmoji(s);
             if (j > i) {
                 i = j;
             }
         }
 
-        for (StringVisitable s1 : ff) {
-            int j2 = this.textRenderer.getWidth(s1.getString());
+        for (OrderedText s1 : ff) {
+            int j2 = this.textRenderer.getWidth(s1);
             if (j2 > i) {
                 i = j2;
             }
@@ -204,25 +203,24 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
         boolean p = user.isProtected();
         boolean v = user.isVerified();
         int m = (p ? 10 : 0) + (v ? 10 : 0);
-        StringVisitable name = new LiteralText(user.getName()).formatted(Formatting.BOLD);
-        List<StringVisitable> nameFormatted = this.textRenderer.getTextHandler().wrapLines(name, i - this.getWidthWithEmoji(THREE_PERIOD) - m, Style.EMPTY);
-        int n = ((TextRendererInvoker) this.textRenderer).drawWithEmoji(nameFormatted.size() == 1 ? nameFormatted.get(0).getString() : StringVisitable.concat(nameFormatted.get(0), THREE_PERIOD).getString(), (float) x, (float) i2 + 2, -1, true, matrix4f, vertexConsumerProvider$immediate, false, 0, 15728880);
-        ((TextRendererInvoker) this.textRenderer).drawWithEmoji(new LiteralText(summary.getScreenName()).formatted(Formatting.GRAY), (float) x, (float) i2 + 12, -1, true, matrix4f, vertexConsumerProvider$immediate, false, 0, 15728880);
+        StringVisitable name = new TweetText(user.getName()).formatted(Formatting.BOLD);
+        List<OrderedText> nameFormatted = this.textRenderer.wrapLines(name, i - this.getWidthWithEmoji(THREE_PERIOD.asOrderedText()) - m);
+        int n = ((TextRendererInvoker) this.textRenderer).drawWithEmoji(nameFormatted.size() == 1 ? nameFormatted.get(0) : OrderedText.concat(nameFormatted.get(0), THREE_PERIOD.asOrderedText()), (float) x, (float) i2 + 2, -1, true, matrix4f, vertexConsumerProvider$immediate, false, 0, 15728880);
+        ((TextRendererInvoker) this.textRenderer).drawWithEmoji(new TweetText(summary.getScreenName()).formatted(Formatting.GRAY), (float) x, (float) i2 + 12, -1, true, matrix4f, vertexConsumerProvider$immediate, false, 0, 15728880);
 
-        for (StringVisitable s1 : desc) {
+        for (OrderedText s1 : desc) {
             if (s1 != null) {
-                ((TextRendererInvoker) this.textRenderer).drawWithEmoji(s1.getString(), (float) x, (float) i2 + 26, -1, true, matrix4f, vertexConsumerProvider$immediate, false, 0, 15728880);
+                ((TextRendererInvoker) this.textRenderer).drawWithEmoji(s1, (float) x, (float) i2 + 26, -1, true, matrix4f, vertexConsumerProvider$immediate, false, 0, 15728880);
             }
 
             i2 += 10;
         }
 
         if (ff.size() == 1) {
-            ((TextRendererInvoker) this.textRenderer).drawWithEmoji(ff.get(0).getString(), (float) x, (float) i2 + 30, -1, true, matrix4f, vertexConsumerProvider$immediate, false, 0, 15728880);
+            ((TextRendererInvoker) this.textRenderer).drawWithEmoji(ff.get(0), (float) x, (float) i2 + 30, -1, true, matrix4f, vertexConsumerProvider$immediate, false, 0, 15728880);
         } else {
-            this.textRenderer.draw(followMutable, x, i2 + 30, -1, true, matrix4f, vertexConsumerProvider$immediate, false, 0, 15728880);
-            //((TextRendererInvoker) this.textRenderer).drawWithEmoji(follow.getString(), (float) x, (float) i2 + 30, -1, true, matrix4f, vertexConsumerProvider$immediate, false, 0, 15728880);
-            ((TextRendererInvoker) this.textRenderer).drawWithEmoji(follower.getString(), (float) x, (float) i2 + 30 + 10, -1, true, matrix4f, vertexConsumerProvider$immediate, false, 0, 15728880);
+            ((TextRendererInvoker) this.textRenderer).drawWithEmoji(follow, (float) x, (float) i2 + 30, -1, true, matrix4f, vertexConsumerProvider$immediate, false, 0, 15728880);
+            ((TextRendererInvoker) this.textRenderer).drawWithEmoji(follower, (float) x, (float) i2 + 30 + 10, -1, true, matrix4f, vertexConsumerProvider$immediate, false, 0, 15728880);
         }
 
         vertexConsumerProvider$immediate.draw();
@@ -247,7 +245,7 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
             matrices.scale(0.625F, 0.625F, 0.625F);
             DrawableHelper.drawTexture(matrices, 0, 0, 0.0F, 0.0F, 16, 16, 16, 16);
             matrices.pop();
-            List<String> names = this.wrapUserNameToWidth(retweetedSummary, width);
+            List<OrderedText> names = this.wrapUserNameToWidth(retweetedSummary, width);
             for (int i = 0; i < names.size(); i++) {
                 this.drawWithShadowAndEmoji(matrices, names.get(i), x, y + i * this.textRenderer.fontHeight, 11184810);
             }
@@ -257,20 +255,8 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
         return y;
     }
 
-    public List<String> wrapUserNameToWidth(TweetSummary summary, int width) {
-        return Lists.transform(this.textRenderer.getTextHandler().wrapLines(new TranslatableText("tw.retweeted.user", summary.getUser().getName()), width, Style.EMPTY), StringVisitable::getString);
-    }
-
-    protected int drawWithEmoji(MatrixStack matrices, String text, float x, float y, int color) {
-        return ((TextRendererInvoker) this.textRenderer).drawWithEmoji(matrices, text, x, y, color);
-    }
-
-    protected int drawWithShadowAndEmoji(MatrixStack matrices, String text, float x, float y, int color) {
-        return ((TextRendererInvoker) this.textRenderer).drawWithShadowAndEmoji(matrices, text, x, y, color);
-    }
-
-    protected int getWidthWithEmoji(String text) {
-        return ((TextRendererInvoker) this.textRenderer).getWidthWithEmoji(text);
+    public List<OrderedText> wrapUserNameToWidth(TweetSummary summary, int width) {
+        return this.textRenderer.wrapLines(new TranslatableText("tw.retweeted.user", new TweetText(summary.getUser().getName())), width);
     }
 
     protected int drawWithEmoji(MatrixStack matrices, Text text, float x, float y, int color) {
@@ -281,7 +267,15 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
         return ((TextRendererInvoker) this.textRenderer).drawWithShadowAndEmoji(matrices, text, x, y, color);
     }
 
-    protected int getWidthWithEmoji(Text text) {
+    protected int drawWithEmoji(MatrixStack matrices, OrderedText text, float x, float y, int color) {
+        return ((TextRendererInvoker) this.textRenderer).drawWithEmoji(matrices, text, x, y, color);
+    }
+
+    protected int drawWithShadowAndEmoji(MatrixStack matrices, OrderedText text, float x, float y, int color) {
+        return ((TextRendererInvoker) this.textRenderer).drawWithShadowAndEmoji(matrices, text, x, y, color);
+    }
+
+    protected int getWidthWithEmoji(OrderedText text) {
         return ((TextRendererInvoker) this.textRenderer).getWidthWithEmoji(text);
     }
 
@@ -371,8 +365,8 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
             protected final TweetSummary retweetedSummary;
             @Nullable
             protected final TweetSummary quoteSourceSummary;
-            protected final List<String> strings;
-            protected final List<String> quotedTweetStrings;
+            protected final List<OrderedText> strings;
+            protected final List<OrderedText> quotedTweetStrings;
             protected final int retweetedUserNameHeight;
             protected int height;
             protected int y;
@@ -394,8 +388,8 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
                     this.summary = flag ? tweet.getRetweetedSummary() : tweet;
                     this.retweetedSummary = flag ? tweet : null;
                     this.quoteSourceSummary = this.summary.getQuotedTweetSummary();
-                    this.strings = Lists.transform(AbstractTwitterScreen.this.textRenderer.getTextHandler().wrapLines(this.summary.getText(), AbstractTwitterScreen.TweetList.this.getRowWidth() - 25, Style.EMPTY), StringVisitable::getString);
-                    this.quotedTweetStrings = this.quoteSourceSummary != null ? Lists.transform(AbstractTwitterScreen.this.textRenderer.getTextHandler().wrapLines(this.quoteSourceSummary.getText(), AbstractTwitterScreen.TweetList.this.getRowWidth() - 40, Style.EMPTY), StringVisitable::getString) : Lists.newArrayList();
+                    this.strings = AbstractTwitterScreen.this.textRenderer.wrapLines(new TweetText(this.summary.getText()), AbstractTwitterScreen.TweetList.this.getRowWidth() - 25);
+                    this.quotedTweetStrings = this.quoteSourceSummary != null ? AbstractTwitterScreen.this.textRenderer.wrapLines(new TweetText(this.quoteSourceSummary.getText()), AbstractTwitterScreen.TweetList.this.getRowWidth() - 40) : Lists.newArrayList();
                     this.photoRenderingWidth = TweetList.this.getRowWidth() - 30;
                     this.photoRenderingHeight = (int) (0.5625F * this.photoRenderingWidth);
                     this.height = ((this.strings.size() - 1) * AbstractTwitterScreen.this.textRenderer.fontHeight) + 10 + 30;
@@ -499,10 +493,10 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
 
                 if (this.summary != null) {
                     if (this.summary.getRetweetCount() != 0 && this.retweetButton != null) {
-                        AbstractTwitterScreen.this.drawWithShadowAndEmoji(matrices, "" + this.summary.getRetweetCountF(), this.retweetButton.x + 16.0F, this.retweetButton.y, 11184810);
+                        AbstractTwitterScreen.this.drawWithShadowAndEmoji(matrices, Text.of("" + this.summary.getRetweetCountF()), this.retweetButton.x + 16.0F, this.retweetButton.y, 11184810);
                     }
                     if (this.summary.getFavoriteCount() != 0 && this.favoriteButton != null) {
-                        AbstractTwitterScreen.this.drawWithShadowAndEmoji(matrices, "" + this.summary.getFavoriteCountF(), this.favoriteButton.x + 16.0F, this.favoriteButton.y, 11184810);
+                        AbstractTwitterScreen.this.drawWithShadowAndEmoji(matrices, Text.of("" + this.summary.getFavoriteCountF()), this.favoriteButton.x + 16.0F, this.favoriteButton.y, 11184810);
                     }
                 }
             }
@@ -513,17 +507,17 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
 
                 int threeBoldWidth = AbstractTwitterScreen.this.textRenderer.getWidth(THREE_PERIOD);
                 int threeWidth = AbstractTwitterScreen.this.textRenderer.getWidth(THREE_PERIOD_GRAY);
-                MutableText time = new LiteralText("・" + summary.getDifferenceTime()).formatted(Formatting.GRAY);
+                Text time = new LiteralText("・" + summary.getDifferenceTime()).formatted(Formatting.GRAY);
                 int timeWidth = AbstractTwitterScreen.this.textRenderer.getWidth(time);
-                MutableText screenName = new LiteralText(summary.getScreenName()).formatted(Formatting.GRAY);
-                MutableText name = new LiteralText(summary.getUser().getName()).formatted(Formatting.BOLD);
+                Text screenName = new TweetText(summary.getScreenName()).formatted(Formatting.GRAY);
+                Text name = new TweetText(summary.getUser().getName()).formatted(Formatting.BOLD);
 
                 int protectedVerifiedWidth = (p ? 10 : 0) + (v ? 10 : 0);
-                List<StringVisitable> nameFormatted = AbstractTwitterScreen.this.textRenderer.getTextHandler().wrapLines(name, width - protectedVerifiedWidth - timeWidth, Style.EMPTY);
+                List<OrderedText> nameFormatted = AbstractTwitterScreen.this.textRenderer.wrapLines(name, width - protectedVerifiedWidth - timeWidth);
                 boolean isOver = nameFormatted.size() > 1;
-                List<StringVisitable> nameFormatted2 = isOver ? AbstractTwitterScreen.this.textRenderer.getTextHandler().wrapLines(name, width - protectedVerifiedWidth - timeWidth - threeBoldWidth, Style.EMPTY) : nameFormatted;
+                List<OrderedText> nameFormatted2 = isOver ? AbstractTwitterScreen.this.textRenderer.wrapLines(name, width - protectedVerifiedWidth - timeWidth - threeBoldWidth) : nameFormatted;
 
-                String formattedName = nameFormatted2.size() == 1 ? nameFormatted2.get(0).getString() : StringVisitable.concat(nameFormatted2.get(0), THREE_PERIOD).getString();
+                OrderedText formattedName = nameFormatted2.size() == 1 ? nameFormatted2.get(0) : OrderedText.concat(nameFormatted2.get(0), THREE_PERIOD.asOrderedText());
                 int formattedNameWidth = AbstractTwitterScreen.this.getWidthWithEmoji(formattedName);
                 AbstractTwitterScreen.this.drawWithShadowAndEmoji(matrices, formattedName, x, y, 16777215);
                 x += formattedNameWidth;
@@ -534,11 +528,11 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
                     x += AbstractTwitterScreen.this.renderVerified(matrices, x, y);
                 }
 
-                List<StringVisitable> screenNameFormatted = AbstractTwitterScreen.this.textRenderer.getTextHandler().wrapLines(screenName, width - formattedNameWidth - protectedVerifiedWidth - timeWidth - threeWidth, Style.EMPTY);
+                List<OrderedText> screenNameFormatted = AbstractTwitterScreen.this.textRenderer.wrapLines(screenName, width - formattedNameWidth - protectedVerifiedWidth - timeWidth - threeWidth);
                 if (!isOver) {
-                    String s = screenNameFormatted.size() == 1 ? screenNameFormatted.get(0).getString() : StringVisitable.concat(screenNameFormatted.get(0), THREE_PERIOD_GRAY).getString();
-                    AbstractTwitterScreen.this.drawWithShadowAndEmoji(matrices, s, x, y, 11184810);
-                    x += AbstractTwitterScreen.this.getWidthWithEmoji(s);
+                    OrderedText text = screenNameFormatted.size() == 1 ? screenNameFormatted.get(0) : OrderedText.concat(screenNameFormatted.get(0), THREE_PERIOD_GRAY.asOrderedText());
+                    AbstractTwitterScreen.this.drawWithShadowAndEmoji(matrices, text, x, y, 11184810);
+                    x += AbstractTwitterScreen.this.getWidthWithEmoji(text);
                 }
                 AbstractTwitterScreen.this.drawWithShadowAndEmoji(matrices, time, x, y, 11184810);
             }
