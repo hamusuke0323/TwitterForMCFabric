@@ -1,8 +1,10 @@
 package com.hamusuke.twitter4mc.mixin;
 
+import com.google.common.collect.ImmutableList;
 import com.hamusuke.twitter4mc.font.TweetTextDrawer;
 import com.hamusuke.twitter4mc.invoker.TextHandlerInvoker;
 import com.hamusuke.twitter4mc.invoker.TextRendererInvoker;
+import com.hamusuke.twitter4mc.text.TweetTextUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.font.FontStorage;
@@ -12,6 +14,8 @@ import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.OrderedText;
+import net.minecraft.text.StringVisitable;
+import net.minecraft.text.Style;
 import net.minecraft.text.Text;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.MathHelper;
@@ -21,6 +25,7 @@ import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 
+import java.util.List;
 import java.util.function.Function;
 
 @Environment(EnvType.CLIENT)
@@ -40,6 +45,9 @@ public abstract class TextRendererMixin implements TextRendererInvoker {
     private static int tweakTransparency(int argb) {
         return 0;
     }
+
+    @Shadow
+    public abstract boolean isRightToLeft();
 
     public int drawWithShadowAndEmoji(MatrixStack matrices, Text text, float x, float y, int color) {
         return this.drawWithEmoji(text.asOrderedText(), x, y, color, matrices.peek().getModel(), true);
@@ -74,6 +82,10 @@ public abstract class TextRendererMixin implements TextRendererInvoker {
 
     public int getWidthWithEmoji(OrderedText text) {
         return MathHelper.ceil(((TextHandlerInvoker) this.handler).getWidthWithEmoji(text));
+    }
+
+    public List<OrderedText> wrapLinesWithEmoji(StringVisitable text, int width) {
+        return this.handler.wrapLines(text, width, Style.EMPTY).stream().map(stringVisitable -> TweetTextUtil.reorderIgnoreStyleChar(stringVisitable, this.isRightToLeft())).collect(ImmutableList.toImmutableList());
     }
 
     private int drawInternalWithEmoji(OrderedText text, float x, float y, int color, boolean shadow, Matrix4f matrix, VertexConsumerProvider vertexConsumers, boolean seeThrough, int backgroundColor, int light) {

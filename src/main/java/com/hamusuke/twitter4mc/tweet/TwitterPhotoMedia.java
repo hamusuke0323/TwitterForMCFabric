@@ -24,10 +24,7 @@ public class TwitterPhotoMedia {
 	public TwitterPhotoMedia(MediaEntity entity) {
 		this.entity = entity;
 		this.url = this.entity.getMediaURLHttps();
-		this.data = TwitterUtil.getInputStream(this.url);
-		if (this.data == null) {
-			LOGGER.warn("Failed to load photo data. return null");
-		}
+        this.data = TwitterUtil.getInputStream(this.url, e -> LOGGER.warn("Failed to load photo data, return null.", e));
 
 		Integer[] wh = TwitterUtil.getImageWidthHeight(this.url);
 		int w = 0, h = 0;

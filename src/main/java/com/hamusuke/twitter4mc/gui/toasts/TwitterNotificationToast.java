@@ -49,7 +49,7 @@ public class TwitterNotificationToast extends InputStreamToast implements Clicka
 		if (this.subtitle == null) {
 			getInvoker(toastGui.getGame().textRenderer).drawWithEmoji(matrices, this.title, 30.0F, 12.0F, -1);
 		} else {
-			List<OrderedText> list = toastGui.getGame().textRenderer.wrapLines(this.subtitle, 125);
+			List<OrderedText> list = getInvoker(toastGui.getGame().textRenderer).wrapLinesWithEmoji(this.subtitle, 125);
 			if (list.size() == 1) {
 				getInvoker(toastGui.getGame().textRenderer).drawWithEmoji(matrices, this.title, 30.0F, 7.0F, 16777215);
 				getInvoker(toastGui.getGame().textRenderer).drawWithEmoji(matrices, this.subtitle, 30.0F, 18.0F, 16777215);

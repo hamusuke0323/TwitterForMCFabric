@@ -134,7 +134,7 @@ public class TwitterTweetFieldWidget extends ClickableWidget implements Drawable
 	}
 
 	public static boolean isValidChar(char chr) {
-		return chr == 10 || (chr != 167 && chr >= ' ' && chr != 127);
+		return chr == 10 || (chr >= ' ' && chr != 127);
 	}
 
 	public static String stripInvalidChars(String s) {

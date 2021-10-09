@@ -51,11 +51,11 @@ public class TweetTextVisitFactory {
 
             if (TwitterForMC.getEmojiManager().isEmoji(Integer.toHexString(c))) {
                 characterAndEmojiVisitor.acceptEmoji(getEmoji(Integer.toHexString(c)));
-            } else if (Character.isHighSurrogate(c) && j + 1 < text.length() && Character.isLowSurrogate(text.charAt(j + 1))) {
-                char low = text.charAt(j + 1);
-                emoji.append(Integer.toHexString(Character.toCodePoint(c, low)));
-                j++;
-                if (j + 1 < text.length() && (text.charAt(j + 1) == 0x200d || (j + 2 < text.length() && Fitzpatrick.isFitzpatrick(Integer.toHexString(Character.toCodePoint(text.charAt(j + 1), text.charAt(j + 2))))))) {
+            } else if (Character.isLowSurrogate(c) && j - 1 >= 0 && Character.isHighSurrogate(text.charAt(j - 1))) {
+                char high = text.charAt(j - 1);
+                emoji.append(Integer.toHexString(Character.toCodePoint(high, c)));
+                --j;
+                if (j - 1 >= 0 && (text.charAt(j - 1) == 0x200d || (j - 2 >= 0 && Fitzpatrick.isFitzpatrick(Integer.toHexString(Character.toCodePoint(text.charAt(j - 1), text.charAt(j - 2))))))) {
                     emoji.append("-");
                 } else {
                     characterAndEmojiVisitor.acceptEmoji(getEmoji(emoji.toString()));

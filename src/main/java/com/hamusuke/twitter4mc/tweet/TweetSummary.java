@@ -79,11 +79,8 @@ public class TweetSummary implements Comparable<TweetSummary> {
 		this.quotedTweetSummary = this.quotedTweet != null ? new TweetSummary(this.quotedTweet) : null;
 		this.user = status.getUser();
 		String url = this.user.get400x400ProfileImageURLHttps();
-		this.userIconData = TwitterUtil.getInputStream(url);
-		this.userIconFormat = url.contains(".png") ? "PNG" : "JPEG";
-		if (this.userIconData == null) {
-			LOGGER.warn("Failed to get user icon data. return null");
-		}
+		this.userIconData = TwitterUtil.getInputStream(url, e -> LOGGER.warn("Failed to get user icon data, return null.", e));
+        this.userIconFormat = url.contains(".png") ? "PNG" : "JPEG";
 		this.createdAt = status.getCreatedAt();
 		this.createdAtC = Calendar.getInstance(Locale.ROOT);
 		this.createdAtC.setTime(this.createdAt);

@@ -35,7 +35,7 @@ public class TwitterShowUserScreen extends AbstractTwitterScreen {
 	}
 
 	protected void init() {
-		List<OrderedText> wrapped = this.textRenderer.wrapLines(this.title, this.width / 2 - 20);
+		List<OrderedText> wrapped = this.wrapLines(this.title, this.width / 2 - 20);
 		this.name = wrapped;
 		int fontHeight = this.textRenderer.fontHeight + 1;
 		int top = fontHeight * wrapped.size() + fontHeight;
@@ -120,15 +120,15 @@ public class TwitterShowUserScreen extends AbstractTwitterScreen {
 			private final List<OrderedText> desc;
 
 			private UserProfile(UserSummary summary) {
-				super(null);
-				this.summary = summary;
-				boolean p = this.summary.isProtected();
-				boolean v = this.summary.isVerified();
-				int protectedVerifiedWidth = (p ? 10 : 0) + (v ? 10 : 0);
-				this.name = TwitterShowUserScreen.this.textRenderer.wrapLines(new TweetText(this.summary.getName()).formatted(Formatting.BOLD), TweetList.this.getRowWidth() - 10 - protectedVerifiedWidth);
-				this.desc = TwitterShowUserScreen.this.textRenderer.wrapLines(new TweetText(this.summary.getDescription()), TweetList.this.getRowWidth() - 20);
-				this.height = TwitterShowUserScreen.TweetList.this.getRowWidth() / 3 + 60 + this.desc.size() * TwitterShowUserScreen.this.textRenderer.fontHeight;
-			}
+                super(null);
+                this.summary = summary;
+                boolean p = this.summary.isProtected();
+                boolean v = this.summary.isVerified();
+                int protectedVerifiedWidth = (p ? 10 : 0) + (v ? 10 : 0);
+                this.name = TwitterShowUserScreen.this.wrapLines(new TweetText(this.summary.getName()).formatted(Formatting.BOLD), TweetList.this.getRowWidth() - 10 - protectedVerifiedWidth);
+                this.desc = TwitterShowUserScreen.this.wrapLines(new TweetText(this.summary.getDescription()), TweetList.this.getRowWidth() - 20);
+                this.height = TwitterShowUserScreen.TweetList.this.getRowWidth() / 3 + 60 + this.desc.size() * TwitterShowUserScreen.this.textRenderer.fontHeight;
+            }
 
 			public void init() {
 			}

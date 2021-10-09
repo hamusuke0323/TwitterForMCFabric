@@ -14,19 +14,18 @@ import twitter4j.*;
 import javax.imageio.ImageIO;
 import java.awt.*;
 import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.File;
+import java.io.IOException;
+import java.io.InputStream;
 import java.net.URL;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
+import java.util.function.Consumer;
 
 @Environment(EnvType.CLIENT)
-public final class TwitterUtil {
+public class TwitterUtil {
 	private static final Logger LOGGER = LogManager.getLogger();
-
-	private TwitterUtil() {
-		throw new IllegalStateException();
-	}
 
 	public static void saveToken(NewToken newToken, File tokenFile) throws Exception {
 		Class_124611_a_.func_082122_a_(newToken, tokenFile);
@@ -209,12 +208,20 @@ public final class TwitterUtil {
 
 	@Nullable
 	public static InputStream getInputStream(@Nullable String imageURL) {
+		return getInputStream(imageURL, e -> {
+		});
+	}
+
+	@Nullable
+	public static InputStream getInputStream(@Nullable String imageURL, Consumer<Exception> onException) {
 		try {
 			if (imageURL == null) {
-				return null;
+				throw new IOException("imageURL == null");
 			}
+
 			return new URL(imageURL).openStream();
 		} catch (Exception e) {
+			onException.accept(e);
 			return null;
 		}
 	}

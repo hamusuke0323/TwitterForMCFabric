@@ -1,7 +1,6 @@
 package com.hamusuke.twitter4mc.font;
 
 import com.google.common.collect.Lists;
-import com.hamusuke.twitter4mc.TwitterForMC;
 import com.hamusuke.twitter4mc.emoji.Emoji;
 import com.hamusuke.twitter4mc.text.CharacterAndEmojiVisitor;
 import net.fabricmc.api.EnvType;
@@ -35,7 +34,6 @@ public class TweetTextDrawer implements CharacterAndEmojiVisitor {
     float y;
     @Nullable
     private List<GlyphRenderer.Rectangle> rectangles;
-    private StringBuilder emoji = new StringBuilder();
 
     private void addRectangle(GlyphRenderer.Rectangle rectangle) {
         if (this.rectangles == null) {

@@ -17,7 +17,6 @@ import net.minecraft.util.Identifier;
 import org.apache.commons.io.IOUtils;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.Unmodifiable;
 
 import java.io.FileNotFoundException;
 import java.io.InputStream;
@@ -93,8 +92,7 @@ public final class EmojiManager implements SimpleSynchronousResourceReloadListen
         return e == null ? new Emoji(hex, MissingSprite.getMissingSpriteId()) : e;
     }
 
-    @Unmodifiable
-    public Map<String, Emoji> getAllEmojis() {
+    public ImmutableMap<String, Emoji> getAllEmojis() {
         return ImmutableMap.copyOf(this.emojiMap);
     }
 }
