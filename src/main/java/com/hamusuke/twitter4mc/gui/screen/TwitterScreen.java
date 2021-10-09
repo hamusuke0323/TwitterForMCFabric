@@ -15,7 +15,6 @@ import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.NarratorManager;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.LiteralText;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Util;
@@ -68,7 +67,7 @@ public class TwitterScreen extends AbstractTwitterScreen {
 			j += i;
 		}
 
-		//for debug
+		//TODO for debug
 		this.addDrawableChild(new ButtonWidget(0, this.height - 110, k - 10, 20, new TranslatableText("tweet"), (press) -> {
 			this.client.setScreen(new TwitterTweetScreen(this));
 		}));

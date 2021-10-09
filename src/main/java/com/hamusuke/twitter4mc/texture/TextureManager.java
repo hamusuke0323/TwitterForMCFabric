@@ -36,8 +36,6 @@ public class TextureManager {
             this.registerTexture(inputStream, texture);
         }
 
-        //texture.bindTexture();
-
         RenderSystem.setShaderTexture(0, texture.getGlId());
     }
 

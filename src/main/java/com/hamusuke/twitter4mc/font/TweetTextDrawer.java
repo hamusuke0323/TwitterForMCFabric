@@ -65,8 +65,8 @@ public class TweetTextDrawer implements CharacterAndEmojiVisitor {
 
     public boolean accept(int index, Style style, int codePoint) {
         FontStorage fontStorage = this.fontStorageAccessor.apply(style.getFont());
-        Glyph glyph = fontStorage.getGlyph(codePoint);
-        GlyphRenderer glyphRenderer = style.isObfuscated() && codePoint != 32 ? fontStorage.getObfuscatedGlyphRenderer(glyph) : fontStorage.getGlyphRenderer(codePoint);
+        Glyph glyph = codePoint == 12288 ? () -> 6.0F : fontStorage.getGlyph(codePoint);
+        GlyphRenderer glyphRenderer = style.isObfuscated() && codePoint != 32 && codePoint != 12288 ? fontStorage.getObfuscatedGlyphRenderer(glyph) : codePoint == 12288 ? new EmptyGlyphRenderer() : fontStorage.getGlyphRenderer(codePoint);
         boolean bl = style.isBold();
         float f = this.alpha;
         TextColor textColor = style.getColor();

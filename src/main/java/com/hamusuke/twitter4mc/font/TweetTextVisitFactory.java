@@ -4,11 +4,8 @@ import com.hamusuke.twitter4mc.TwitterForMC;
 import com.hamusuke.twitter4mc.emoji.Emoji;
 import com.hamusuke.twitter4mc.emoji.Fitzpatrick;
 import com.hamusuke.twitter4mc.text.CharacterAndEmojiVisitor;
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import net.minecraft.text.Style;
 
-@Environment(EnvType.CLIENT)
 public class TweetTextVisitFactory {
     public static boolean visitForwardsCharacterOrEmoji(String text, Style style, CharacterAndEmojiVisitor characterAndEmojiVisitor) {
         int i = text.length();
