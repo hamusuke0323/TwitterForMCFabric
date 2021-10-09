@@ -21,6 +21,7 @@ import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.sound.PositionedSoundInstance;
+import net.minecraft.client.util.Window;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.*;
@@ -704,12 +705,15 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
             }
 
             protected boolean videoClicked(int mouseButton) {
-                if (this.summary != null && !this.summary.isVideoNull()) {
-                    if (mouseButton == 0) {
-                        this.summary.getPlayer().play(AbstractTwitterScreen.this.client.getWindow().getX(), AbstractTwitterScreen.this.client.getWindow().getY(), AbstractTwitterScreen.this.client.getWindow().getWidth() / 2, AbstractTwitterScreen.this.client.getWindow().getHeight() / 2);
-                    } else if (mouseButton == 1) {
-                        //TODO save video action;
-                    }
+                if (this.summary != null) {
+                    this.summary.getPlayer().ifPresent(twitterVideoPlayer -> {
+                        Window window = AbstractTwitterScreen.this.client.getWindow();
+                        if (mouseButton == 0) {
+                            twitterVideoPlayer.play(window.getX(), window.getY(), window.getWidth() / 2, window.getHeight() / 2);
+                        } else if (mouseButton == 1) {
+                            //TODO save video action;
+                        }
+                    });
                 }
 
                 return false;

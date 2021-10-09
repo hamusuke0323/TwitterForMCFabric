@@ -273,9 +273,8 @@ public class TweetSummary implements Comparable<TweetSummary> {
 		return this.videoURL;
 	}
 
-	@Nullable
-	public TwitterVideoPlayer getPlayer() {
-		return this.player;
+	public Optional<TwitterVideoPlayer> getPlayer() {
+		return Optional.ofNullable(this.player);
 	}
 
 	public boolean isIncludeVideo() {
