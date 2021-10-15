@@ -322,7 +322,7 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
         if (!bl && style != null && style.getClickEvent() != null && style.getClickEvent().getAction() == ClickEvent.Action.OPEN_URL) {
             try {
                 URI uri = new URI(style.getClickEvent().getValue());
-                if (uri.getScheme().equalsIgnoreCase(TwitterForMC.MOD_ID)) {
+                if (uri.getScheme().equalsIgnoreCase(PROTOCOL)) {
                     String path = uri.getPath().substring(1);
                     switch (HostType.from(uri.getHost())) {
                         case USER_SCREEN_NAME -> {
