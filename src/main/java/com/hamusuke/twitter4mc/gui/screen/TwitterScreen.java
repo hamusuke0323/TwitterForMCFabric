@@ -18,6 +18,7 @@ import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import net.minecraft.util.Util;
+import org.apache.commons.lang3.mutable.MutableInt;
 import org.jetbrains.annotations.Nullable;
 import twitter4j.Status;
 import twitter4j.TwitterException;
@@ -25,6 +26,7 @@ import twitter4j.TwitterException;
 import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
+import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Environment(EnvType.CLIENT)
@@ -48,24 +50,24 @@ public class TwitterScreen extends AbstractTwitterScreen {
 	public void init() {
 		this.getPreviousScreen().ifPresent(screen -> this.client.setScreen(screen));
 
-		boolean updateAvailable = VersionChecker.isUpdateAvailable();
-		int i = this.width / (updateAvailable ? 3 : 2);
-		int j = 0;
+		Optional<VersionChecker.UpdateInfo> updateInfo = VersionChecker.getUpdateInfo();
+		int i = this.width / (updateInfo.isPresent() ? 3 : 2);
+		MutableInt j = new MutableInt();
 		int k = this.width / 4;
 
-		if (updateAvailable) {
-			this.addRenderLaterButton(new ButtonWidget(j, this.height - 20, i, 20, new TranslatableText("tw.new.update.available"), (b) -> {
+		updateInfo.ifPresent(info -> {
+			this.addRenderLaterButton(new ButtonWidget(j.getValue(), this.height - 20, i, 20, new TranslatableText("tw.new.update.available"), (b) -> {
 				this.client.setScreen(new ConfirmChatLinkScreen((bl) -> {
 					if (bl) {
-						Util.getOperatingSystem().open(VersionChecker.getUrl());
+						Util.getOperatingSystem().open(info.url());
 					}
 
 					this.client.setScreen(this);
-				}, VersionChecker.getUrl(), true));
+				}, info.url(), true));
 			}));
 
-			j += i;
-		}
+			j.add(i);
+		});
 
 		//TODO for debug
 		this.addDrawableChild(new ButtonWidget(0, this.height - 110, k - 10, 20, new TranslatableText("tweet"), (press) -> {
@@ -75,11 +77,11 @@ public class TwitterScreen extends AbstractTwitterScreen {
 		if (TwitterForMC.mcTwitter == null) {
 			this.list = new TwitterScreen.TweetList(this.client);
 
-			this.addRenderLaterButton(new ButtonWidget(j, this.height - 20, i, 20, new TranslatableText("twitter.login"), (l) -> {
+			this.addRenderLaterButton(new ButtonWidget(j.getValue(), this.height - 20, i, 20, new TranslatableText("twitter.login"), (l) -> {
 				this.client.setScreen(new TwitterLoginScreen(this));
 			}));
 
-			j += i;
+			j.add(i);
 		} else {
 			/*
 			this.addButton(new ButtonWidget(0, this.height - 110, k - 10, 20, I18n.translate("tweet"), (press) -> {
@@ -97,7 +99,7 @@ public class TwitterScreen extends AbstractTwitterScreen {
 				}
 			}));
 
-			this.addRenderLaterButton(new ButtonWidget(j, this.height - 20, i, 20, new TranslatableText("twitter.refresh"), (p) -> {
+			this.addRenderLaterButton(new ButtonWidget(j.getValue(), this.height - 20, i, 20, new TranslatableText("twitter.refresh"), (p) -> {
 				p.active = false;
 				this.refreshingTL.set(true);
 				List<Status> t = Lists.newArrayList();
@@ -120,7 +122,7 @@ public class TwitterScreen extends AbstractTwitterScreen {
 				}).createAll();
 			})).active = !this.refreshingTL.get();
 
-			j += i;
+			j.add(i);
 
 			this.addDrawableChild(new ButtonWidget(0, this.height - 80, k - 10, 20, new TranslatableText("tw.save.timeline"), (b) -> {
 				b.active = false;
@@ -133,7 +135,7 @@ public class TwitterScreen extends AbstractTwitterScreen {
 			}));
 		}
 
-		this.addRenderLaterButton(new ButtonWidget(j, this.height - 20, i, 20, ScreenTexts.BACK, (p_213034_1_) -> this.onClose()));
+		this.addRenderLaterButton(new ButtonWidget(j.getValue(), this.height - 20, i, 20, ScreenTexts.BACK, (p_213034_1_) -> this.onClose()));
 
 		this.addDrawableChild(new ButtonWidget(0, this.height - 140, k - 10, 20, new TranslatableText("tw.settings"), (b) -> {
 			this.client.setScreen(new TwitterSettingsScreen(this));

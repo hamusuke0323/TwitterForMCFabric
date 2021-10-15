@@ -9,7 +9,6 @@ import com.hamusuke.twitter4mc.license.LicenseManager;
 import com.hamusuke.twitter4mc.texture.TextureManager;
 import com.hamusuke.twitter4mc.tweet.TweetSummary;
 import com.hamusuke.twitter4mc.utils.NewToken;
-import com.hamusuke.twitter4mc.utils.TwitterThread;
 import com.hamusuke.twitter4mc.utils.TwitterUtil;
 import com.hamusuke.twitter4mc.utils.VersionChecker;
 import com.sun.javafx.application.PlatformImpl;
@@ -190,33 +189,31 @@ public final class TwitterForMC implements ClientModInitializer {
 
         ClientLifecycleEvents.CLIENT_STOPPING.register((client) -> Platform.exit());
 
-        //new TwitterThread(() -> {
-            token = read(tokenFile);
-            getNewToken().ifPresent(token -> {
-                AccessToken var1 = new AccessToken(token.getAccessToken(), token.getAccessTokenSecret());
-                if (token.autoLogin()) {
-                    try {
-                        mcTwitter = new TwitterFactory().getInstance();
-                        mcTwitter.setOAuthConsumer(token.getConsumer(), token.getConsumerSecret());
-                        mcTwitter.setOAuthAccessToken(var1);
-                        mcTwitter.getId();
-                        loginTwitter = true;
-                        LOGGER.info("Successfully logged in twitter.");
-                    } catch (Throwable e) {
-                        mcTwitter = null;
-                        loginTwitter = false;
-                        LOGGER.error("Error occurred while logging in twitter", e);
-                    }
-                }
-            });
-
-            if (loginTwitter) {
-                loadTimeline();
-                for (Status s : tweets) {
-                    tweetSummaries.add(new TweetSummary(s));
+        token = read(tokenFile);
+        getNewToken().ifPresent(token -> {
+            AccessToken var1 = new AccessToken(token.getAccessToken(), token.getAccessTokenSecret());
+            if (token.autoLogin()) {
+                try {
+                    mcTwitter = new TwitterFactory().getInstance();
+                    mcTwitter.setOAuthConsumer(token.getConsumer(), token.getConsumerSecret());
+                    mcTwitter.setOAuthAccessToken(var1);
+                    mcTwitter.getId();
+                    loginTwitter = true;
+                    LOGGER.info("Successfully logged in twitter.");
+                } catch (Throwable e) {
+                    mcTwitter = null;
+                    loginTwitter = false;
+                    LOGGER.error("Error occurred while logging in twitter", e);
                 }
             }
-        //}).start();
+        });
+
+        if (loginTwitter) {
+            loadTimeline();
+            for (Status s : tweets) {
+                tweetSummaries.add(new TweetSummary(s));
+            }
+        }
     }
 
     public static void update() {

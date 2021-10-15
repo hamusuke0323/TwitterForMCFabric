@@ -34,6 +34,8 @@ import twitter4j.User;
 
 import java.awt.*;
 import java.io.InputStream;
+import java.net.URI;
+import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
 
@@ -305,9 +307,27 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
         return 10;
     }
 
-    @Nullable
-    public AbstractTwitterScreen.TweetList getList() {
-        return this.list;
+    public boolean handleTextClick(@Nullable Style style) {
+        boolean bl = super.handleTextClick(style);
+        if (!bl && style != null && style.getClickEvent() != null && style.getClickEvent().getAction() == ClickEvent.Action.OPEN_URL) {
+            try {
+                URI uri = new URI(style.getClickEvent().getValue());
+                if (uri.getScheme().equalsIgnoreCase(TwitterForMC.MOD_ID)) {
+                    //TODO
+                    bl = true;
+                }
+            } catch (URISyntaxException ignored) {
+            }
+        }
+
+        return bl;
+    }
+
+    @Environment(EnvType.CLIENT)
+    protected enum HostType {
+        USER,
+        HASHTAG
+        //TODO
     }
 
     @Environment(EnvType.CLIENT)
@@ -743,9 +763,7 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
             }
 
             protected void updateButtonY(int y) {
-                this.buttons.forEach((abstractButtonWidget) -> {
-                    abstractButtonWidget.y = y;
-                });
+                this.buttons.forEach(clickableWidget -> clickableWidget.y = y);
             }
 
             public boolean equals(Object obj) {

@@ -13,6 +13,7 @@ import net.fabricmc.loader.api.metadata.ModMetadata;
 import net.minecraft.SharedConstants;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Nullable;
 
 import java.io.InputStream;
 import java.io.InputStreamReader;
@@ -23,9 +24,8 @@ import java.util.Optional;
 @Environment(EnvType.CLIENT)
 public class VersionChecker {
     private static final Logger LOGGER = LogManager.getLogger();
-    private static boolean isUpdateAvailable;
-    private static String version = "";
-    private static String url = "";
+    @Nullable
+    private static UpdateInfo updateInfo;
 
     private VersionChecker() {
         throw new IllegalStateException();
@@ -49,11 +49,14 @@ public class VersionChecker {
                     if (jsonObject != null && jsonObject.has(version)) {
                         String newVersion = jsonObject.get(version).getAsString();
                         String current = modMetadata.getVersion().getFriendlyString();
-                        VersionChecker.isUpdateAvailable = !current.equalsIgnoreCase(newVersion);
-                        VersionChecker.version = newVersion;
-                        VersionChecker.url = updateUrl;
+                        String type = "NONE";
 
-                        LOGGER.info("current TwitterForMC version: {}, new version: {}", current, VersionChecker.isUpdateAvailable ? newVersion : "NONE");
+                        if (!current.equalsIgnoreCase(newVersion)) {
+                            updateInfo = new UpdateInfo(newVersion, updateUrl);
+                            type = newVersion;
+                        }
+
+                        LOGGER.info("current TwitterForMC version: {}, new version: {}", current, type);
                     }
                 } catch (Exception e) {
                     LOGGER.warn("Couldn't check new update", e);
@@ -62,15 +65,11 @@ public class VersionChecker {
         });
     }
 
-    public static boolean isUpdateAvailable() {
-        return isUpdateAvailable;
+    public static Optional<UpdateInfo> getUpdateInfo() {
+        return Optional.ofNullable(updateInfo);
     }
 
-    public static String getNewVersion() {
-        return version;
-    }
-
-    public static String getUrl() {
-        return url;
+    @Environment(EnvType.CLIENT)
+    public static record UpdateInfo(String newVersion, String url) {
     }
 }
