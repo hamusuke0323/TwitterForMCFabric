@@ -92,7 +92,7 @@ public class TwitterScreen extends AbstractTwitterScreen {
 			this.addDrawableChild(new ButtonWidget(0, this.height - 50, k - 10, 20, new TranslatableText("tw.view.profile"), (press) -> {
 				press.active = false;
 				try {
-					this.client.setScreen(new TwitterShowUserScreen(this, TwitterForMC.mcTwitter.showUser(TwitterForMC.mcTwitter.getId())));
+					this.displayTwitterUser(this, TwitterForMC.mcTwitter.showUser(TwitterForMC.mcTwitter.getId()));
 				} catch (TwitterException e) {
 					this.accept(Text.of(e.getErrorMessage()));
 					press.active = true;

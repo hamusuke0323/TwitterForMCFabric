@@ -28,6 +28,8 @@ import net.minecraft.text.*;
 import net.minecraft.util.Formatting;
 import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Matrix4f;
+import org.apache.logging.log4j.LogManager;
+import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 import twitter4j.TwitterException;
 import twitter4j.User;
@@ -41,6 +43,8 @@ import java.util.Optional;
 
 @Environment(EnvType.CLIENT)
 public abstract class AbstractTwitterScreen extends ParentalScreen implements DisplayableMessage, ReturnableGame {
+    protected static final String PROTOCOL = TwitterForMC.MOD_ID;
+
     protected static final Identifier PROTECTED = new Identifier(TwitterForMC.MOD_ID, "textures/twitter/icon/protected.png");
     protected static final Identifier VERIFIED = new Identifier(TwitterForMC.MOD_ID, "textures/twitter/icon/verified.png");
     protected static final Identifier REPLY = new Identifier(TwitterForMC.MOD_ID, "textures/twitter/icon/reply.png");
@@ -55,6 +59,8 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
     protected static final Text FOLLOWER = new TranslatableText("tw.follower").formatted(Formatting.GRAY);
     protected static final Text THREE_PERIOD = new LiteralText("...").formatted(Formatting.BOLD);
     protected static final Text THREE_PERIOD_GRAY = new LiteralText("...").formatted(Formatting.GRAY);
+    private static final Logger LOGGER = LogManager.getLogger();
+
     protected final List<ClickableWidget> renderLaterButtons = Lists.newArrayList();
     @Nullable
     protected AbstractTwitterScreen.TweetList list;
@@ -136,7 +142,7 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
 
     public boolean mouseClicked(double p_mouseClicked_1_, double p_mouseClicked_3_, int p_mouseClicked_5_) {
         if (this.list != null && this.list.hoveringEntry != null && this.list.hoveringEntry.summary != null && this.list.hoveringEntry.mayClickIcon(p_mouseClicked_1_, p_mouseClicked_3_)) {
-            this.client.setScreen(new TwitterShowUserScreen(this, this.list.hoveringEntry.summary.getUser()));
+            this.displayTwitterUser(this, this.list.hoveringEntry.summary.getUser());
             return true;
         } else if (this.list != null && !this.list.isHovering) {
             return super.mouseClicked(p_mouseClicked_1_, p_mouseClicked_3_, p_mouseClicked_5_);
@@ -259,6 +265,10 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
         return y;
     }
 
+    protected void displayTwitterUser(@Nullable Screen parent, User user) {
+        this.client.setScreen(new TwitterShowUserScreen(parent, user));
+    }
+
     public List<OrderedText> wrapUserNameToWidth(TweetSummary summary, int width) {
         return this.wrapLines(new TranslatableText("tw.retweeted.user", new TweetText(summary.getUser().getName())), width);
     }
@@ -313,10 +323,19 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
             try {
                 URI uri = new URI(style.getClickEvent().getValue());
                 if (uri.getScheme().equalsIgnoreCase(TwitterForMC.MOD_ID)) {
-                    //TODO
-                    bl = true;
+                    String path = uri.getPath().substring(1);
+                    switch (HostType.from(uri.getHost())) {
+                        case USER_SCREEN_NAME -> {
+                            this.displayTwitterUser(this, TwitterForMC.mcTwitter.showUser(path));
+                            return true;
+                        }
+                        case HASHTAG -> {
+                            return true;
+                        }
+                    }
                 }
-            } catch (URISyntaxException ignored) {
+            } catch (URISyntaxException | TwitterException e) {
+                LOGGER.warn("Error occurred while handling text click", e);
             }
         }
 
@@ -325,9 +344,29 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
 
     @Environment(EnvType.CLIENT)
     protected enum HostType {
-        USER,
-        HASHTAG
-        //TODO
+        UNKNOWN(""),
+        USER_SCREEN_NAME("screenname"),
+        HASHTAG("hashtag");
+
+        private final String hostName;
+
+        HostType(String hostName) {
+            this.hostName = hostName;
+        }
+
+        public static HostType from(String hostName) {
+            for (HostType hostType : values()) {
+                if (hostType.hostName.equals(hostName)) {
+                    return hostType;
+                }
+            }
+
+            return UNKNOWN;
+        }
+
+        public String getHostName() {
+            return this.hostName;
+        }
     }
 
     @Environment(EnvType.CLIENT)
