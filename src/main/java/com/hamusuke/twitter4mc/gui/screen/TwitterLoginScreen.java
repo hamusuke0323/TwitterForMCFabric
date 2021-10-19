@@ -114,7 +114,7 @@ public class TwitterLoginScreen extends ParentalScreen {
         this.fillGradient(matrices, 0, 0, this.width, this.height, -1072689136, -804253680);
         super.render(matrices, mouseX, mouseY, delta);
         if (TwitterForMC.save.isMouseOver(mouseX, mouseY)) {
-            this.renderTooltip(matrices, new TranslatableText("tw.save.keys.desc"), mouseX, mouseY);
+            this.renderOrderedTooltip(matrices, this.textRenderer.wrapLines(new TranslatableText("tw.save.keys.desc"), this.width / 2), mouseX, mouseY);
         }
     }
 

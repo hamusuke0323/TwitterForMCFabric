@@ -4,7 +4,6 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
 import javax.swing.*;
-import java.awt.*;
 import java.io.File;
 import java.util.Optional;
 import java.util.concurrent.atomic.AtomicBoolean;
@@ -16,7 +15,7 @@ public abstract class AbstractFileChooser {
     protected final Consumer<File> onChose;
     protected final File initDir;
     protected final AtomicBoolean choosing = new AtomicBoolean();
-    protected final AtomicReference<JFrame> jFrame = new AtomicReference<>();
+    protected final AtomicReference<JFileChooser> jFileChooser = new AtomicReference<>();
 
     protected AbstractFileChooser(Consumer<File> onChose, File initDir) {
         this.onChose = onChose;
@@ -28,13 +27,13 @@ public abstract class AbstractFileChooser {
             this.choosing.set(true);
             this.startChoosing();
         } else {
-            this.getJFrame().ifPresent(Component::requestFocus);
+            this.getJFileChooser().ifPresent(JComponent::requestFocus);
         }
     }
 
     protected abstract void startChoosing();
 
-    protected Optional<JFrame> getJFrame() {
-        return Optional.ofNullable(this.jFrame.get());
+    protected Optional<JFileChooser> getJFileChooser() {
+        return Optional.ofNullable(this.jFileChooser.get());
     }
 }

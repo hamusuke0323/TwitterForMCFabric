@@ -4,7 +4,6 @@ import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
 import javax.swing.*;
-import java.awt.*;
 import java.io.File;
 import java.util.function.Consumer;
 
@@ -17,15 +16,15 @@ public class FileChooserOpen extends AbstractFileChooser {
     protected void startChoosing() {
         SwingUtilities.invokeLater(() -> {
             JFrame jFrame = new JFrame();
-            this.jFrame.set(jFrame);
             JFileChooser jFileChooser = new JFileChooser();
+            this.jFileChooser.set(jFileChooser);
             jFileChooser.setCurrentDirectory(this.initDir);
             if (jFileChooser.showOpenDialog(jFrame) == JFileChooser.APPROVE_OPTION) {
                 this.onChose.accept(jFileChooser.getSelectedFile());
             }
-            jFrame.dispose();
-            this.jFrame.set(null);
             this.choosing.set(false);
+            jFrame.dispose();
+            this.jFileChooser.set(null);
         });
     }
 }

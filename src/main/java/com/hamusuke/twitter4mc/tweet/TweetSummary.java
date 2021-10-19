@@ -274,7 +274,7 @@ public class TweetSummary implements Comparable<TweetSummary> {
 		return this.isIncludeVideo;
 	}
 
-	public boolean isVideoNull() {
+	public boolean isVideoURLNull() {
 		return this.videoURL == null;
 	}
 
