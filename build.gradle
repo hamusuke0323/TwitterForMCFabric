@@ -1,10 +1,6 @@
 plugins {
 	id 'fabric-loom' version '0.9-SNAPSHOT'
 	id 'maven-publish'
-
-	id 'java'
-	id 'application'
-	id 'org.openjfx.javafxplugin' version '0.0.8'
 }
 
 sourceCompatibility = JavaVersion.VERSION_16
@@ -62,11 +58,6 @@ java {
 	// if it is present.
 	// If you remove this line, sources will not be generated.
 	withSourcesJar()
-}
-
-javafx {
-	version = '11.0.2'
-	modules = ['javafx.media', 'javafx.controls']
 }
 
 jar {

@@ -1,11 +1,9 @@
 package com.hamusuke.twitter4mc.gui.filechooser;
 
-import javafx.application.Platform;
-import javafx.stage.FileChooser;
-import javafx.stage.Stage;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 
+import javax.swing.*;
 import java.io.File;
 import java.util.function.Consumer;
 
@@ -15,12 +13,17 @@ public class FileChooserSave extends AbstractFileChooser {
         super(onChose, initDir);
     }
 
-    protected void onChoose() {
-        Platform.runLater(() -> {
-            this.stage = new Stage();
-            FileChooser fileChooser = new FileChooser();
-            fileChooser.setInitialDirectory(this.initDir);
-            this.onChose.accept(fileChooser.showSaveDialog(this.stage));
+    protected void startChoosing() {
+        SwingUtilities.invokeLater(() -> {
+            JFrame jFrame = new JFrame();
+            this.jFrame.set(jFrame);
+            JFileChooser jFileChooser = new JFileChooser();
+            jFileChooser.setCurrentDirectory(this.initDir);
+            if (jFileChooser.showSaveDialog(jFrame) == JFileChooser.APPROVE_OPTION) {
+                this.onChose.accept(jFileChooser.getSelectedFile());
+            }
+            jFrame.dispose();
+            this.jFrame.set(null);
             this.choosing.set(false);
         });
     }

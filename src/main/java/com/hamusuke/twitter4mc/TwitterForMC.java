@@ -5,18 +5,16 @@ import com.hamusuke.twitter4mc.emoji.EmojiManager;
 import com.hamusuke.twitter4mc.gui.filechooser.FileChooserOpen;
 import com.hamusuke.twitter4mc.gui.screen.TwitterScreen;
 import com.hamusuke.twitter4mc.gui.widget.MaskableTextFieldWidget;
+import com.hamusuke.twitter4mc.gui.window.ProgressBarWindow;
 import com.hamusuke.twitter4mc.license.LicenseManager;
 import com.hamusuke.twitter4mc.texture.TextureManager;
 import com.hamusuke.twitter4mc.tweet.TweetSummary;
 import com.hamusuke.twitter4mc.utils.NewToken;
 import com.hamusuke.twitter4mc.utils.TwitterUtil;
 import com.hamusuke.twitter4mc.utils.VersionChecker;
-import com.sun.javafx.application.PlatformImpl;
-import javafx.application.Platform;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
@@ -183,11 +181,7 @@ public final class TwitterForMC implements ClientModInitializer {
         });
         ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(emojiManager);
 
-        PlatformImpl.startup(() -> {
-        });
-        Platform.setImplicitExit(false);
-
-        ClientLifecycleEvents.CLIENT_STOPPING.register((client) -> Platform.exit());
+        System.setProperty("java.awt.headless", "false");
 
         token = read(tokenFile);
         getNewToken().ifPresent(token -> {
@@ -210,9 +204,15 @@ public final class TwitterForMC implements ClientModInitializer {
 
         if (loginTwitter) {
             loadTimeline();
+            ProgressBarWindow progressBarWindow = new ProgressBarWindow();
+            int count = 0;
             for (Status s : tweets) {
                 tweetSummaries.add(new TweetSummary(s));
+                count++;
+                progressBarWindow.setProgress((int) (((float) count / (float) tweets.size()) * 100.0F));
             }
+
+            progressBarWindow.dispose();
         }
     }
 

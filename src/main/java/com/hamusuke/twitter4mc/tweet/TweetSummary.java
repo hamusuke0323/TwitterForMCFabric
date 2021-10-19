@@ -53,8 +53,6 @@ public class TweetSummary implements Comparable<TweetSummary> {
 	private final List<TwitterPhotoMedia> photoList;
 	@Nullable
 	private final String videoURL;
-	@Nullable
-	private final TwitterVideoPlayer player;
 	private final boolean isIncludeImages;
 	private final boolean isIncludeVideo;
 	private final boolean isEmptyMedia;
@@ -96,7 +94,6 @@ public class TweetSummary implements Comparable<TweetSummary> {
 		this.isIncludeImages = !this.isEmptyMedia && this.medias[0].getType().equals("photo");
 		this.isIncludeVideo = !this.isEmptyMedia && this.medias[0].getType().equals("video");
 		this.videoURL = this.isIncludeVideo ? TwitterUtil.getHiBitrateVideoURL(this.medias[0]) : null;
-		this.player = this.videoURL == null ? null : new TwitterVideoPlayer(this.videoURL);
 		this.photoMediaLength = this.isIncludeImages ? this.medias.length : 0;
 		List<TwitterPhotoMedia> list = Lists.newArrayList();
 		for (int i = 0; i < this.photoMediaLength; i++) {
@@ -273,16 +270,12 @@ public class TweetSummary implements Comparable<TweetSummary> {
 		return this.videoURL;
 	}
 
-	public Optional<TwitterVideoPlayer> getPlayer() {
-		return Optional.ofNullable(this.player);
-	}
-
 	public boolean isIncludeVideo() {
 		return this.isIncludeVideo;
 	}
 
 	public boolean isVideoNull() {
-		return this.videoURL == null || this.player == null;
+		return this.videoURL == null;
 	}
 
 	public Place getPlace() {

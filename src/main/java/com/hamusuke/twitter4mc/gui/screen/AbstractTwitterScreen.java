@@ -41,6 +41,7 @@ import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
 
+//TODO fit image size to list width
 @Environment(EnvType.CLIENT)
 public abstract class AbstractTwitterScreen extends ParentalScreen implements DisplayableMessage, ReturnableGame {
     protected static final String PROTOCOL = TwitterForMC.MOD_ID;
@@ -765,14 +766,7 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
 
             protected boolean videoClicked(int mouseButton) {
                 if (this.summary != null) {
-                    this.summary.getPlayer().ifPresent(twitterVideoPlayer -> {
-                        Window window = AbstractTwitterScreen.this.client.getWindow();
-                        if (mouseButton == 0) {
-                            twitterVideoPlayer.play(window.getX(), window.getY(), window.getWidth() / 2, window.getHeight() / 2);
-                        } else if (mouseButton == 1) {
-                            //TODO save video action;
-                        }
-                    });
+                    //TODO
                 }
 
                 return false;
