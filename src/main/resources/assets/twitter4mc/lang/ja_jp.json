@@ -35,7 +35,7 @@
   "tw.follow": "\u30D5\u30A9\u30ED\u30FC\u4E2D",
   "tw.follower": "\u30D5\u30A9\u30ED\u30EF\u30FC",
   "tw.retweeted.user": "%s\u3055\u3093\u304C\u30EA\u30C4\u30A4\u30FC\u30C8",
-  "tw.play.video": "\u52D5\u753B\u3092\u518D\u751F\uFF08JavaFX\u5225\u30A6\u30A3\u30F3\u30C9\u30A6\uFF09",
+  "tw.play.video": "\u52D5\u753B\u306E\u518D\u751F\u306F\u73FE\u5728\u5B9F\u88C5\u3055\u308C\u3066\u3044\u307E\u305B\u3093",
   "tw.seconds": "%s\u79D2",
   "tw.minutes": "%s\u5206",
   "tw.hours": "%s\u6642\u9593",

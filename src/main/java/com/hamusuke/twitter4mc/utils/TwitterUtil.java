@@ -78,12 +78,7 @@ public class TwitterUtil {
 	@Nullable
 	public static ReplyObject getReplies(Twitter twitter, long tweetId, int maxResult) throws TwitterException {
 		HttpResponse httpResponse = HttpClientFactory.getInstance().get("https://api.twitter.com/2/tweets/search/recent", new HttpParameter[]{new HttpParameter("expansions", "attachments.poll_ids,attachments.media_keys,author_id,entities.mentions.username,geo.place_id,in_reply_to_user_id,referenced_tweets.id,referenced_tweets.id.author_id"), new HttpParameter("query", "conversation_id:" + tweetId), new HttpParameter("tweet.fields", "author_id,conversation_id,created_at,entities,id,in_reply_to_user_id,public_metrics,referenced_tweets,reply_settings,text"), new HttpParameter("user.fields", "id,name,pinned_tweet_id,profile_image_url,protected,username,verified"), new HttpParameter("max_results", maxResult)}, twitter.getAuthorization(), null);
-
-		if (httpResponse != null) {
-			return new ReplyObject(httpResponse.asJSONObject());
-		}
-
-		return null;
+		return httpResponse != null ? new ReplyObject(httpResponse.asJSONObject()) : null;
 	}
 
 	public static String getChunkedNumber(int number) {

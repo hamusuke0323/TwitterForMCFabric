@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.hamusuke.twitter4mc.TwitterForMC;
 import com.hamusuke.twitter4mc.gui.screen.settings.TwitterSettingsScreen;
 import com.hamusuke.twitter4mc.tweet.TweetSummary;
-import com.hamusuke.twitter4mc.utils.TweetSummaryCreator;
+import com.hamusuke.twitter4mc.utils.TwitterThread;
 import com.hamusuke.twitter4mc.utils.VersionChecker;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -27,6 +27,8 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
+import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Environment(EnvType.CLIENT)
@@ -109,17 +111,19 @@ public class TwitterScreen extends AbstractTwitterScreen {
 					this.accept(Text.of(e.getErrorMessage()));
 				}
 				Collections.reverse(t);
-				new TweetSummaryCreator(t, (tweetSummary) -> {
+
+				CompletableFuture.runAsync(() -> t.forEach(status -> {
+					TweetSummary tweetSummary = new TweetSummary(status);
 					TwitterForMC.tweets.add(tweetSummary.getStatus());
 					TwitterForMC.tweetSummaries.add(tweetSummary);
 					this.remove(this.list);
 					this.list = new TweetList(this.client);
 					this.addSelectableChild(this.list);
-				}, () -> {
+				}), Executors.newCachedThreadPool(TwitterThread::new)).whenComplete((unused, throwable) -> {
 					p.active = true;
 					this.refreshingTL.set(false);
 					this.init(this.client, this.width, this.height);
-				}).createAll();
+				});
 			})).active = !this.refreshingTL.get();
 
 			j.add(i);

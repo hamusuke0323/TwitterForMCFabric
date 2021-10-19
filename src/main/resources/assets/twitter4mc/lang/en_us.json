@@ -35,7 +35,7 @@
   "tw.follow": "follow",
   "tw.follower": "follower",
   "tw.retweeted.user": "%s Retweeted",
-  "tw.play.video": "Play video(open the new window)",
+  "tw.play.video": "Playing videos is not implemented now",
   "tw.seconds": "%ss",
   "tw.minutes": "%sm",
   "tw.hours": "%sh",
