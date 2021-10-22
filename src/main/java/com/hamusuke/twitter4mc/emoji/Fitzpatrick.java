@@ -1,10 +1,7 @@
 package com.hamusuke.twitter4mc.emoji;
 
-import net.fabricmc.api.EnvType;
-import net.fabricmc.api.Environment;
 import org.jetbrains.annotations.Nullable;
 
-@Environment(EnvType.CLIENT)
 public enum Fitzpatrick {
     TYPE_1_2("1f3fb"),
     TYPE_3("1f3fc"),

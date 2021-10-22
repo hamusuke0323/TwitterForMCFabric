@@ -72,7 +72,7 @@ public class TwitterShowStatusScreen extends AbstractTwitterScreen {
 		}
 		super.render(matrices, mouseX, mouseY, delta);
 		this.textRenderer.drawWithShadow(matrices, this.title, (float) (this.width / 2 - this.width / 4 + 2) + 20, (float) (20 - this.textRenderer.fontHeight) / 2, 16777215);
-		this.renderMessage(matrices);
+        this.renderMessage(matrices, mouseX, mouseY, delta);
 	}
 
 	@Environment(EnvType.CLIENT)

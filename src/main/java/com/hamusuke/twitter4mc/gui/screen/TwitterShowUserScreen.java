@@ -90,7 +90,7 @@ public class TwitterShowUserScreen extends AbstractTwitterScreen {
 		}
 		this.textRenderer.drawWithShadow(matrices, new TranslatableText("tw.statuses.count", this.user.getStatusesCount()).formatted(Formatting.GRAY), left + 20, y, 16777215);
 
-		this.renderMessage(matrices);
+		this.renderMessage(matrices, mouseX, mouseY, delta);
 	}
 
 	@Environment(EnvType.CLIENT)

@@ -2,7 +2,7 @@ package com.hamusuke.twitter4mc.tweet;
 
 import com.google.common.collect.Sets;
 import com.hamusuke.twitter4mc.TwitterForMC;
-import com.hamusuke.twitter4mc.utils.TwitterThread;
+import com.hamusuke.twitter4mc.utils.TweetSummaryProcessor;
 import com.hamusuke.twitter4mc.utils.TwitterUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -16,8 +16,6 @@ import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.TreeSet;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Environment(EnvType.CLIENT)
@@ -52,21 +50,21 @@ public class UserSummary {
         this.isVerified = this.user.isVerified();
     }
 
-    public void startGettingUserTimeline(Runnable onSend) {
+    public void startGettingUserTimeline(Runnable onAdded) {
         if (TwitterForMC.mcTwitter != null && !this.isGettingUserTimeline()) {
             this.isGettingUserTimeline.set(true);
             try {
                 List<Status> statuses = TwitterForMC.mcTwitter.getUserTimeline(this.user.getId());
                 Collections.reverse(statuses);
 
-                CompletableFuture.runAsync(() -> statuses.forEach(status -> {
-                    if (this.userTimeline.add(new TweetSummary(status))) {
-                        onSend.run();
+                new TweetSummaryProcessor(statuses, tweetSummary -> {
+                    if (this.userTimeline.add(tweetSummary)) {
+                        onAdded.run();
                     }
-                }), Executors.newCachedThreadPool(TwitterThread::new)).whenComplete((unused, throwable) -> {
+                }, () -> {
                     this.isGettingUserTimeline.set(false);
                     this.isAlreadyGotUserTimeline.set(true);
-                });
+                }).process();
             } catch (Throwable e) {
                 LOGGER.error("Error occurred while getting user timeline", e);
                 this.isGettingUserTimeline.set(false);

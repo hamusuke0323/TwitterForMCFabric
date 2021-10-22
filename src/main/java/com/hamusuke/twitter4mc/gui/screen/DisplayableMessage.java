@@ -9,5 +9,5 @@ import net.minecraft.text.Text;
 public interface DisplayableMessage {
     void accept(Text text);
 
-    void renderMessage(MatrixStack matrices);
+    void renderMessage(MatrixStack matrices, int mouseX, int mouseY, float delta);
 }

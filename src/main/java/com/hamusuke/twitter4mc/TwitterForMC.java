@@ -88,17 +88,17 @@ public final class TwitterForMC implements ClientModInitializer {
         return Optional.ofNullable(token);
     }
 
-    public static synchronized void saveTimeline() throws IOException {
+    public static synchronized void exportTimeline() throws IOException {
         try (ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(configFile.resolve("timeline").toFile()))) {
             oos.writeObject(tweets);
             oos.flush();
         } catch (IOException e) {
-            LOGGER.error("Error occurred while saving timeline", e);
+            LOGGER.error("Error occurred while exporting timeline", e);
             throw e;
         }
     }
 
-    private static synchronized void loadTimeline() {
+    private static synchronized void importTimeline() {
         File file = configFile.resolve("timeline").toFile();
         if (!file.exists()) {
             return;
@@ -109,13 +109,13 @@ public final class TwitterForMC implements ClientModInitializer {
                 List<Status> statuses = (List<Status>) object;
                 tweets.clear();
                 tweets.addAll(statuses);
-            } else {
+            } else if (object instanceof TreeSet) {
                 TreeSet<Status> statuses = (TreeSet<Status>) object;
                 tweets.clear();
                 tweets.addAll(statuses);
             }
         } catch (Throwable e) {
-            LOGGER.error("Error occurred while reading timeline", e);
+            LOGGER.error("Error occurred while importing timeline", e);
         }
     }
 
@@ -203,13 +203,11 @@ public final class TwitterForMC implements ClientModInitializer {
         });
 
         if (loginTwitter) {
-            loadTimeline();
-            ProgressBarWindow progressBarWindow = new ProgressBarWindow();
-            int count = 0;
+            importTimeline();
+            ProgressBarWindow progressBarWindow = new ProgressBarWindow(tweets.size());
             for (Status s : tweets) {
                 tweetSummaries.add(new TweetSummary(s));
-                count++;
-                progressBarWindow.setProgress((int) (((float) count / (float) tweets.size()) * 100.0F));
+                progressBarWindow.increment();
             }
 
             progressBarWindow.dispose();

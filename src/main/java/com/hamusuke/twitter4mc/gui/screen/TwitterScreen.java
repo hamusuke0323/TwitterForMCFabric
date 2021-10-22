@@ -4,7 +4,7 @@ import com.google.common.collect.Lists;
 import com.hamusuke.twitter4mc.TwitterForMC;
 import com.hamusuke.twitter4mc.gui.screen.settings.TwitterSettingsScreen;
 import com.hamusuke.twitter4mc.tweet.TweetSummary;
-import com.hamusuke.twitter4mc.utils.TwitterThread;
+import com.hamusuke.twitter4mc.utils.TweetSummaryProcessor;
 import com.hamusuke.twitter4mc.utils.VersionChecker;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -27,8 +27,6 @@ import java.io.IOException;
 import java.util.Collections;
 import java.util.List;
 import java.util.Optional;
-import java.util.concurrent.CompletableFuture;
-import java.util.concurrent.Executors;
 import java.util.concurrent.atomic.AtomicBoolean;
 
 @Environment(EnvType.CLIENT)
@@ -71,7 +69,7 @@ public class TwitterScreen extends AbstractTwitterScreen {
 			j.add(i);
 		});
 
-		//TODO for debug
+		//TODO for debug, so remove this method before releasing
 		this.addDrawableChild(new ButtonWidget(0, this.height - 110, k - 10, 20, new TranslatableText("tweet"), (press) -> {
 			this.client.setScreen(new TwitterTweetScreen(this));
 		}));
@@ -112,26 +110,25 @@ public class TwitterScreen extends AbstractTwitterScreen {
 				}
 				Collections.reverse(t);
 
-				CompletableFuture.runAsync(() -> t.forEach(status -> {
-					TweetSummary tweetSummary = new TweetSummary(status);
+				new TweetSummaryProcessor(t, tweetSummary -> {
 					TwitterForMC.tweets.add(tweetSummary.getStatus());
 					TwitterForMC.tweetSummaries.add(tweetSummary);
 					this.remove(this.list);
 					this.list = new TweetList(this.client);
 					this.addSelectableChild(this.list);
-				}), Executors.newCachedThreadPool(TwitterThread::new)).whenComplete((unused, throwable) -> {
+				}, () -> {
 					p.active = true;
 					this.refreshingTL.set(false);
 					this.init(this.client, this.width, this.height);
-				});
+				}).process();
 			})).active = !this.refreshingTL.get();
 
 			j.add(i);
 
-			this.addDrawableChild(new ButtonWidget(0, this.height - 80, k - 10, 20, new TranslatableText("tw.save.timeline"), (b) -> {
+			this.addDrawableChild(new ButtonWidget(0, this.height - 80, k - 10, 20, new TranslatableText("tw.export.timeline"), (b) -> {
 				b.active = false;
 				try {
-					TwitterForMC.saveTimeline();
+					TwitterForMC.exportTimeline();
 				} catch (IOException e) {
 					this.accept(Text.of(e.getLocalizedMessage()));
 				}
@@ -179,7 +176,7 @@ public class TwitterScreen extends AbstractTwitterScreen {
 		}
 
 		this.renderButtonLater(matrices, mouseX, mouseY, delta);
-		this.renderMessage(matrices);
+		this.renderMessage(matrices, mouseX, mouseY, delta);
 	}
 
 	public void onClose() {

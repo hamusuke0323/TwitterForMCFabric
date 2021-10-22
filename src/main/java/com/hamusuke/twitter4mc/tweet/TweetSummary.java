@@ -1,6 +1,5 @@
 package com.hamusuke.twitter4mc.tweet;
 
-import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.hamusuke.twitter4mc.TwitterForMC;
 import com.hamusuke.twitter4mc.utils.ReplyObject;
@@ -8,6 +7,8 @@ import com.hamusuke.twitter4mc.utils.TwitterThread;
 import com.hamusuke.twitter4mc.utils.TwitterUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import org.apache.commons.lang3.mutable.MutableBoolean;
+import org.apache.commons.lang3.mutable.MutableInt;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.NotNull;
@@ -15,9 +16,10 @@ import org.jetbrains.annotations.Nullable;
 import twitter4j.*;
 
 import java.io.InputStream;
-import java.util.*;
-import java.util.concurrent.atomic.AtomicBoolean;
-import java.util.concurrent.atomic.AtomicInteger;
+import java.util.Calendar;
+import java.util.Date;
+import java.util.List;
+import java.util.Locale;
 
 @Environment(EnvType.CLIENT)
 public class TweetSummary implements Comparable<TweetSummary> {
@@ -31,24 +33,22 @@ public class TweetSummary implements Comparable<TweetSummary> {
 	private final Status quotedTweet;
 	@Nullable
 	private final TweetSummary quotedTweetSummary;
-	private final AtomicInteger replyCount = new AtomicInteger();
+	private final MutableInt replyCount = new MutableInt();
 	private final List<Status> replyStatuses = Lists.newArrayList();
 	private final List<TweetSummary> replyTweetSummaries = Lists.newArrayList();
-	private final AtomicBoolean isGettingReplies = new AtomicBoolean();
-	private final AtomicBoolean isAlreadyGotReplies = new AtomicBoolean();
+	private final MutableBoolean isGettingReplies = new MutableBoolean();
+	private final MutableBoolean isAlreadyGotReplies = new MutableBoolean();
 	private final User user;
 	@Nullable
 	private final InputStream userIconData;
 	private final String userIconFormat;
 	private final Date createdAt;
 	private final Calendar createdAtC;
-	private final int favoriteCount;
-	private final String favoriteCountF;
-	private final HashtagEntity[] hashtags;
+	private final MutableInt favoriteCount = new MutableInt();
+	private final MutableBoolean isFavorited = new MutableBoolean();
 	private final List<HashtagEntity> hashtagList;
 	private final long id;
 	private final String lang;
-	private final MediaEntity[] medias;
 	private final List<MediaEntity> mediaList;
 	private final List<TwitterPhotoMedia> photoList;
 	@Nullable
@@ -61,13 +61,11 @@ public class TweetSummary implements Comparable<TweetSummary> {
 	private final int retweetCount;
 	private final String retweetCountF;
 	private final String tweet;
-	//private final String formattedTweet;
-	private final URLEntity[] urls;
 	private final List<URLEntity> urlList;
 	private final boolean isRetweet;
 	private final boolean isRetweeted;
 	private final boolean isRetweetedByMe;
-	private boolean isFavorited;
+	private String favoriteCountF;
 
 	public TweetSummary(Status status) {
 		this.status = status;
@@ -78,35 +76,28 @@ public class TweetSummary implements Comparable<TweetSummary> {
 		this.user = status.getUser();
 		String url = this.user.get400x400ProfileImageURLHttps();
 		this.userIconData = TwitterUtil.getInputStream(url, e -> LOGGER.warn("Failed to get user icon data, return null.", e));
-        this.userIconFormat = url.contains(".png") ? "PNG" : "JPEG";
+		this.userIconFormat = url.contains(".png") ? "PNG" : "JPEG";
 		this.createdAt = status.getCreatedAt();
 		this.createdAtC = Calendar.getInstance(Locale.ROOT);
 		this.createdAtC.setTime(this.createdAt);
-		this.favoriteCount = status.getFavoriteCount();
-		this.favoriteCountF = TwitterUtil.getChunkedNumber(this.favoriteCount);
-		this.hashtags = status.getHashtagEntities();
-		this.hashtagList = Arrays.asList(this.hashtags);
+		this.favoriteCount.setValue(status.getFavoriteCount());
+		this.favoriteCountF = TwitterUtil.getChunkedNumber(this.favoriteCount.getValue());
+		this.hashtagList = Lists.newArrayList(status.getHashtagEntities());
 		this.id = status.getId();
 		this.lang = status.getLang();
-		this.medias = status.getMediaEntities();
-		this.mediaList = Arrays.asList(this.medias);
-		this.isEmptyMedia = this.medias.length == 0;
-		this.isIncludeImages = !this.isEmptyMedia && this.medias[0].getType().equals("photo");
-		this.isIncludeVideo = !this.isEmptyMedia && this.medias[0].getType().equals("video");
-		this.videoURL = this.isIncludeVideo ? TwitterUtil.getHiBitrateVideoURL(this.medias[0]) : null;
-		this.photoMediaLength = this.isIncludeImages ? this.medias.length : 0;
-		List<TwitterPhotoMedia> list = Lists.newArrayList();
-		for (int i = 0; i < this.photoMediaLength; i++) {
-			list.add(new TwitterPhotoMedia(this.medias[i]));
-		}
-		this.photoList = ImmutableList.copyOf(list);
+		this.mediaList = Lists.newArrayList(status.getMediaEntities());
+		this.isEmptyMedia = this.mediaList.size() == 0;
+		this.isIncludeImages = !this.isEmptyMedia && this.mediaList.get(0).getType().equals("photo");
+		this.isIncludeVideo = !this.isEmptyMedia && this.mediaList.get(0).getType().equals("video");
+		this.videoURL = this.isIncludeVideo ? TwitterUtil.getHiBitrateVideoURL(this.mediaList.get(0)) : null;
+		this.photoMediaLength = this.isIncludeImages ? this.mediaList.size() : 0;
+		this.photoList = this.mediaList.stream().filter(mediaEntity -> mediaEntity.getType().equals("photo")).map(TwitterPhotoMedia::new).toList();
 		this.place = status.getPlace();
 		this.retweetCount = status.getRetweetCount();
 		this.retweetCountF = TwitterUtil.getChunkedNumber(this.retweetCount);
 		this.tweet = status.getText();
-		this.urls = status.getURLEntities();
-		this.urlList = Arrays.asList(this.urls);
-		this.isFavorited = status.isFavorited();
+		this.urlList = Lists.newArrayList(status.getURLEntities());
+		this.isFavorited.setValue(status.isFavorited());
 		this.isRetweet = status.isRetweet();
 		this.isRetweeted = status.isRetweeted();
 		this.isRetweetedByMe = status.isRetweetedByMe();
@@ -114,14 +105,14 @@ public class TweetSummary implements Comparable<TweetSummary> {
 
 	public void startGettingReplies(Runnable onAdd) {
 		if (TwitterForMC.mcTwitter != null && !this.isGettingReplies()) {
-			this.isGettingReplies.set(true);
+			this.isGettingReplies.setTrue();
 			new TwitterThread(() -> {
 				try {
 					ReplyObject replyObject = TwitterUtil.getReplies(TwitterForMC.mcTwitter, this.id);
 					if (replyObject != null) {
 						replyObject.removeOtherReplies(this.id);
 						List<ReplyTweet> replyTweets = replyObject.getReplyTweets();
-						this.replyCount.set(replyTweets.size());
+						this.replyCount.setValue(replyTweets.size());
 						for (ReplyTweet replyTweet : replyTweets) {
 							Status status = TwitterForMC.mcTwitter.showStatus(replyTweet.getTweetId());
 							this.replyStatuses.add(status);
@@ -129,15 +120,15 @@ public class TweetSummary implements Comparable<TweetSummary> {
 							onAdd.run();
 						}
 					}
-					this.isGettingReplies.set(false);
-					this.isAlreadyGotReplies.set(true);
+					this.isGettingReplies.setFalse();
+					this.isAlreadyGotReplies.setTrue();
 				} catch (Throwable e) {
 					LOGGER.error("Error occurred while getting replies", e);
-					this.isGettingReplies.set(false);
-					this.isAlreadyGotReplies.set(false);
+					this.isGettingReplies.setFalse();
+					this.isAlreadyGotReplies.setFalse();
 				}
 
-				if (this.replyCount.get() <= 0) {
+				if (this.replyCount.getValue() <= 0) {
 					onAdd.run();
 				}
 			}).start();
@@ -145,11 +136,11 @@ public class TweetSummary implements Comparable<TweetSummary> {
 	}
 
 	public boolean isGettingReplies() {
-		return this.isGettingReplies.get();
+		return this.isGettingReplies.getValue();
 	}
 
 	public boolean isAlreadyGotReplies() {
-		return this.isAlreadyGotReplies.get();
+		return this.isAlreadyGotReplies.getValue();
 	}
 
 	public List<Status> getReplyStatuses() {
@@ -218,15 +209,11 @@ public class TweetSummary implements Comparable<TweetSummary> {
 	}
 
 	public int getFavoriteCount() {
-		return this.favoriteCount;
+		return this.favoriteCount.getValue();
 	}
 
 	public String getFavoriteCountF() {
 		return this.favoriteCountF;
-	}
-
-	public HashtagEntity[] getHashtagEntities() {
-		return this.hashtags;
 	}
 
 	public List<HashtagEntity> getHashtagList() {
@@ -239,10 +226,6 @@ public class TweetSummary implements Comparable<TweetSummary> {
 
 	public String getLang() {
 		return this.lang;
-	}
-
-	public MediaEntity[] getMediaEntities() {
-		return this.medias;
 	}
 
 	public List<MediaEntity> getMediaList() {
@@ -294,20 +277,28 @@ public class TweetSummary implements Comparable<TweetSummary> {
 		return this.tweet;
 	}
 
-	public URLEntity[] getURLEntities() {
-		return this.urls;
-	}
-
 	public List<URLEntity> getURLList() {
 		return this.urlList;
 	}
 
 	public boolean isFavorited() {
-		return this.isFavorited;
+		return this.isFavorited.getValue();
 	}
 
 	public void favorite(boolean flag) {
-		this.isFavorited = flag;
+		if (flag) {
+			this.isFavorited.setTrue();
+			this.favoriteCount.increment();
+		} else {
+			this.isFavorited.setFalse();
+			this.favoriteCount.decrement();
+		}
+
+		this.updateFavoriteCountFormat();
+	}
+
+	public void updateFavoriteCountFormat() {
+		this.favoriteCountF = TwitterUtil.getChunkedNumber(this.favoriteCount.getValue());
 	}
 
 	public boolean isRetweet() {

@@ -6,8 +6,7 @@ import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.util.math.MatrixStack;
-import net.minecraft.text.StringVisitable;
-import net.minecraft.text.Style;
+import net.minecraft.text.OrderedText;
 import net.minecraft.text.Text;
 import org.jetbrains.annotations.Nullable;
 
@@ -38,9 +37,9 @@ public class ErrorScreen extends ParentalScreen {
 
         super.render(matrices, mouseX, mouseY, delta);
         drawCenteredText(matrices, this.textRenderer, this.title, this.width / 2, 20, 16777215);
-        List<StringVisitable> list = this.textRenderer.getTextHandler().wrapLines(this.errorMsg, this.width / 2, Style.EMPTY);
+        List<OrderedText> list = this.textRenderer.wrapLines(Text.of(this.errorMsg), this.width / 2);
         for (int i = 0; i < list.size(); i++) {
-            this.textRenderer.drawWithShadow(matrices, list.get(i).getString(), (float) this.width / 4, 50 + i * this.textRenderer.fontHeight, 16777215);
+            this.textRenderer.drawWithShadow(matrices, list.get(i), (float) this.width / 4, 50 + i * this.textRenderer.fontHeight, 16777215);
         }
     }
 }

@@ -18,6 +18,8 @@ import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
+import org.jetbrains.annotations.Nullable;
+import twitter4j.StatusUpdate;
 import twitter4j.TwitterException;
 import twitter4j.util.CharacterUtil;
 
@@ -25,13 +27,15 @@ import java.util.concurrent.CompletableFuture;
 import java.util.concurrent.Executors;
 
 @Environment(EnvType.CLIENT)
-public class TwitterTweetScreen extends ClickSpaceToCloseScreen {
+public class TwitterReplyScreen extends ClickSpaceToCloseScreen {
     private static final Logger LOGGER = LogManager.getLogger();
+    private final TweetSummary replyTo;
     private TwitterTweetFieldWidget tweetText;
     private ButtonWidget tweet;
 
-    public TwitterTweetScreen(Screen parent) {
-        super(NarratorManager.EMPTY, parent);
+    public TwitterReplyScreen(@Nullable Screen parent, TweetSummary tweetSummary) {
+        super(new TranslatableText("tw.reply.to", tweetSummary.getScreenName()), parent);
+        this.replyTo = tweetSummary;
     }
 
     public void tick() {
@@ -41,7 +45,7 @@ public class TwitterTweetScreen extends ClickSpaceToCloseScreen {
         super.tick();
     }
 
-	protected void init() {
+    protected void init() {
         super.init();
         int i = this.width / 4;
         this.client.keyboard.setRepeatEvents(true);
@@ -54,7 +58,7 @@ public class TwitterTweetScreen extends ClickSpaceToCloseScreen {
         this.tweet = this.addDrawableChild(new ButtonWidget(i * 2, (this.height / 4 + this.height / 2) + 10, i, 20, new TranslatableText("tweet"), b -> {
             CompletableFuture.runAsync(() -> {
                 try {
-                    TweetSummary tweetSummary = new TweetSummary(TwitterForMC.mcTwitter.updateStatus(this.tweetText.getText()));
+                    TweetSummary tweetSummary = new TweetSummary(TwitterForMC.mcTwitter.updateStatus(new StatusUpdate(this.tweetText.getText()).inReplyToStatusId(this.replyTo.getId())));
                     TwitterForMC.tweets.add(tweetSummary.getStatus());
                     TwitterForMC.tweetSummaries.add(tweetSummary);
                     this.accept(new TranslatableText("sent.tweet", new TranslatableText("sent.tweet.view").styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, AbstractTwitterScreen.PROTOCOL + "://" + AbstractTwitterScreen.HostType.SHOW_STATUS + "/" + tweetSummary.getId())))));
@@ -68,30 +72,31 @@ public class TwitterTweetScreen extends ClickSpaceToCloseScreen {
         this.addSelectableChild(this.tweetText);
     }
 
-	private void accept(Text msg) {
-		if (this.parent instanceof DisplayableMessage) {
-			((DisplayableMessage) this.parent).accept(msg);
-		}
-	}
+    private void accept(Text msg) {
+        if (this.parent instanceof DisplayableMessage) {
+            ((DisplayableMessage) this.parent).accept(msg);
+        }
+    }
 
-	public void resize(MinecraftClient p_resize_1_, int p_resize_2_, int p_resize_3_) {
-		String s = this.tweetText.getText();
-		this.init(p_resize_1_, p_resize_2_, p_resize_3_);
-		this.tweetText.setText(s);
-	}
+    public void resize(MinecraftClient p_resize_1_, int p_resize_2_, int p_resize_3_) {
+        String s = this.tweetText.getText();
+        this.init(p_resize_1_, p_resize_2_, p_resize_3_);
+        this.tweetText.setText(s);
+    }
 
-	public void removed() {
-		super.removed();
-		this.client.keyboard.setRepeatEvents(false);
-	}
+    public void removed() {
+        super.removed();
+        this.client.keyboard.setRepeatEvents(false);
+    }
 
-	public void render(MatrixStack matrices, int p_render_1_, int p_render_2_, float p_render_3_) {
-		if (this.parent != null) {
-			this.parent.render(matrices, -1, -1, p_render_3_);
-		}
-		this.fillGradient(matrices, 0, 0, this.width, this.height, -1072689136, -804253680);
-		RenderSystem.disableBlend();
-		this.tweetText.render(matrices, p_render_1_, p_render_2_, p_render_3_);
-		super.render(matrices, p_render_1_, p_render_2_, p_render_3_);
-	}
+    public void render(MatrixStack matrices, int p_render_1_, int p_render_2_, float p_render_3_) {
+        if (this.parent != null) {
+            this.parent.render(matrices, -1, -1, p_render_3_);
+        }
+        this.fillGradient(matrices, 0, 0, this.width, this.height, -1072689136, -804253680);
+        RenderSystem.disableBlend();
+        this.tweetText.render(matrices, p_render_1_, p_render_2_, p_render_3_);
+        this.textRenderer.drawWithShadow(matrices, this.getTitle(), this.tweetText.x, this.tweetText.y - 10, 16777215);
+        super.render(matrices, p_render_1_, p_render_2_, p_render_3_);
+    }
 }

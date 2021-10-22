@@ -11,7 +11,7 @@ public abstract class ParentalScreen extends Screen {
     @Nullable
     protected final Screen parent;
 
-    public ParentalScreen(Text title, @Nullable Screen parent) {
+    protected ParentalScreen(Text title, @Nullable Screen parent) {
         super(title);
         this.parent = parent;
     }

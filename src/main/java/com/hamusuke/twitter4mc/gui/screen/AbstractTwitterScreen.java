@@ -3,6 +3,7 @@ package com.hamusuke.twitter4mc.gui.screen;
 import com.google.common.collect.Lists;
 import com.hamusuke.twitter4mc.TwitterForMC;
 import com.hamusuke.twitter4mc.gui.widget.ChangeableImageButton;
+import com.hamusuke.twitter4mc.gui.widget.MessageWidget;
 import com.hamusuke.twitter4mc.gui.widget.TwitterButton;
 import com.hamusuke.twitter4mc.gui.widget.list.ExtendedTwitterTweetList;
 import com.hamusuke.twitter4mc.invoker.TextRendererInvoker;
@@ -21,7 +22,6 @@ import net.minecraft.client.gui.widget.ClickableWidget;
 import net.minecraft.client.render.Tessellator;
 import net.minecraft.client.render.VertexConsumerProvider;
 import net.minecraft.client.sound.PositionedSoundInstance;
-import net.minecraft.client.util.Window;
 import net.minecraft.client.util.math.MatrixStack;
 import net.minecraft.sound.SoundEvents;
 import net.minecraft.text.*;
@@ -37,11 +37,9 @@ import twitter4j.User;
 import java.awt.*;
 import java.io.InputStream;
 import java.net.URI;
-import java.net.URISyntaxException;
 import java.util.List;
 import java.util.Optional;
 
-//TODO fit image size to list width
 @Environment(EnvType.CLIENT)
 public abstract class AbstractTwitterScreen extends ParentalScreen implements DisplayableMessage, ReturnableGame {
     protected static final String PROTOCOL = TwitterForMC.MOD_ID;
@@ -65,12 +63,13 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
     protected final List<ClickableWidget> renderLaterButtons = Lists.newArrayList();
     @Nullable
     protected AbstractTwitterScreen.TweetList list;
-    @Nullable
-    protected Text message;
     protected int fade;
-    protected boolean isFade;
     @Nullable
     Screen previousScreen;
+    @Nullable
+    protected List<OrderedText> messages;
+    @Nullable
+    protected MessageWidget messageWidget;
 
     protected AbstractTwitterScreen(Text title, @Nullable Screen parent) {
         super(title, parent);
@@ -81,13 +80,13 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
             this.list.tick();
         }
 
-        if (this.message != null) {
+        if (this.messageWidget != null && this.messages != null) {
+            int width = this.textRenderer.getWidth(this.messages.get(0));
+            this.messageWidget.setPosition((this.width - width) / 2 - 12, this.height - this.messages.size() * 9, width, this.messages.size() * 9 + 12);
+
             if (this.fade <= 0) {
-                this.message = null;
+                this.messageWidget = null;
                 this.fade = 0;
-                this.isFade = false;
-            } else if (this.fade <= 20) {
-                this.isFade = true;
             }
 
             this.fade--;
@@ -118,16 +117,19 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
         this.renderLaterButtons.clear();
     }
 
-    public void renderMessage(MatrixStack matrices) {
-        if (this.message != null) {
-            List<OrderedText> list = this.wrapLines(this.message, this.width / 2);
-            this.renderOrderedTooltip(matrices, list, (this.width - this.textRenderer.getWidth(list.get(0))) / 2, this.height - list.size() * this.textRenderer.fontHeight);
+    public void renderMessage(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+        if (this.messageWidget != null) {
+            this.messageWidget.render(matrices, mouseX, mouseY, delta);
         }
     }
 
     public void accept(Text text) {
-        this.message = text;
-        this.fade = 100;
+        this.messages = this.textRenderer.wrapLines(text, this.width / 2);
+        if (this.messages.size() > 0) {
+            int width = this.textRenderer.getWidth(this.messages.get(0));
+            this.messageWidget = new MessageWidget(this, (this.width - width) / 2 - 12, this.height - this.messages.size() * this.textRenderer.fontHeight, width, this.messages.size() * 9 + 12, text);
+            this.fade = 12000;
+        }
     }
 
     public void returnToGame() {
@@ -146,7 +148,16 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
             this.displayTwitterUser(this, this.list.hoveringEntry.summary.getUser());
             return true;
         } else if (this.list != null && !this.list.isHovering) {
-            return super.mouseClicked(p_mouseClicked_1_, p_mouseClicked_3_, p_mouseClicked_5_);
+            boolean bl = false;
+            if (this.messageWidget != null) {
+                bl = this.messageWidget.mouseClicked(p_mouseClicked_1_, p_mouseClicked_3_, p_mouseClicked_5_);
+            }
+
+            if (!bl) {
+                bl = super.mouseClicked(p_mouseClicked_1_, p_mouseClicked_3_, p_mouseClicked_5_);
+            }
+
+            return bl;
         }
 
         return false;
@@ -266,6 +277,10 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
         return y;
     }
 
+    protected void displayStatus(@Nullable Screen parent, TweetSummary summary) {
+        this.client.setScreen(new TwitterShowStatusScreen(parent, summary));
+    }
+
     protected void displayTwitterUser(@Nullable Screen parent, User user) {
         this.client.setScreen(new TwitterShowUserScreen(parent, user));
     }
@@ -326,17 +341,23 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
                 if (uri.getScheme().equalsIgnoreCase(PROTOCOL)) {
                     String path = uri.getPath().substring(1);
                     switch (HostType.from(uri.getHost())) {
-                        case USER_SCREEN_NAME -> {
-                            this.displayTwitterUser(this, TwitterForMC.mcTwitter.showUser(path));
-                            return true;
+                        case SHOW_STATUS -> {
+                            for (TweetSummary summary : TwitterForMC.tweetSummaries) {
+                                if (summary.getId() == Long.parseLong(path)) {
+                                    this.displayStatus(this, summary);
+                                    return true;
+                                }
+                            }
                         }
-                        case HASHTAG -> {
+                        case SHOW_USER -> {
+                            this.displayTwitterUser(this, TwitterForMC.mcTwitter.showUser(path));
                             return true;
                         }
                     }
                 }
-            } catch (URISyntaxException | TwitterException e) {
+            } catch (Exception e) {
                 LOGGER.warn("Error occurred while handling text click", e);
+                this.accept(new TranslatableText("tw.simple.error", e.getLocalizedMessage()));
             }
         }
 
@@ -346,7 +367,8 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
     @Environment(EnvType.CLIENT)
     protected enum HostType {
         UNKNOWN(""),
-        USER_SCREEN_NAME("screenname"),
+        SHOW_STATUS("status"),
+        SHOW_USER("screenname"),
         HASHTAG("hashtag");
 
         private final String hostName;
@@ -478,15 +500,16 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
             public void init() {
                 int i = AbstractTwitterScreen.TweetList.this.getRowLeft() + 24;
 
-                this.replyButton = this.addButton(new TwitterButton(i, this.fourBtnHeightOffset, 10, 10, 0, 0, 16, REPLY, 16, 32, 16, 16, (p) -> {
-
-                }));
-
-                this.retweetButton = this.addButton(new TwitterButton(i + 60, this.fourBtnHeightOffset, 10, 10, 0, 0, 16, RETWEET, 16, 32, 16, 16, (p) -> {
-
-                }));
-
                 if (this.summary != null) {
+                    this.replyButton = this.addButton(new TwitterButton(i, this.fourBtnHeightOffset, 10, 10, 0, 0, 16, REPLY, 16, 32, 16, 16, (p) -> {
+                        AbstractTwitterScreen.this.client.setScreen(new TwitterReplyScreen(AbstractTwitterScreen.this, this.summary));
+                    }));
+
+                    this.retweetButton = this.addButton(new TwitterButton(i + 60, this.fourBtnHeightOffset, 10, 10, 0, 0, 16, RETWEET, 16, 32, 16, 16, (p) -> {
+
+                    }));
+
+
                     this.favoriteButton = this.addButton(new TwitterButton(i + 60 + 60, this.fourBtnHeightOffset, 10, 10, 0, 0, this.summary.isFavorited() ? 0 : 16, this.summary.isFavorited() ? FAVORITED : FAVORITE, 16, this.summary.isFavorited() ? 16 : 32, 16, 16, (b) -> {
                         try {
                             if (this.summary.isFavorited()) {
@@ -506,11 +529,11 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
                             AbstractTwitterScreen.this.accept(new TranslatableText("tw.failed.like", e.getErrorMessage()));
                         }
                     }));
+
+                    this.shareButton = this.addButton(new TwitterButton(i + 60 + 60 + 60, this.fourBtnHeightOffset, 10, 10, 0, 0, 16, SHARE, 16, 32, 16, 16, (p) -> {
+
+                    }));
                 }
-
-                this.shareButton = this.addButton(new TwitterButton(i + 60 + 60 + 60, this.fourBtnHeightOffset, 10, 10, 0, 0, 16, SHARE, 16, 32, 16, 16, (p) -> {
-
-                }));
             }
 
             public void render(MatrixStack matrices, int itemIndex, int rowTop, int rowLeft, int rowWidth, int height2, int mouseX, int mouseY, boolean isMouseOverAndObjectEquals, float delta) {
@@ -733,7 +756,7 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Di
 
                 if (button == 0) {
                     if (this.summary != null && TweetList.this.getSelected() == this) {
-                        AbstractTwitterScreen.this.client.setScreen(new TwitterShowStatusScreen(AbstractTwitterScreen.this, this.summary));
+                        AbstractTwitterScreen.this.displayStatus(AbstractTwitterScreen.this, this.summary);
                     } else {
                         TweetList.this.setSelected(this);
                     }

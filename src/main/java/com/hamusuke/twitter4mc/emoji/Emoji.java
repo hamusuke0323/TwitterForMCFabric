@@ -12,7 +12,6 @@ import org.jetbrains.annotations.NotNull;
 import java.util.Arrays;
 import java.util.Objects;
 
-@Environment(EnvType.CLIENT)
 public final class Emoji {
     private final String hex;
     private final Identifier id;
@@ -42,6 +41,7 @@ public final class Emoji {
         return 9;
     }
 
+    @Environment(EnvType.CLIENT)
     public void renderEmoji(Matrix4f matrix, VertexConsumerProvider vertexConsumerProvider, float x, float y, float alpha, int light) {
         VertexConsumer vertexConsumer = vertexConsumerProvider.getBuffer(RenderLayer.getText(this.id));
         vertexConsumer.vertex(matrix, x, y, 0.0F).color(1.0F, 1.0F, 1.0F, alpha).texture(0.0F, 0.0F).light(light).next();
