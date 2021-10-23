@@ -204,13 +204,15 @@ public final class TwitterForMC implements ClientModInitializer {
 
         if (loginTwitter) {
             importTimeline();
-            ProgressBarWindow progressBarWindow = new ProgressBarWindow(tweets.size());
-            for (Status s : tweets) {
-                tweetSummaries.add(new TweetSummary(s));
-                progressBarWindow.increment();
-            }
+            if (tweets.size() > 0) {
+                ProgressBarWindow progressBarWindow = new ProgressBarWindow(tweets.size());
+                for (Status s : tweets) {
+                    tweetSummaries.add(new TweetSummary(s));
+                    progressBarWindow.increment();
+                }
 
-            progressBarWindow.dispose();
+                progressBarWindow.dispose();
+            }
         }
     }
 

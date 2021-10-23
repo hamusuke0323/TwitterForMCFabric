@@ -4,6 +4,7 @@ import com.hamusuke.twitter4mc.TwitterForMC;
 import com.hamusuke.twitter4mc.gui.widget.TwitterTweetFieldWidget;
 import com.hamusuke.twitter4mc.tweet.TweetSummary;
 import com.hamusuke.twitter4mc.utils.TwitterThread;
+import com.hamusuke.twitter4mc.utils.TwitterUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -19,7 +20,6 @@ import net.minecraft.text.TranslatableText;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
-import twitter4j.StatusUpdate;
 import twitter4j.TwitterException;
 import twitter4j.util.CharacterUtil;
 
@@ -31,6 +31,7 @@ public class TwitterReplyScreen extends ClickSpaceToCloseScreen {
     private static final Logger LOGGER = LogManager.getLogger();
     private final TweetSummary replyTo;
     private TwitterTweetFieldWidget tweetText;
+    private ButtonWidget back;
     private ButtonWidget tweet;
 
     public TwitterReplyScreen(@Nullable Screen parent, TweetSummary tweetSummary) {
@@ -53,15 +54,16 @@ public class TwitterReplyScreen extends ClickSpaceToCloseScreen {
         this.tweetText.setEditableColor(-1);
         this.tweetText.setMaxLength(CharacterUtil.MAX_TWEET_LENGTH);
 
-        this.addDrawableChild(new ButtonWidget(i, (this.height / 4 + this.height / 2) + 10, i, 20, ScreenTexts.BACK, a -> this.onClose()));
+        this.back = this.addDrawableChild(new ButtonWidget(i, (this.height / 4 + this.height / 2) + 10, i, 20, ScreenTexts.BACK, a -> this.onClose()));
 
         this.tweet = this.addDrawableChild(new ButtonWidget(i * 2, (this.height / 4 + this.height / 2) + 10, i, 20, new TranslatableText("tweet"), b -> {
+            this.tweet.active = this.back.active = false;
             CompletableFuture.runAsync(() -> {
                 try {
-                    TweetSummary tweetSummary = new TweetSummary(TwitterForMC.mcTwitter.updateStatus(new StatusUpdate(this.tweetText.getText()).inReplyToStatusId(this.replyTo.getId())));
+                    TweetSummary tweetSummary = new TweetSummary(TwitterForMC.mcTwitter.updateStatus(TwitterUtil.createReplyTweet(this.tweetText.getText(), this.replyTo.getStatus())));
                     TwitterForMC.tweets.add(tweetSummary.getStatus());
                     TwitterForMC.tweetSummaries.add(tweetSummary);
-                    this.accept(new TranslatableText("sent.tweet", new TranslatableText("sent.tweet.view").styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, AbstractTwitterScreen.PROTOCOL + "://" + AbstractTwitterScreen.HostType.SHOW_STATUS + "/" + tweetSummary.getId())))));
+                    this.accept(new TranslatableText("sent.tweet", new TranslatableText("sent.tweet.view").styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, AbstractTwitterScreen.PROTOCOL + "://" + AbstractTwitterScreen.HostType.SHOW_STATUS.getHostName() + "/" + tweetSummary.getId())))));
                 } catch (TwitterException e) {
                     LOGGER.error("Error occurred while sending tweet", e);
                     this.accept(new TranslatableText("failed.send.tweet", e.getErrorMessage()));
@@ -72,9 +74,13 @@ public class TwitterReplyScreen extends ClickSpaceToCloseScreen {
         this.addSelectableChild(this.tweetText);
     }
 
+    public boolean shouldCloseOnEsc() {
+        return this.back.active;
+    }
+
     private void accept(Text msg) {
-        if (this.parent instanceof DisplayableMessage) {
-            ((DisplayableMessage) this.parent).accept(msg);
+        if (this.parent instanceof AbstractTwitterScreen abstractTwitterScreen) {
+            abstractTwitterScreen.accept(msg);
         }
     }
 

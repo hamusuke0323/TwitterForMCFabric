@@ -27,6 +27,10 @@ import java.util.function.Consumer;
 public class TwitterUtil {
 	private static final Logger LOGGER = LogManager.getLogger();
 
+	public static StatusUpdate createReplyTweet(String tweet, Status replyTo) {
+		return new StatusUpdate("@" + replyTo.getUser().getScreenName() + " " + tweet).inReplyToStatusId(replyTo.getId());
+	}
+
 	public static void saveToken(NewToken newToken, File tokenFile) throws Exception {
 		Class_124611_a_.func_082122_a_(newToken, tokenFile);
 	}

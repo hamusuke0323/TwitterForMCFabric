@@ -69,11 +69,6 @@ public class TwitterScreen extends AbstractTwitterScreen {
 			j.add(i);
 		});
 
-		//TODO for debug, so remove this method before releasing
-		this.addDrawableChild(new ButtonWidget(0, this.height - 110, k - 10, 20, new TranslatableText("tweet"), (press) -> {
-			this.client.setScreen(new TwitterTweetScreen(this));
-		}));
-
 		if (TwitterForMC.mcTwitter == null) {
 			this.list = new TwitterScreen.TweetList(this.client);
 
@@ -83,11 +78,9 @@ public class TwitterScreen extends AbstractTwitterScreen {
 
 			j.add(i);
 		} else {
-			/*
-			this.addButton(new ButtonWidget(0, this.height - 110, k - 10, 20, I18n.translate("tweet"), (press) -> {
-				this.minecraft.openScreen(new TwitterTweetScreen(this));
+			this.addDrawableChild(new ButtonWidget(0, this.height - 110, k - 10, 20, new TranslatableText("tweet"), (press) -> {
+				this.client.setScreen(new TwitterTweetScreen(this));
 			}));
-			*/
 
 			this.addDrawableChild(new ButtonWidget(0, this.height - 50, k - 10, 20, new TranslatableText("tw.view.profile"), (press) -> {
 				press.active = false;
@@ -152,6 +145,8 @@ public class TwitterScreen extends AbstractTwitterScreen {
 		if (this.parent != null) {
 			this.parent.resize(this.client, this.width, this.height);
 		}
+
+		getMessageWidget().ifPresent(messageWidget -> messageWidget.init(this.width, this.height));
 	}
 
 	public boolean isInitialized() {
@@ -176,7 +171,7 @@ public class TwitterScreen extends AbstractTwitterScreen {
 		}
 
 		this.renderButtonLater(matrices, mouseX, mouseY, delta);
-		this.renderMessage(matrices, mouseX, mouseY, delta);
+		renderMessage(matrices, mouseX, mouseY, delta);
 	}
 
 	public void onClose() {

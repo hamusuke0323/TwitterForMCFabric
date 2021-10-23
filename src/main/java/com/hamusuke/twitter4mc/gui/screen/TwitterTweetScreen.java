@@ -28,6 +28,7 @@ import java.util.concurrent.Executors;
 public class TwitterTweetScreen extends ClickSpaceToCloseScreen {
     private static final Logger LOGGER = LogManager.getLogger();
     private TwitterTweetFieldWidget tweetText;
+    private ButtonWidget back;
     private ButtonWidget tweet;
 
     public TwitterTweetScreen(Screen parent) {
@@ -49,15 +50,16 @@ public class TwitterTweetScreen extends ClickSpaceToCloseScreen {
         this.tweetText.setEditableColor(-1);
         this.tweetText.setMaxLength(CharacterUtil.MAX_TWEET_LENGTH);
 
-        this.addDrawableChild(new ButtonWidget(i, (this.height / 4 + this.height / 2) + 10, i, 20, ScreenTexts.BACK, a -> this.onClose()));
+        this.back = this.addDrawableChild(new ButtonWidget(i, (this.height / 4 + this.height / 2) + 10, i, 20, ScreenTexts.BACK, a -> this.onClose()));
 
         this.tweet = this.addDrawableChild(new ButtonWidget(i * 2, (this.height / 4 + this.height / 2) + 10, i, 20, new TranslatableText("tweet"), b -> {
+            this.tweet.active = this.back.active = false;
             CompletableFuture.runAsync(() -> {
                 try {
                     TweetSummary tweetSummary = new TweetSummary(TwitterForMC.mcTwitter.updateStatus(this.tweetText.getText()));
                     TwitterForMC.tweets.add(tweetSummary.getStatus());
                     TwitterForMC.tweetSummaries.add(tweetSummary);
-                    this.accept(new TranslatableText("sent.tweet", new TranslatableText("sent.tweet.view").styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, AbstractTwitterScreen.PROTOCOL + "://" + AbstractTwitterScreen.HostType.SHOW_STATUS + "/" + tweetSummary.getId())))));
+                    this.accept(new TranslatableText("sent.tweet", new TranslatableText("sent.tweet.view").styled(style -> style.withClickEvent(new ClickEvent(ClickEvent.Action.OPEN_URL, AbstractTwitterScreen.PROTOCOL + "://" + AbstractTwitterScreen.HostType.SHOW_STATUS.getHostName() + "/" + tweetSummary.getId())))));
                 } catch (TwitterException e) {
                     LOGGER.error("Error occurred while sending tweet", e);
                     this.accept(new TranslatableText("failed.send.tweet", e.getErrorMessage()));
@@ -68,21 +70,25 @@ public class TwitterTweetScreen extends ClickSpaceToCloseScreen {
         this.addSelectableChild(this.tweetText);
     }
 
-	private void accept(Text msg) {
-		if (this.parent instanceof DisplayableMessage) {
-			((DisplayableMessage) this.parent).accept(msg);
-		}
-	}
+    public boolean shouldCloseOnEsc() {
+        return this.back.active;
+    }
 
-	public void resize(MinecraftClient p_resize_1_, int p_resize_2_, int p_resize_3_) {
-		String s = this.tweetText.getText();
-		this.init(p_resize_1_, p_resize_2_, p_resize_3_);
-		this.tweetText.setText(s);
-	}
+    private void accept(Text msg) {
+        if (this.parent instanceof AbstractTwitterScreen abstractTwitterScreen) {
+            abstractTwitterScreen.accept(msg);
+        }
+    }
 
-	public void removed() {
-		super.removed();
-		this.client.keyboard.setRepeatEvents(false);
+    public void resize(MinecraftClient p_resize_1_, int p_resize_2_, int p_resize_3_) {
+        String s = this.tweetText.getText();
+        this.init(p_resize_1_, p_resize_2_, p_resize_3_);
+        this.tweetText.setText(s);
+    }
+
+    public void removed() {
+        super.removed();
+        this.client.keyboard.setRepeatEvents(false);
 	}
 
 	public void render(MatrixStack matrices, int p_render_1_, int p_render_2_, float p_render_3_) {
