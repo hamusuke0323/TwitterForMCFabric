@@ -45,6 +45,7 @@ public class ImageDataDeliverer {
                     Iterator<ImageReader> it = ImageIO.getImageReaders(imageInputStream);
                     if (it.hasNext()) {
                         ImageReader imageReader = it.next();
+                        imageReader.setInput(imageInputStream);
                         BufferedImage bufferedImage = imageReader.read(0);
                         ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
                         ImageIO.write(bufferedImage, imageReader.getFormatName(), byteArrayOutputStream);
