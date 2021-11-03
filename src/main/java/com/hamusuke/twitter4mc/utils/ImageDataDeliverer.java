@@ -97,7 +97,7 @@ public class ImageDataDeliverer {
     }
 
     public boolean readyToRender() {
-        return !this.failed() && this.getWidth() != 0 && this.getHeight() != 0;
+        return this.deliver() != null && !this.failed() && this.getWidth() != 0 && this.getHeight() != 0;
     }
 
     public boolean failed() {

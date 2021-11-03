@@ -57,12 +57,12 @@ public class TweetSummary implements Comparable<TweetSummary> {
 	private final boolean isEmptyMedia;
 	private final int photoMediaLength;
 	private final Place place;
-	private final int retweetCount;
-	private final String retweetCountF;
+	private final MutableInt retweetCount = new MutableInt();
+	private final MutableBoolean isRetweeted = new MutableBoolean();
+	private String retweetCountF;
 	private final String tweet;
 	private final List<URLEntity> urlList;
 	private final boolean isRetweet;
-	private final boolean isRetweeted;
 	private final boolean isRetweetedByMe;
 	private String favoriteCountF;
 
@@ -93,13 +93,13 @@ public class TweetSummary implements Comparable<TweetSummary> {
 		this.photoMediaLength = this.isIncludeImages ? this.mediaList.size() : 0;
 		this.photoList = this.mediaList.stream().filter(mediaEntity -> mediaEntity.getType().equals("photo")).map(TwitterPhotoMedia::new).toList();
 		this.place = status.getPlace();
-		this.retweetCount = status.getRetweetCount();
-		this.retweetCountF = TwitterUtil.getChunkedNumber(this.retweetCount);
+		this.retweetCount.setValue(status.getRetweetCount());
+		this.retweetCountF = TwitterUtil.getChunkedNumber(this.retweetCount.getValue());
 		this.tweet = status.getText();
 		this.urlList = Lists.newArrayList(status.getURLEntities());
 		this.isFavorited.setValue(status.isFavorited());
 		this.isRetweet = status.isRetweet();
-		this.isRetweeted = status.isRetweeted();
+		this.isRetweeted.setValue(status.isRetweeted());
 		this.isRetweetedByMe = status.isRetweetedByMe();
 	}
 
@@ -223,6 +223,10 @@ public class TweetSummary implements Comparable<TweetSummary> {
 		return this.id;
 	}
 
+	public String getTweetURL() {
+		return "https://twitter.com/%s/status/%s".formatted(this.getScreenName(), this.getId());
+	}
+
 	public String getLang() {
 		return this.lang;
 	}
@@ -265,7 +269,7 @@ public class TweetSummary implements Comparable<TweetSummary> {
 	}
 
 	public int getRetweetCount() {
-		return this.retweetCount;
+		return this.retweetCount.getValue();
 	}
 
 	public String getRetweetCountF() {
@@ -281,7 +285,7 @@ public class TweetSummary implements Comparable<TweetSummary> {
 	}
 
 	public boolean isFavorited() {
-		return this.isFavorited.getValue();
+		return this.isFavorited.booleanValue();
 	}
 
 	public void favorite(boolean flag) {
@@ -296,8 +300,24 @@ public class TweetSummary implements Comparable<TweetSummary> {
 		this.updateFavoriteCountFormat();
 	}
 
+	public void retweet(boolean flag) {
+		if (flag) {
+			this.isRetweeted.setTrue();
+			this.retweetCount.increment();
+		} else {
+			this.isRetweeted.setFalse();
+			this.retweetCount.decrement();
+		}
+
+		this.updateRetweetCountFormat();
+	}
+
 	public void updateFavoriteCountFormat() {
 		this.favoriteCountF = TwitterUtil.getChunkedNumber(this.favoriteCount.getValue());
+	}
+
+	public void updateRetweetCountFormat() {
+		this.retweetCountF = TwitterUtil.getChunkedNumber(this.retweetCount.getValue());
 	}
 
 	public boolean isRetweet() {
@@ -305,7 +325,7 @@ public class TweetSummary implements Comparable<TweetSummary> {
 	}
 
 	public boolean isRetweeted() {
-		return this.isRetweeted;
+		return this.isRetweeted.booleanValue();
 	}
 
 	public boolean isRetweetedByMe() {

@@ -76,5 +76,10 @@
   "tw.start.webhook.server": "Start webhook server",
   "tw.stop.webhook.server": "Stop webhook server",
   "tw.simple.error": "Error:%s",
-  "tw.reply.to": "Replying to %s"
+  "tw.reply.to": "Replying to %s",
+  "tw.copy.tweeturl.to.clipboard": "Copied link to Tweet to clipboard",
+  "tw.retweet": "Retweet",
+  "tw.quote.tweet": "Quote Tweet",
+  "tw.failed.retweet": "Failed to Retweet:%s",
+  "tw.unretweet": "Undo Retweet"
 }

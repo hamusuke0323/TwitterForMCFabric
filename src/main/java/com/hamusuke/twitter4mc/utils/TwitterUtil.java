@@ -3,6 +3,7 @@ package com.hamusuke.twitter4mc.utils;
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.hamusuke.twitter4mc.Token;
+import com.hamusuke.twitter4mc.tweet.TweetSummary;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.resource.language.I18n;
@@ -11,17 +12,11 @@ import org.apache.logging.log4j.Logger;
 import org.jetbrains.annotations.Nullable;
 import twitter4j.*;
 
-import javax.imageio.ImageIO;
 import java.awt.*;
-import java.awt.image.BufferedImage;
 import java.io.File;
-import java.io.IOException;
-import java.io.InputStream;
-import java.net.URL;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
-import java.util.function.Consumer;
 
 @Environment(EnvType.CLIENT)
 public class TwitterUtil {
@@ -29,6 +24,10 @@ public class TwitterUtil {
 
 	public static StatusUpdate createReplyTweet(String tweet, Status replyTo) {
 		return new StatusUpdate("@" + replyTo.getUser().getScreenName() + " " + tweet).inReplyToStatusId(replyTo.getId());
+	}
+
+	public static StatusUpdate createQuoteTweet(String comment, TweetSummary target) {
+		return new StatusUpdate(comment).attachmentUrl(target.getTweetURL());
 	}
 
 	public static void saveToken(NewToken newToken, File tokenFile) throws Exception {
@@ -203,46 +202,6 @@ public class TwitterUtil {
 			return variants[i].getUrl();
 		}
 		return null;
-	}
-
-	@Nullable
-	@Deprecated
-	public static InputStream getInputStream(@Nullable String imageURL) {
-		return getInputStream(imageURL, e -> {
-		});
-	}
-
-	@Nullable
-	@Deprecated
-	public static InputStream getInputStream(@Nullable String imageURL, Consumer<Exception> onException) {
-		try {
-			if (imageURL == null) {
-				throw new IOException("imageURL == null");
-			}
-
-			return new URL(imageURL).openStream();
-		} catch (Exception e) {
-			onException.accept(e);
-			return null;
-		}
-	}
-
-	@Nullable
-	@Deprecated
-	public static Integer[] getImageWidthHeight(@Nullable String imageURL) {
-		if (imageURL == null) {
-			return null;
-		}
-
-		try {
-			BufferedImage bi = ImageIO.read(new URL(imageURL));
-			if (bi == null) {
-				return null;
-			}
-			return new Integer[]{bi.getWidth(), bi.getHeight()};
-		} catch (Exception e) {
-			return null;
-		}
 	}
 
 	public static Dimension wrapImageSizeToMax(Dimension imageSize, Dimension boundary) {
