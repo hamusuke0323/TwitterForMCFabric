@@ -2,17 +2,15 @@ package com.hamusuke.twitter4mc.tweet;
 
 import com.google.common.collect.Sets;
 import com.hamusuke.twitter4mc.TwitterForMC;
+import com.hamusuke.twitter4mc.utils.ImageDataDeliverer;
 import com.hamusuke.twitter4mc.utils.TweetSummaryProcessor;
-import com.hamusuke.twitter4mc.utils.TwitterUtil;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import org.apache.logging.log4j.LogManager;
 import org.apache.logging.log4j.Logger;
-import org.jetbrains.annotations.Nullable;
 import twitter4j.Status;
 import twitter4j.User;
 
-import java.io.InputStream;
 import java.util.Collections;
 import java.util.List;
 import java.util.TreeSet;
@@ -27,10 +25,8 @@ public class UserSummary {
     private final String screenName;
     private final String description;
     private final int statusesCount;
-    @Nullable
-    private final InputStream icon;
-    @Nullable
-    private final InputStream header;
+    private final ImageDataDeliverer icon;
+    private final ImageDataDeliverer header;
     private final TreeSet<TweetSummary> userTimeline = Sets.newTreeSet(Collections.reverseOrder());
     private final AtomicBoolean isGettingUserTimeline = new AtomicBoolean();
     private final AtomicBoolean isAlreadyGotUserTimeline = new AtomicBoolean();
@@ -44,8 +40,8 @@ public class UserSummary {
         this.screenName = this.user.getScreenName();
         this.description = this.user.getDescription();
         this.statusesCount = this.user.getStatusesCount();
-        this.icon = TwitterUtil.getInputStream(this.user.get400x400ProfileImageURLHttps());
-        this.header = TwitterUtil.getInputStream(this.user.getProfileBanner1500x500URL());
+        this.icon = new ImageDataDeliverer(this.user.get400x400ProfileImageURLHttps()).prepareAsync();
+        this.header = new ImageDataDeliverer(this.user.getProfileBanner1500x500URL()).prepareAsync();
         this.isProtected = this.user.isProtected();
         this.isVerified = this.user.isVerified();
     }
@@ -106,13 +102,11 @@ public class UserSummary {
         return this.statusesCount;
     }
 
-    @Nullable
-    public InputStream getIcon() {
+    public ImageDataDeliverer getIcon() {
         return this.icon;
     }
 
-    @Nullable
-    public InputStream getHeader() {
+    public ImageDataDeliverer getHeader() {
         return this.header;
     }
 

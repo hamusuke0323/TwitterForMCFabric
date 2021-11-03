@@ -3,7 +3,7 @@ package com.hamusuke.twitter4mc.gui.screen;
 import com.hamusuke.twitter4mc.TwitterForMC;
 import com.hamusuke.twitter4mc.gui.toasts.TwitterNotificationToast;
 import com.hamusuke.twitter4mc.gui.widget.MaskableTextFieldWidget;
-import com.hamusuke.twitter4mc.utils.TwitterUtil;
+import com.hamusuke.twitter4mc.utils.ImageDataDeliverer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.screen.Screen;
@@ -86,8 +86,10 @@ public class TwitterLoginScreen extends ParentalScreen {
 
     private void addToast(Twitter twitter) {
         try {
-            this.client.getToastManager().add(new TwitterNotificationToast(TwitterUtil.getInputStream(twitter.showUser(twitter.getId()).get400x400ProfileImageURLHttps()), new TranslatableText("tw.login.successful"), null));
-        } catch (Throwable t) {
+            new ImageDataDeliverer(twitter.showUser(twitter.getId()).get400x400ProfileImageURLHttps()).prepareAsync(e -> {
+                this.client.getToastManager().add(new SystemToast(SystemToast.Type.TUTORIAL_HINT, new TranslatableText("tw.login.successful"), null));
+            }, imageDataDeliverer -> this.client.getToastManager().add(new TwitterNotificationToast(imageDataDeliverer.deliver(), new TranslatableText("tw.login.successful"))));
+        } catch (Exception e) {
             this.client.getToastManager().add(new SystemToast(SystemToast.Type.TUTORIAL_HINT, new TranslatableText("tw.login.successful"), null));
         }
     }

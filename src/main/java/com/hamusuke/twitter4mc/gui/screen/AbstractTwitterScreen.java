@@ -10,6 +10,7 @@ import com.hamusuke.twitter4mc.invoker.TextRendererInvoker;
 import com.hamusuke.twitter4mc.text.TweetText;
 import com.hamusuke.twitter4mc.tweet.TweetSummary;
 import com.hamusuke.twitter4mc.tweet.TwitterPhotoMedia;
+import com.hamusuke.twitter4mc.utils.ImageDataDeliverer;
 import com.hamusuke.twitter4mc.utils.TwitterUtil;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
@@ -37,7 +38,6 @@ import twitter4j.TwitterException;
 import twitter4j.User;
 
 import java.awt.*;
-import java.io.InputStream;
 import java.net.URI;
 import java.util.List;
 import java.util.Optional;
@@ -161,7 +161,7 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Re
 
     public boolean renderTwitterUser(MatrixStack matrices, TweetSummary summary, int x, int y, int mouseX, int mouseY) {
         User user = summary.getUser();
-        InputStream icon = summary.getUserIconData();
+        ImageDataDeliverer icon = summary.getUserIconData();
         List<OrderedText> desc = this.wrapLines(new TweetText(user.getDescription()), Math.min(this.width / 2, 150));
         Text follow = new LiteralText(user.getFriendsCount() + "").formatted(Formatting.BOLD);
         Text space = Text.of(" ");
@@ -187,7 +187,7 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Re
 
         int i2 = y;
         int k = 0;
-        k += icon != null ? 22 : 0;
+        k += icon.readyToRender() ? 22 : 0;
         k += user.getName().isEmpty() ? 0 : 10;
         k += user.getScreenName().isEmpty() ? 0 : 10;
         k += 4 + (desc.size() * (this.textRenderer.fontHeight + 1)) + 4;
@@ -211,8 +211,8 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Re
         Matrix4f matrix4f = matrixstack.peek().getModel();
 
         int yy = i2;
-        if (icon != null) {
-            TwitterForMC.getTextureManager().bindTexture(icon);
+        if (icon.readyToRender()) {
+            TwitterForMC.getTextureManager().bindTexture(icon.deliver());
             drawTexture(matrices, x, i2, 0.0F, 0.0F, 20, 20, 20, 20);
             i2 += 20;
         }
@@ -575,9 +575,9 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Re
 
                 if (this.quoteSourceSummary != null) {
                     nowY += 10;
-                    InputStream qsIco = this.quoteSourceSummary.getUserIconData();
-                    if (qsIco != null) {
-                        TwitterForMC.getTextureManager().bindTexture(qsIco);
+                    ImageDataDeliverer qsIco = this.quoteSourceSummary.getUserIconData();
+                    if (qsIco.readyToRender()) {
+                        TwitterForMC.getTextureManager().bindTexture(qsIco.deliver());
                         drawTexture(matrices, rowLeft + 24 + 5, nowY, 0.0F, 0.0F, 10, 10, 10, 10);
                     }
                     this.renderUserName(matrices, this.quoteSourceSummary, rowLeft + 24 + 5 + 10 + 4, nowY, AbstractTwitterScreen.TweetList.this.getRowWidth() - 24 - 5 - 10 - 4 - 10);
@@ -636,9 +636,9 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Re
             }
 
             public void renderIcon(MatrixStack matrices, int x, int y) {
-                InputStream icon = this.summary != null ? this.summary.getUserIconData() : null;
-                if (icon != null) {
-                    TwitterForMC.getTextureManager().bindTexture(icon);
+                ImageDataDeliverer icon = this.summary != null ? this.summary.getUserIconData() : null;
+                if (icon != null && icon.readyToRender()) {
+                    TwitterForMC.getTextureManager().bindTexture(icon.deliver());
                     DrawableHelper.drawTexture(matrices, x, y, 0.0F, 0.0F, 16, 16, 16, 16);
                 }
             }
@@ -650,29 +650,26 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Re
                     List<TwitterPhotoMedia> p = this.summary.getPhotoMedias();
                     if (p.size() == 1) {
                         TwitterPhotoMedia media = p.get(0);
-                        InputStream data = media.getData();
-                        if (data != null && media.canRendering()) {
+                        if (media.readyToRender()) {
                             Dimension d = TwitterUtil.wrapImageSizeToMax(new Dimension(media.getWidth(), media.getHeight()), new Dimension(this.photoRenderingWidth, this.photoRenderingHeight));
-                            TwitterForMC.getTextureManager().bindTexture(data);
+                            TwitterForMC.getTextureManager().bindTexture(media.getData());
                             DrawableHelper.drawTexture(matrices, rowLeft + 24, rowTop, 0.0F, (float) (d.height - this.photoRenderingHeight) / 2, this.photoRenderingWidth, this.photoRenderingHeight, d.width, d.height);
                         }
                     } else if (p.size() == 2) {
                         for (int i = 0; i < 2; i++) {
                             TwitterPhotoMedia media = p.get(i);
-                            InputStream data = media.getData();
-                            if (data != null && media.canRendering()) {
+                            if (media.readyToRender()) {
                                 Dimension d = TwitterUtil.wrapImageSizeToMax(new Dimension(media.getWidth(), media.getHeight()), new Dimension(w2, this.photoRenderingHeight));
-                                TwitterForMC.getTextureManager().bindTexture(data);
+                                TwitterForMC.getTextureManager().bindTexture(media.getData());
                                 DrawableHelper.drawTexture(matrices, rowLeft + 24 + i * w2 + 1, rowTop, 0.0F, (float) (d.height - this.photoRenderingHeight) / 2, w2, this.photoRenderingHeight, d.width, d.height);
                             }
                         }
                     } else if (p.size() == 3) {
                         for (int i = 0; i < 3; i++) {
                             TwitterPhotoMedia media = p.get(i);
-                            InputStream data = media.getData();
-                            if (data != null && media.canRendering()) {
+                            if (media.readyToRender()) {
                                 Dimension d;
-                                TwitterForMC.getTextureManager().bindTexture(data);
+                                TwitterForMC.getTextureManager().bindTexture(media.getData());
                                 if (i == 0) {
                                     d = TwitterUtil.wrapImageSizeToMax(new Dimension(media.getWidth(), media.getHeight()), new Dimension(w2, this.photoRenderingHeight));
                                     DrawableHelper.drawTexture(matrices, rowLeft + 24, rowTop, 0.0F, (float) (d.height - this.photoRenderingHeight) / 2, w2, this.photoRenderingHeight, d.width, d.height);
@@ -688,10 +685,9 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Re
                     } else if (p.size() == 4) {
                         for (int i = 0; i < 4; i++) {
                             TwitterPhotoMedia media = p.get(i);
-                            InputStream data = media.getData();
-                            if (data != null && media.canRendering()) {
+                            if (media.readyToRender()) {
                                 Dimension d = TwitterUtil.wrapImageSizeToMax(new Dimension(media.getWidth(), media.getHeight()), new Dimension(w2, h2));
-                                TwitterForMC.getTextureManager().bindTexture(data);
+                                TwitterForMC.getTextureManager().bindTexture(media.getData());
                                 if (i % 2 == 0) {
                                     DrawableHelper.drawTexture(matrices, rowLeft + 24, rowTop + ((i / 2) * (h2 + 1)), 0.0F, (float) (d.height - h2) / 2, w2, h2, d.width, d.height);
                                 } else {

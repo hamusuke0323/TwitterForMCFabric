@@ -38,7 +38,7 @@ public class TwitterPhotoAndShowStatusScreen extends ParentalScreen {
 
 		List<TwitterPhotoMedia> p = this.summary.getPhotoMedias();
 		TwitterPhotoMedia media = p.get(this.index);
-		if (media.canRendering()) {
+		if (media.readyToRender()) {
 			Dimension d = TwitterUtil.wrapImageSizeToMin(new Dimension(media.getWidth(), media.getHeight()), new Dimension(this.width, this.height));
 			TwitterForMC.getTextureManager().bindTexture(media.getData());
 			DrawableHelper.drawTexture(matrices, 0, 0, 0.0F, 0.0F, d.width, d.height, d.width, d.height);

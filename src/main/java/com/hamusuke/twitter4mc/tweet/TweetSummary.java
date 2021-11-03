@@ -2,6 +2,7 @@ package com.hamusuke.twitter4mc.tweet;
 
 import com.google.common.collect.Lists;
 import com.hamusuke.twitter4mc.TwitterForMC;
+import com.hamusuke.twitter4mc.utils.ImageDataDeliverer;
 import com.hamusuke.twitter4mc.utils.ReplyObject;
 import com.hamusuke.twitter4mc.utils.TwitterThread;
 import com.hamusuke.twitter4mc.utils.TwitterUtil;
@@ -15,7 +16,6 @@ import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 import twitter4j.*;
 
-import java.io.InputStream;
 import java.util.Calendar;
 import java.util.Date;
 import java.util.List;
@@ -39,9 +39,8 @@ public class TweetSummary implements Comparable<TweetSummary> {
 	private final MutableBoolean isGettingReplies = new MutableBoolean();
 	private final MutableBoolean isAlreadyGotReplies = new MutableBoolean();
 	private final User user;
-	@Nullable
-	private final InputStream userIconData;
-	private final String userIconFormat;
+	private final ImageDataDeliverer userIconData;
+	private final ImageFormat userIconFormat;
 	private final Date createdAt;
 	private final Calendar createdAtC;
 	private final MutableInt favoriteCount = new MutableInt();
@@ -75,8 +74,9 @@ public class TweetSummary implements Comparable<TweetSummary> {
 		this.quotedTweetSummary = this.quotedTweet != null ? new TweetSummary(this.quotedTweet) : null;
 		this.user = status.getUser();
 		String url = this.user.get400x400ProfileImageURLHttps();
-		this.userIconData = TwitterUtil.getInputStream(url, e -> LOGGER.warn("Failed to get user icon data, return null.", e));
-		this.userIconFormat = url.contains(".png") ? "PNG" : "JPEG";
+		this.userIconData = new ImageDataDeliverer(url).prepareAsync(e -> LOGGER.warn("Failed to get user icon data, return null.", e), ignored -> {
+		});
+		this.userIconFormat = url.contains(".png") ? ImageFormat.PNG : ImageFormat.JPEG;
 		this.createdAt = status.getCreatedAt();
 		this.createdAtC = Calendar.getInstance(Locale.ROOT);
 		this.createdAtC.setTime(this.createdAt);
@@ -103,7 +103,7 @@ public class TweetSummary implements Comparable<TweetSummary> {
 		this.isRetweetedByMe = status.isRetweetedByMe();
 	}
 
-	public void startGettingReplies(Runnable onAdd) {
+	public void startGettingRepliesAsync(Runnable onAdd) {
 		if (TwitterForMC.mcTwitter != null && !this.isGettingReplies()) {
 			this.isGettingReplies.setTrue();
 			new TwitterThread(() -> {
@@ -183,12 +183,11 @@ public class TweetSummary implements Comparable<TweetSummary> {
 		return "@" + this.user.getScreenName();
 	}
 
-	@Nullable
-	public InputStream getUserIconData() {
+	public ImageDataDeliverer getUserIconData() {
 		return this.userIconData;
 	}
 
-	public String getUserIconFormat() {
+	public ImageFormat getUserIconFormat() {
 		return this.userIconFormat;
 	}
 
@@ -332,5 +331,12 @@ public class TweetSummary implements Comparable<TweetSummary> {
 
 	public int compareTo(@NotNull TweetSummary that) {
 		return this.status.compareTo(that.status);
+	}
+
+	@Environment(EnvType.CLIENT)
+	public enum ImageFormat {
+		PNG,
+		JPEG,
+		GIF
 	}
 }

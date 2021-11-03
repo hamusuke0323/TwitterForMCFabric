@@ -5,6 +5,7 @@ import com.hamusuke.twitter4mc.TwitterForMC;
 import com.hamusuke.twitter4mc.text.TweetText;
 import com.hamusuke.twitter4mc.tweet.TweetSummary;
 import com.hamusuke.twitter4mc.tweet.UserSummary;
+import com.hamusuke.twitter4mc.utils.ImageDataDeliverer;
 import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
@@ -21,7 +22,6 @@ import net.minecraft.util.Formatting;
 import org.jetbrains.annotations.Nullable;
 import twitter4j.User;
 
-import java.io.InputStream;
 import java.util.List;
 
 @Environment(EnvType.CLIENT)
@@ -120,15 +120,15 @@ public class TwitterShowUserScreen extends AbstractTwitterScreen {
 			private final List<OrderedText> desc;
 
 			private UserProfile(UserSummary summary) {
-                super(null);
-                this.summary = summary;
-                boolean p = this.summary.isProtected();
-                boolean v = this.summary.isVerified();
-                int protectedVerifiedWidth = (p ? 10 : 0) + (v ? 10 : 0);
-                this.name = TwitterShowUserScreen.this.wrapLines(new TweetText(this.summary.getName()).formatted(Formatting.BOLD), TweetList.this.getRowWidth() - 10 - protectedVerifiedWidth);
-                this.desc = TwitterShowUserScreen.this.wrapLines(new TweetText(this.summary.getDescription()), TweetList.this.getRowWidth() - 20);
-                this.height = TwitterShowUserScreen.TweetList.this.getRowWidth() / 3 + 60 + this.desc.size() * TwitterShowUserScreen.this.textRenderer.fontHeight;
-            }
+				super(null);
+				this.summary = summary;
+				boolean p = this.summary.isProtected();
+				boolean v = this.summary.isVerified();
+				int protectedVerifiedWidth = (p ? 10 : 0) + (v ? 10 : 0);
+				this.name = TwitterShowUserScreen.this.wrapLines(new TweetText(this.summary.getName()).formatted(Formatting.BOLD), TweetList.this.getRowWidth() - 10 - protectedVerifiedWidth);
+				this.desc = TwitterShowUserScreen.this.wrapLines(new TweetText(this.summary.getDescription()), TweetList.this.getRowWidth() - 20);
+				this.height = TwitterShowUserScreen.TweetList.this.getRowWidth() / 3 + 60 + this.desc.size() * TwitterShowUserScreen.this.textRenderer.fontHeight;
+			}
 
 			public void init() {
 			}
@@ -140,20 +140,20 @@ public class TwitterShowUserScreen extends AbstractTwitterScreen {
 				int i = rowWidth / 3;
 				int j = rowWidth / 5;
 
-				InputStream header = this.summary.getHeader();
-				InputStream icon = this.summary.getIcon();
+				ImageDataDeliverer header = this.summary.getHeader();
+				ImageDataDeliverer icon = this.summary.getIcon();
 
-				if (header == null) {
-					RenderSystem.setShaderTexture(0, MissingSprite.getMissingSpriteId());
+				if (header.readyToRender()) {
+					TwitterForMC.getTextureManager().bindTexture(header.deliver());
 				} else {
-					TwitterForMC.getTextureManager().bindTexture(this.summary.getHeader());
+					RenderSystem.setShaderTexture(0, MissingSprite.getMissingSpriteId());
 				}
 				drawTexture(matrices, rowLeft, rowTop, 0.0F, 0.0F, rowWidth, i, rowWidth, i);
 
-				if (icon == null) {
-					RenderSystem.setShaderTexture(0, MissingSprite.getMissingSpriteId());
+				if (icon.readyToRender()) {
+					TwitterForMC.getTextureManager().bindTexture(icon.deliver());
 				} else {
-					TwitterForMC.getTextureManager().bindTexture(this.summary.getIcon());
+					RenderSystem.setShaderTexture(0, MissingSprite.getMissingSpriteId());
 				}
 				drawTexture(matrices, rowLeft + 10, rowTop + (i - i / 3), 0.0F, 0.0F, j, j, j, j);
 

@@ -31,7 +31,7 @@ public class TwitterShowStatusScreen extends AbstractTwitterScreen {
 	protected void init() {
 		if (!this.summary.isGettingReplies()) {
 			if (!this.summary.isAlreadyGotReplies()) {
-				this.summary.startGettingReplies(() -> {
+				this.summary.startGettingRepliesAsync(() -> {
 					double scroll = 0.0D;
 					if (this.list != null) {
 						scroll = this.list.getScrollAmount();

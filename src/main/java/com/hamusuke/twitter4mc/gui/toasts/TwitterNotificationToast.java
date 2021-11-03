@@ -32,6 +32,10 @@ public class TwitterNotificationToast extends InputStreamToast implements Clicka
 		this.subtitle = subtitle;
 	}
 
+	public TwitterNotificationToast(@Nullable InputStream image, Text title) {
+		this(image, title, null);
+	}
+
 	static TextRendererInvoker getInvoker(TextRenderer textRenderer) {
 		return (TextRendererInvoker) textRenderer;
 	}

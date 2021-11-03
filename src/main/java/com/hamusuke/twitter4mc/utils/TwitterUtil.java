@@ -206,12 +206,14 @@ public class TwitterUtil {
 	}
 
 	@Nullable
+	@Deprecated
 	public static InputStream getInputStream(@Nullable String imageURL) {
 		return getInputStream(imageURL, e -> {
 		});
 	}
 
 	@Nullable
+	@Deprecated
 	public static InputStream getInputStream(@Nullable String imageURL, Consumer<Exception> onException) {
 		try {
 			if (imageURL == null) {
@@ -226,6 +228,7 @@ public class TwitterUtil {
 	}
 
 	@Nullable
+	@Deprecated
 	public static Integer[] getImageWidthHeight(@Nullable String imageURL) {
 		if (imageURL == null) {
 			return null;
