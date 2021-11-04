@@ -1,7 +1,5 @@
 package com.hamusuke.twitter4mc.utils;
 
-import com.google.common.collect.ImmutableList;
-import com.google.common.collect.Lists;
 import com.hamusuke.twitter4mc.Token;
 import com.hamusuke.twitter4mc.tweet.TweetSummary;
 import net.fabricmc.api.EnvType;
@@ -16,7 +14,6 @@ import java.awt.*;
 import java.io.File;
 import java.util.Calendar;
 import java.util.Date;
-import java.util.List;
 
 @Environment(EnvType.CLIENT)
 public class TwitterUtil {
@@ -50,27 +47,6 @@ public class TwitterUtil {
 		}
 
 		return new JSONObject();
-	}
-
-	public static int getArgb(int alpha, int red, int green, int blue) {
-		return alpha << 24 | red << 16 | green << 8 | blue;
-	}
-
-	public static ImmutableList<Status> getHomeTimeline(Twitter twitter, int count) throws TwitterException {
-		HttpResponse httpResponse = HttpClientFactory.getInstance().get("https://api.twitter.com/1.1/statuses/home_timeline.json", new HttpParameter[]{new HttpParameter("count", count)}, twitter.getAuthorization(), null);
-		List<Status> statuses = Lists.newArrayList();
-		if (httpResponse != null) {
-			try {
-				JSONArray jsonArray = httpResponse.asJSONArray();
-				for (int i = 0; i < jsonArray.length(); i++) {
-					statuses.add(TwitterObjectFactory.createStatus(jsonArray.getJSONObject(i).toString()));
-				}
-			} catch (Exception e) {
-				throw new TwitterException(e);
-			}
-		}
-
-		return ImmutableList.copyOf(statuses);
 	}
 
 	@Nullable
@@ -148,39 +124,6 @@ public class TwitterUtil {
 		int m = c.get(Calendar.MINUTE);
 		int s = c.get(Calendar.SECOND);
 		return y + "/" + (mon < 10 ? "0" : "") + mon + "/" + (d < 10 ? "0" : "") + d + " " + (h < 10 ? "0" : "") + h + ":" + (m < 10 ? "0" : "") + m + ":" + (s < 10 ? "0" : "") + s;
-	}
-
-	@Nullable
-	public static List<String> getVideoURL(Twitter twitter, String url) {
-		if (url.contains("status/")) {
-			try {
-				return TwitterUtil.getVideoURL(twitter, Long.parseLong(url.substring(url.indexOf("status/")).replace("status/", "").trim()));
-			} catch (Exception e) {
-				return null;
-			}
-		} else {
-			return null;
-		}
-	}
-
-	public static List<String> getVideoURL(Twitter twitter, long id) throws TwitterException {
-		return TwitterUtil.getVideoURL(twitter.showStatus(id).getMediaEntities());
-	}
-
-	public static List<String> getVideoURL(MediaEntity[] medias) {
-		List<String> urls = Lists.newArrayList();
-		if (medias.length > 0) {
-			MediaEntity media = medias[0];
-			if (media.getType().equals("video")) {
-				for (MediaEntity.Variant v : media.getVideoVariants()) {
-					String url = v.getUrl();
-					if (!url.contains("m3u8")) {
-						urls.add(url);
-					}
-				}
-			}
-		}
-		return urls;
 	}
 
 	@Nullable

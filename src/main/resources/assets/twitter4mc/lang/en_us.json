@@ -81,5 +81,6 @@
   "tw.retweet": "Retweet",
   "tw.quote.tweet": "Quote Tweet",
   "tw.failed.retweet": "Failed to Retweet:%s",
-  "tw.unretweet": "Undo Retweet"
+  "tw.unretweet": "Undo Retweet",
+  "tw.refresh.desc": "The number of tweets to retrieve."
 }

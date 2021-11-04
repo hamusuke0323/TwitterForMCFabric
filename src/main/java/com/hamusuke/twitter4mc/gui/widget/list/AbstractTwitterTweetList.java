@@ -1,5 +1,6 @@
 package com.hamusuke.twitter4mc.gui.widget.list;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.mojang.blaze3d.platform.GlStateManager;
 import com.mojang.blaze3d.systems.RenderSystem;
@@ -547,7 +548,8 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 
 	@Environment(EnvType.CLIENT)
 	public abstract static class AbstractTwitterListEntry<E extends AbstractTwitterTweetList.AbstractTwitterListEntry<E>> implements TweetElement {
-		public final List<ClickableWidget> buttons = Lists.newArrayList();
+		protected final List<ClickableWidget> buttons = Lists.newArrayList();
+		protected final List<ClickableWidget> overlayButtons = Lists.newArrayList();
 		@Deprecated
 		AbstractTwitterTweetList<E> list;
 
@@ -566,6 +568,12 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 			}
 		}
 
+		public void renderOverlayButtons(MatrixStack matrices, int mouseX, int mouseY, float delta) {
+			for (ClickableWidget button : this.overlayButtons) {
+				button.render(matrices, mouseX, mouseY, delta);
+			}
+		}
+
 		public void onRemove() {
 		}
 
@@ -576,6 +584,15 @@ public abstract class AbstractTwitterTweetList<E extends AbstractTwitterTweetLis
 		protected <T extends ClickableWidget> T addButton(T widget) {
 			this.buttons.add(widget);
 			return widget;
+		}
+
+		protected <T extends ClickableWidget> T addOverlayButton(T widget) {
+			this.overlayButtons.add(widget);
+			return widget;
+		}
+
+		public ImmutableList<ClickableWidget> getOverlayButtons() {
+			return ImmutableList.copyOf(this.overlayButtons);
 		}
 	}
 

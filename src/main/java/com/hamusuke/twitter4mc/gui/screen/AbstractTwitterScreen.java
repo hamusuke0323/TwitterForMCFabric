@@ -1,11 +1,13 @@
 package com.hamusuke.twitter4mc.gui.screen;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.hamusuke.twitter4mc.TwitterForMC;
 import com.hamusuke.twitter4mc.gui.widget.ChangeableImageButton;
 import com.hamusuke.twitter4mc.gui.widget.FunctionalButtonWidget;
 import com.hamusuke.twitter4mc.gui.widget.MessageWidget;
 import com.hamusuke.twitter4mc.gui.widget.TwitterButton;
+import com.hamusuke.twitter4mc.gui.widget.list.AbstractTwitterTweetList;
 import com.hamusuke.twitter4mc.gui.widget.list.ExtendedTwitterTweetList;
 import com.hamusuke.twitter4mc.invoker.TextRendererInvoker;
 import com.hamusuke.twitter4mc.text.TweetText;
@@ -71,8 +73,6 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Re
     Screen previousScreen;
     @Nullable
     public static MessageWidget messageWidget;
-    @Nullable
-    public AbstractWindowedScreen currentWindow;
 
     protected AbstractTwitterScreen(Text title, @Nullable Screen parent) {
         super(title, parent);
@@ -109,24 +109,6 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Re
         return Optional.ofNullable(messageWidget);
     }
 
-    public void closeWindow() {
-        this.setWindowedScreen(null, 0, 0, 0, 0);
-    }
-
-    public void setWindowedScreen(@Nullable AbstractWindowedScreen abstractWindowedScreen, int x, int y, int width, int height) {
-        if (this.currentWindow != null && abstractWindowedScreen == null) {
-            this.currentWindow.onClose();
-            this.currentWindow = null;
-            return;
-        }
-
-        this.currentWindow = abstractWindowedScreen;
-        if (this.currentWindow != null) {
-            this.currentWindow.init(this.client, x, y, width, height);
-            this.client.currentScreen = this.currentWindow;
-        }
-    }
-
     public void tick() {
         if (this.list != null) {
             this.list.tick();
@@ -152,7 +134,6 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Re
     }
 
     public void returnToGame() {
-        this.closeWindow();
         TwitterForMC.twitterScreen.previousScreen = this;
         this.client.setScreen(null);
     }
@@ -460,6 +441,21 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Re
         public void render(MatrixStack matrices, int p_render_1_, int p_render_2_, float p_render_3_) {
             super.render(matrices, p_render_1_, p_render_2_, p_render_3_);
 
+            boolean bl = false;
+            matrices.push();
+            matrices.translate(0.0D, 0.0D, 0.5D);
+            for (ImmutableList<ClickableWidget> clickableWidgets : this.children().stream().map(AbstractTwitterTweetList.AbstractTwitterListEntry::getOverlayButtons).toList()) {
+                for (ClickableWidget clickableWidget : clickableWidgets.stream().filter(clickableWidget -> clickableWidget.active && clickableWidget.visible).toList()) {
+                    clickableWidget.render(matrices, p_render_1_, p_render_2_, p_render_3_);
+                    bl = true;
+                }
+            }
+            matrices.pop();
+
+            if (bl) {
+                return;
+            }
+
             AbstractTwitterScreen.TweetList.TweetEntry e = this.getEntryAtPosition(p_render_1_, p_render_2_);
             if (this.hoveringEntry != null && this.hoveringEntry.summary != null) {
                 this.isHovering = AbstractTwitterScreen.this.renderTwitterUser(matrices, this.hoveringEntry.summary, this.getRowLeft() - 60, this.hoveringEntry.getY() + this.hoveringEntry.retweetedUserNameHeight + 2 + 22, p_render_1_, p_render_2_);
@@ -472,6 +468,20 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Re
                 this.isHovering = AbstractTwitterScreen.this.renderTwitterUser(matrices, e.summary, this.getRowLeft() - 60, e.getY() + e.retweetedUserNameHeight + 2 + 22, p_render_1_, p_render_2_);
                 this.fade = 10;
             }
+        }
+
+        public boolean mouseClicked(double p_mouseClicked_1_, double p_mouseClicked_3_, int p_mouseClicked_5_) {
+            for (ImmutableList<ClickableWidget> clickableWidgets : this.children().stream().map(AbstractTwitterTweetList.AbstractTwitterListEntry::getOverlayButtons).toList()) {
+                for (ClickableWidget clickableWidget : clickableWidgets.stream().filter(clickableWidget -> clickableWidget.active && clickableWidget.visible).toList()) {
+                    if (clickableWidget.mouseClicked(p_mouseClicked_1_, p_mouseClicked_3_, p_mouseClicked_5_)) {
+                        this.children().forEach(TweetEntry::hideAllOverlayButtons);
+                        return true;
+                    }
+                }
+            }
+
+            this.children().forEach(TweetEntry::hideAllOverlayButtons);
+            return super.mouseClicked(p_mouseClicked_1_, p_mouseClicked_3_, p_mouseClicked_5_);
         }
 
         protected boolean isFocused() {
@@ -546,26 +556,27 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Re
 
                     i += j;
 
-                    this.retweetButton = this.addButton(new TwitterButton(i, this.fourBtnHeightOffset, 10, 10, 0, 0, 16, RETWEET, 16, 32, 16, 16, (p) -> {
+                    boolean bl = this.summary.isRetweeted();
+                    this.retweetButton = this.addButton(new TwitterButton(i, this.fourBtnHeightOffset, 10, 10, 0, 0, bl ? 0 : 16, bl ? RETWEETED : RETWEET, 16, bl ? 16 : 32, 16, 16, (p) -> {
                         if (!this.summary.getUser().isProtected()) {
                             this.showRetweetButtons();
                         }
                     }));
 
-                    this.retweetButton$retweet = this.addButton(new ButtonWidget(i, this.fourBtnHeightOffset, h / 2, 20, this.summary.isRetweeted() ? new TranslatableText("tw.unretweet") : new TranslatableText("tw.retweet"), button -> {
+                    this.retweetButton$retweet = this.addOverlayButton(new ButtonWidget(i + 5 - h / 4, this.fourBtnHeightOffset, h / 2, 20, bl ? new TranslatableText("tw.unretweet") : new TranslatableText("tw.retweet"), button -> {
                         this.hideRetweetButtons();
                         try {
                             if (this.summary.isRetweeted()) {
                                 TwitterForMC.mcTwitter.unRetweetStatus(this.summary.getId());
                                 this.summary.retweet(false);
-                                this.retweetButton.setMessage(new TranslatableText("tw.retweet"));
+                                this.retweetButton$retweet.setMessage(new TranslatableText("tw.retweet"));
                                 this.retweetButton.setImage(RETWEET);
                                 this.retweetButton.setWhenHovered(16);
                                 this.retweetButton.setSize(16, 32);
                             } else {
                                 TwitterForMC.mcTwitter.retweetStatus(this.summary.getId());
                                 this.summary.retweet(true);
-                                this.retweetButton.setMessage(new TranslatableText("tw.unretweet"));
+                                this.retweetButton$retweet.setMessage(new TranslatableText("tw.unretweet"));
                                 this.retweetButton.setImage(RETWEETED);
                                 this.retweetButton.setWhenHovered(0);
                                 this.retweetButton.setSize(16, 16);
@@ -575,7 +586,7 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Re
                         }
                     }));
 
-                    this.retweetButton$quoteRetweet = this.addButton(new FunctionalButtonWidget(i, this.fourBtnHeightOffset + 20, h / 2, 20, new TranslatableText("tw.quote.tweet"), button -> {
+                    this.retweetButton$quoteRetweet = this.addOverlayButton(new FunctionalButtonWidget(i + 5 - h / 4, this.fourBtnHeightOffset + 20, h / 2, 20, new TranslatableText("tw.quote.tweet"), button -> {
                         this.hideRetweetButtons();
 
                     }, integer -> integer + 20));
@@ -611,6 +622,10 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Re
                         AbstractTwitterScreen.this.accept(new TranslatableText("tw.copy.tweeturl.to.clipboard"));
                     }));
                 }
+            }
+
+            protected void hideAllOverlayButtons() {
+                this.overlayButtons.forEach(clickableWidget -> clickableWidget.active = clickableWidget.visible = false);
             }
 
             private void hideOrShowRetweetButtons(boolean flag) {
@@ -787,14 +802,6 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Re
 
             public boolean mouseClicked(double x, double y, int button) {
                 if (this.summary != null) {
-                    if (this.retweetButton$retweet.mouseClicked(x, y, button)) {
-                        return true;
-                    } else if (this.retweetButton$quoteRetweet.mouseClicked(x, y, button)) {
-                        return true;
-                    } else {
-                        this.hideRetweetButtons();
-                    }
-
                     int i = AbstractTwitterScreen.TweetList.this.getRowLeft() + 24;
                     int j = this.y + this.retweetedUserNameHeight + 11 + this.strings.size() * AbstractTwitterScreen.this.textRenderer.fontHeight;
                     int k = this.summary.getPhotoMediaLength();
@@ -900,6 +907,7 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Re
                 this.height = height;
                 this.fourBtnHeightOffset = this.height - 14;
                 this.buttons.clear();
+                this.overlayButtons.clear();
                 this.init();
                 TweetList.this.calcAllHeight();
                 TweetList.this.calcAverage();
@@ -917,6 +925,14 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Re
 
             protected void updateButtonY(int y) {
                 this.buttons.forEach(clickableWidget -> {
+                    if (clickableWidget instanceof FunctionalButtonWidget functionalButtonWidget) {
+                        functionalButtonWidget.y = functionalButtonWidget.yFunction.apply(y);
+                    } else {
+                        clickableWidget.y = y;
+                    }
+                });
+
+                this.overlayButtons.forEach(clickableWidget -> {
                     if (clickableWidget instanceof FunctionalButtonWidget functionalButtonWidget) {
                         functionalButtonWidget.y = functionalButtonWidget.yFunction.apply(y);
                     } else {
