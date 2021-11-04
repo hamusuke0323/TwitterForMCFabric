@@ -18,11 +18,13 @@ import java.io.InputStream;
 import java.net.URL;
 import java.util.Iterator;
 import java.util.concurrent.CompletableFuture;
+import java.util.concurrent.ExecutorService;
 import java.util.concurrent.Executors;
 import java.util.function.Consumer;
 
 @Environment(EnvType.CLIENT)
 public class ImageDataDeliverer {
+    private static final ExecutorService THREAD_POOL = Executors.newFixedThreadPool(20, TwitterThread::new);
     private final String url;
     private final MutableObject<InputStream> inputStream = new MutableObject<>();
     private final MutablePair<Integer, Integer> widthHeight = MutablePair.of(0, 0);
@@ -37,38 +39,8 @@ public class ImageDataDeliverer {
         }
     }
 
-    public void startPreparingAsync(Consumer<Exception> exceptionHandler, Consumer<ImageDataDeliverer> whenCompleteCorrectly) {
-        if (!this.started) {
-            this.started = true;
-            CompletableFuture.supplyAsync(() -> {
-                try (ImageInputStream imageInputStream = ImageIO.createImageInputStream(new URL(this.url).openStream())) {
-                    Iterator<ImageReader> it = ImageIO.getImageReaders(imageInputStream);
-                    if (it.hasNext()) {
-                        ImageReader imageReader = it.next();
-                        imageReader.setInput(imageInputStream);
-                        BufferedImage bufferedImage = imageReader.read(0);
-                        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
-                        ImageIO.write(bufferedImage, imageReader.getFormatName(), byteArrayOutputStream);
-                        byteArrayOutputStream.flush();
-                        byte[] bytes = byteArrayOutputStream.toByteArray();
-                        byteArrayOutputStream.close();
-                        this.widthHeight.setLeft(bufferedImage.getWidth());
-                        this.widthHeight.setRight(bufferedImage.getHeight());
-                        return new ByteArrayInputStream(bytes);
-                    }
-                } catch (IOException e) {
-                    exceptionHandler.accept(e);
-                    this.failed.setTrue();
-                }
-                return null;
-            }, Executors.newCachedThreadPool(TwitterThread::new)).whenComplete((inputStream, throwable) -> {
-                this.inputStream.setValue(inputStream);
-                this.failed.setValue(inputStream == null);
-                if (this.readyToRender()) {
-                    whenCompleteCorrectly.accept(this);
-                }
-            });
-        }
+    public static void shutdown() {
+        THREAD_POOL.shutdown();
     }
 
     public ImageDataDeliverer prepareAsync(Consumer<Exception> exceptionHandler, Consumer<ImageDataDeliverer> whenComplete) {
@@ -102,5 +74,39 @@ public class ImageDataDeliverer {
 
     public boolean failed() {
         return this.failed.booleanValue();
+    }
+
+    public void startPreparingAsync(Consumer<Exception> exceptionHandler, Consumer<ImageDataDeliverer> whenCompleteCorrectly) {
+        if (!this.started) {
+            this.started = true;
+            CompletableFuture.supplyAsync(() -> {
+                try (ImageInputStream imageInputStream = ImageIO.createImageInputStream(new URL(this.url).openStream())) {
+                    Iterator<ImageReader> it = ImageIO.getImageReaders(imageInputStream);
+                    if (it.hasNext()) {
+                        ImageReader imageReader = it.next();
+                        imageReader.setInput(imageInputStream);
+                        BufferedImage bufferedImage = imageReader.read(0);
+                        ByteArrayOutputStream byteArrayOutputStream = new ByteArrayOutputStream();
+                        ImageIO.write(bufferedImage, imageReader.getFormatName(), byteArrayOutputStream);
+                        byteArrayOutputStream.flush();
+                        byte[] bytes = byteArrayOutputStream.toByteArray();
+                        byteArrayOutputStream.close();
+                        this.widthHeight.setLeft(bufferedImage.getWidth());
+                        this.widthHeight.setRight(bufferedImage.getHeight());
+                        return new ByteArrayInputStream(bytes);
+                    }
+                } catch (IOException e) {
+                    exceptionHandler.accept(e);
+                    this.failed.setTrue();
+                }
+                return null;
+            }, THREAD_POOL).whenComplete((inputStream, throwable) -> {
+                this.inputStream.setValue(inputStream);
+                this.failed.setValue(inputStream == null);
+                if (this.readyToRender()) {
+                    whenCompleteCorrectly.accept(this);
+                }
+            });
+        }
     }
 }

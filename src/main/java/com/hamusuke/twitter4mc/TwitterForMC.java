@@ -9,12 +9,14 @@ import com.hamusuke.twitter4mc.gui.window.ProgressBarWindow;
 import com.hamusuke.twitter4mc.license.LicenseManager;
 import com.hamusuke.twitter4mc.texture.TextureManager;
 import com.hamusuke.twitter4mc.tweet.TweetSummary;
+import com.hamusuke.twitter4mc.utils.ImageDataDeliverer;
 import com.hamusuke.twitter4mc.utils.NewToken;
 import com.hamusuke.twitter4mc.utils.TwitterUtil;
 import com.hamusuke.twitter4mc.utils.VersionChecker;
 import net.fabricmc.api.ClientModInitializer;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
+import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientLifecycleEvents;
 import net.fabricmc.fabric.api.client.event.lifecycle.v1.ClientTickEvents;
 import net.fabricmc.fabric.api.client.keybinding.v1.KeyBindingHelper;
 import net.fabricmc.fabric.api.resource.ResourceManagerHelper;
@@ -179,6 +181,7 @@ public final class TwitterForMC implements ClientModInitializer {
                 client.setScreen(twitterScreen);
             }
         });
+        ClientLifecycleEvents.CLIENT_STOPPING.register(client -> ImageDataDeliverer.shutdown());
         ResourceManagerHelper.get(ResourceType.CLIENT_RESOURCES).registerReloadListener(emojiManager);
 
         System.setProperty("java.awt.headless", "false");
