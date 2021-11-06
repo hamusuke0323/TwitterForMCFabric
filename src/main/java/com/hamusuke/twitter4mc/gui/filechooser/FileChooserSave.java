@@ -18,7 +18,7 @@ public class FileChooserSave extends AbstractFileChooser {
             JFrame jFrame = new JFrame();
             JFileChooser jFileChooser = new JFileChooser();
             this.jFileChooser.set(jFileChooser);
-            jFileChooser.setCurrentDirectory(this.initDir);
+            jFileChooser.setSelectedFile(this.initDir);
             if (jFileChooser.showSaveDialog(jFrame) == JFileChooser.APPROVE_OPTION) {
                 this.onChose.accept(jFileChooser.getSelectedFile());
             }

@@ -82,5 +82,8 @@
   "tw.quote.tweet": "Quote Tweet",
   "tw.failed.retweet": "Failed to Retweet:%s",
   "tw.unretweet": "Undo Retweet",
-  "tw.refresh.desc": "The number of tweets to retrieve."
+  "tw.refresh.desc": "The number of tweets to retrieve.",
+  "tw.video.download.title": "Downloading the video",
+  "tw.select.file": "Select a file to save",
+  "tw.video.download": "Start downloading"
 }

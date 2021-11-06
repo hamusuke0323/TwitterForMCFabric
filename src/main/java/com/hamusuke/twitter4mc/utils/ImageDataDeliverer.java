@@ -49,10 +49,9 @@ public class ImageDataDeliverer {
     }
 
     public ImageDataDeliverer prepareAsync() {
-        this.startPreparingAsync(ignored -> {
+        return this.prepareAsync(ignored -> {
         }, ignored -> {
         });
-        return this;
     }
 
     @Nullable

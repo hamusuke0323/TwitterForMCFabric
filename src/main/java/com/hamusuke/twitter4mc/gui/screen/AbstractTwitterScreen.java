@@ -893,6 +893,8 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Re
                 if (this.summary != null) {
                     if (mouseButton == 0) {
                         Util.getOperatingSystem().open(this.summary.getVideoURL());
+                    } else if (mouseButton == 1) {
+                        AbstractTwitterScreen.this.client.setScreen(new DownloadTwitterVideoScreen(AbstractTwitterScreen.this, this.summary));
                     }
                 }
 
