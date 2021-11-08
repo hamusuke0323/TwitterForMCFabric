@@ -29,7 +29,6 @@ public class DownloadTwitterVideoScreen extends ParentalScreen {
     private final FileDownload fileDownload;
     private final MutableBoolean started = new MutableBoolean();
     private final FileChooserSave fileChooserSave;
-    private String progress = "";
     private int tickCount;
     private long previousWrittenBytes;
     private long previousTime;
@@ -50,13 +49,11 @@ public class DownloadTwitterVideoScreen extends ParentalScreen {
     }
 
     protected void init() {
-        this.addDrawableChild(new ButtonWidget(0, this.height - 20, this.width / 2, 20, new TranslatableText("tw.select.file"), button -> {
-            this.fileChooserSave.choose();
-        }));
+        this.addDrawableChild(new ButtonWidget(0, this.height - 20, this.width / 2, 20, new TranslatableText("tw.select.file"), button -> this.fileChooserSave.choose()));
         this.addDrawableChild(new ButtonWidget(this.width / 2, this.height - 20, this.width / 2, 20, new TranslatableText("tw.video.download"), button -> {
             button.active = false;
             this.download();
-        }));
+        })).active = !this.started.booleanValue();
 
         super.init();
     }
@@ -89,7 +86,7 @@ public class DownloadTwitterVideoScreen extends ParentalScreen {
 
     private void renderProgressBar(MatrixStack matrices) {
         double d = Math.min((double) this.fileDownload.bytesWritten() / (double) this.fileDownload.totalBytes(), 1.0D);
-        this.progress = String.format(Locale.ROOT, "%.1f", d * 100.0D);
+        String progress = String.format(Locale.ROOT, "%.1f", d * 100.0D);
         RenderSystem.setShader(GameRenderer::getPositionColorShader);
         RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
         RenderSystem.disableTexture();
@@ -97,18 +94,18 @@ public class DownloadTwitterVideoScreen extends ParentalScreen {
         BufferBuilder bufferBuilder = tessellator.getBuffer();
         bufferBuilder.begin(VertexFormat.DrawMode.QUADS, VertexFormats.POSITION_COLOR);
         double e = (double) this.width / 4;
-        double y = this.height - 20 - 15;
+        double y = (double) this.height / 2;
         bufferBuilder.vertex(e - 0.5D, y + 10.5D, 0.0D).color(255, 255, 255, 255).next();
-        bufferBuilder.vertex(e + (double) this.width / 2 + 10.5D, y + 0.5D, 0.0D).color(255, 255, 255, 255).next();
         bufferBuilder.vertex(e + (double) this.width / 2 + 0.5D, y + 10.5D, 0.0D).color(255, 255, 255, 255).next();
-        bufferBuilder.vertex(e - 0.5D, y + 0.5D, 0.0D).color(255, 255, 255, 255).next();
+        bufferBuilder.vertex(e + (double) this.width / 2 + 0.5D, y - 0.5D, 0.0D).color(255, 255, 255, 255).next();
+        bufferBuilder.vertex(e - 0.5D, y - 0.5D, 0.0D).color(255, 255, 255, 255).next();
         bufferBuilder.vertex(e, y + 10.0D, 0.0D).color(0, 255, 0, 255).next();
         bufferBuilder.vertex(e + (double) this.width / 2 * d, y + 10.0D, 0.0D).color(0, 255, 0, 255).next();
         bufferBuilder.vertex(e + (double) this.width / 2 * d, y, 0.0D).color(0, 255, 0, 255).next();
         bufferBuilder.vertex(e, y, 0.0D).color(0, 255, 0, 255).next();
         tessellator.draw();
         RenderSystem.enableTexture();
-        drawCenteredText(matrices, this.textRenderer, this.progress + " % " + this.updateAndReturnDownloadSpeedString(), this.width / 2, (int) (y - 10.0D), 16777215);
+        drawCenteredText(matrices, this.textRenderer, progress + "%" + this.updateAndReturnDownloadSpeedString(), this.width / 2, (int) (y - 10.0D), 16777215);
     }
 
     private String updateAndReturnDownloadSpeedString() {
@@ -119,10 +116,6 @@ public class DownloadTwitterVideoScreen extends ParentalScreen {
             this.previousTime = Util.getMeasuringTimeMs();
         }
 
-        return this.getDownloadSpeedString();
-    }
-
-    private String getDownloadSpeedString() {
         if (this.bytesPerSecond > 0L) {
             return "(" + SizeUnit.getUserFriendlyString(this.bytesPerSecond) + "/s)";
         }
