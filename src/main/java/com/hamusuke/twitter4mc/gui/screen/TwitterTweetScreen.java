@@ -93,8 +93,11 @@ public class TwitterTweetScreen extends ClickSpaceToCloseScreen {
 
 	public void render(MatrixStack matrices, int p_render_1_, int p_render_2_, float p_render_3_) {
 		if (this.parent != null) {
-			this.parent.render(matrices, -1, -1, p_render_3_);
-		}
+            matrices.push();
+            matrices.translate(0.0D, 0.0D, -1.0D);
+            this.parent.render(matrices, -1, -1, p_render_3_);
+            matrices.pop();
+        }
 		this.fillGradient(matrices, 0, 0, this.width, this.height, -1072689136, -804253680);
 		RenderSystem.disableBlend();
 		this.tweetText.render(matrices, p_render_1_, p_render_2_, p_render_3_);

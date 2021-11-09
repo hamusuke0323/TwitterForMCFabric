@@ -179,8 +179,6 @@ public class TwitterScreen extends AbstractTwitterScreen {
 
 		if (this.client.currentScreen == this) {
 			this.fillGradient(matrices, 0, 0, this.width, this.height, -1072689136, -804253680);
-		} else {
-			return;
 		}
 
 		super.render(matrices, mouseX, mouseY, delta);

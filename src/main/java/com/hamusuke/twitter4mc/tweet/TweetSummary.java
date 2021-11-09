@@ -1,5 +1,6 @@
 package com.hamusuke.twitter4mc.tweet;
 
+import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.hamusuke.twitter4mc.TwitterForMC;
 import com.hamusuke.twitter4mc.utils.ImageDataDeliverer;
@@ -45,11 +46,11 @@ public class TweetSummary implements Comparable<TweetSummary> {
 	private final Calendar createdAtC;
 	private final MutableInt favoriteCount = new MutableInt();
 	private final MutableBoolean isFavorited = new MutableBoolean();
-	private final List<HashtagEntity> hashtagList;
+	private final ImmutableList<HashtagEntity> hashtagList;
 	private final long id;
 	private final String lang;
-	private final List<MediaEntity> mediaList;
-	private final List<TwitterPhotoMedia> photoList;
+	private final ImmutableList<MediaEntity> mediaList;
+	private final ImmutableList<TwitterPhotoMedia> photoList;
 	@Nullable
 	private final String videoURL;
 	private final boolean isIncludeImages;
@@ -61,7 +62,7 @@ public class TweetSummary implements Comparable<TweetSummary> {
 	private final MutableBoolean isRetweeted = new MutableBoolean();
 	private String retweetCountF;
 	private final String tweet;
-	private final List<URLEntity> urlList;
+	private final ImmutableList<URLEntity> urlList;
 	private final boolean isRetweet;
 	private final boolean isRetweetedByMe;
 	private String favoriteCountF;
@@ -82,21 +83,21 @@ public class TweetSummary implements Comparable<TweetSummary> {
 		this.createdAtC.setTime(this.createdAt);
 		this.favoriteCount.setValue(status.getFavoriteCount());
 		this.favoriteCountF = TwitterUtil.getChunkedNumber(this.favoriteCount.getValue());
-		this.hashtagList = Lists.newArrayList(status.getHashtagEntities());
+		this.hashtagList = ImmutableList.copyOf(status.getHashtagEntities());
 		this.id = status.getId();
 		this.lang = status.getLang();
-		this.mediaList = Lists.newArrayList(status.getMediaEntities());
+		this.mediaList = ImmutableList.copyOf(status.getMediaEntities());
 		this.isEmptyMedia = this.mediaList.size() == 0;
 		this.isIncludeImages = !this.isEmptyMedia && this.mediaList.get(0).getType().equals("photo");
 		this.isIncludeVideo = !this.isEmptyMedia && this.mediaList.get(0).getType().equals("video");
 		this.videoURL = this.isIncludeVideo ? TwitterUtil.getHiBitrateVideoURL(this.mediaList.get(0)) : null;
 		this.photoMediaLength = this.isIncludeImages ? this.mediaList.size() : 0;
-		this.photoList = this.mediaList.stream().filter(mediaEntity -> mediaEntity.getType().equals("photo")).map(TwitterPhotoMedia::new).toList();
+		this.photoList = ImmutableList.copyOf(this.mediaList.stream().filter(mediaEntity -> mediaEntity.getType().equals("photo")).map(TwitterPhotoMedia::new).toList());
 		this.place = status.getPlace();
 		this.retweetCount.setValue(status.getRetweetCount());
 		this.retweetCountF = TwitterUtil.getChunkedNumber(this.retweetCount.getValue());
 		this.tweet = status.getText();
-		this.urlList = Lists.newArrayList(status.getURLEntities());
+		this.urlList = ImmutableList.copyOf(status.getURLEntities());
 		this.isFavorited.setValue(status.isFavorited());
 		this.isRetweet = status.isRetweet();
 		this.isRetweeted.setValue(status.isRetweeted());
@@ -215,7 +216,7 @@ public class TweetSummary implements Comparable<TweetSummary> {
 		return this.favoriteCountF;
 	}
 
-	public List<HashtagEntity> getHashtagList() {
+	public ImmutableList<HashtagEntity> getHashtagList() {
 		return this.hashtagList;
 	}
 
@@ -231,7 +232,7 @@ public class TweetSummary implements Comparable<TweetSummary> {
 		return this.lang;
 	}
 
-	public List<MediaEntity> getMediaList() {
+	public ImmutableList<MediaEntity> getMediaList() {
 		return this.mediaList;
 	}
 
@@ -280,7 +281,7 @@ public class TweetSummary implements Comparable<TweetSummary> {
 		return this.tweet;
 	}
 
-	public List<URLEntity> getURLList() {
+	public ImmutableList<URLEntity> getURLList() {
 		return this.urlList;
 	}
 
@@ -337,7 +338,7 @@ public class TweetSummary implements Comparable<TweetSummary> {
 			return true;
 		}
 
-		if (o == null || getClass() != o.getClass()) {
+		if (o == null || this.getClass() != o.getClass()) {
 			return false;
 		}
 

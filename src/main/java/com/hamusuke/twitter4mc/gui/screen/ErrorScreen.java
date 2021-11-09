@@ -29,7 +29,10 @@ public class ErrorScreen extends ParentalScreen {
 
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         if (this.parent != null) {
+            matrices.push();
+            matrices.translate(0.0D, 0.0D, -1.0D);
             this.parent.render(matrices, -1, -1, delta);
+            matrices.pop();
             this.fillGradient(matrices, 0, 0, this.width, this.height, -1072689136, -804253680);
         } else {
             this.renderBackground(matrices);
