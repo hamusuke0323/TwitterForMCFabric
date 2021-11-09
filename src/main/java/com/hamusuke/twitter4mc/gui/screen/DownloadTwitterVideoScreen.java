@@ -7,6 +7,7 @@ import com.mojang.blaze3d.systems.RenderSystem;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.gui.screen.Screen;
+import net.minecraft.client.gui.screen.ScreenTexts;
 import net.minecraft.client.gui.widget.ButtonWidget;
 import net.minecraft.client.realms.SizeUnit;
 import net.minecraft.client.render.*;
@@ -33,6 +34,8 @@ public class DownloadTwitterVideoScreen extends ParentalScreen {
     private long previousWrittenBytes;
     private long previousTime;
     private long bytesPerSecond;
+    private ButtonWidget selectFile;
+    private ButtonWidget cancel;
 
     public DownloadTwitterVideoScreen(@Nullable Screen parent, TweetSummary tweetSummary) {
         super(new TranslatableText("tw.video.download.title"), parent);
@@ -49,17 +52,30 @@ public class DownloadTwitterVideoScreen extends ParentalScreen {
     }
 
     protected void init() {
-        this.addDrawableChild(new ButtonWidget(0, this.height - 20, this.width / 2, 20, new TranslatableText("tw.select.file"), button -> this.fileChooserSave.choose()));
-        this.addDrawableChild(new ButtonWidget(this.width / 2, this.height - 20, this.width / 2, 20, new TranslatableText("tw.video.download"), button -> {
+        this.selectFile = this.addDrawableChild(new ButtonWidget(0, this.height - 40, this.width / 2, 20, new TranslatableText("tw.select.file"), button -> this.fileChooserSave.choose()));
+        this.selectFile.active = !this.started.booleanValue();
+
+        this.addDrawableChild(new ButtonWidget(0, this.height - 20, this.width / 2, 20, ScreenTexts.BACK, button -> this.onClose()));
+
+        this.addDrawableChild(new ButtonWidget(this.width / 2, this.height - 40, this.width / 2, 20, new TranslatableText("tw.video.download"), button -> {
             button.active = false;
             this.download();
+            this.cancel.active = true;
+            this.selectFile.active = false;
         })).active = !this.started.booleanValue();
+
+        this.cancel = this.addDrawableChild(new ButtonWidget(this.width / 2, this.height - 20, this.width / 2, 20, ScreenTexts.CANCEL, button -> {
+            button.active = false;
+            this.fileDownload.cancel();
+        }));
+        this.cancel.active = this.started.booleanValue() && !this.fileDownload.finished() && !this.fileDownload.cancelled();
 
         super.init();
     }
 
     public void tick() {
         this.tickCount++;
+        this.cancel.active = this.started.booleanValue() && !this.fileDownload.finished() && !this.fileDownload.cancelled();
         super.tick();
     }
 

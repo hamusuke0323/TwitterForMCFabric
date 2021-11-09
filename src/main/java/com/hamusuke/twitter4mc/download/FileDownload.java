@@ -24,7 +24,7 @@ import java.io.FileOutputStream;
 @Environment(EnvType.CLIENT)
 public class FileDownload {
     private static final Logger LOGGER = LogManager.getLogger();
-    private static final RequestConfig REQUEST_CONFIG = RequestConfig.custom().setSocketTimeout(120000).setConnectTimeout(120000).build();
+    private final RequestConfig requestConfig = RequestConfig.custom().setSocketTimeout(120000).setConnectTimeout(120000).build();
     private final String url;
     private final MutableLong totalBytes = new MutableLong();
     private final MutableLong bytesWritten = new MutableLong();
@@ -46,7 +46,7 @@ public class FileDownload {
         if (this.currentThread == null) {
             this.currentThread = new TwitterThread(() -> {
                 CloseableHttpResponse closeableHttpResponse = null;
-                try (CloseableHttpClient closeableHttpClient = HttpClientBuilder.create().setDefaultRequestConfig(REQUEST_CONFIG).build()) {
+                try (CloseableHttpClient closeableHttpClient = HttpClientBuilder.create().setDefaultRequestConfig(this.requestConfig).build()) {
                     HttpGet httpGet = new HttpGet(this.url);
                     httpGet.setHeader("Accept-Encoding", "identity");
                     this.httpRequest.setValue(httpGet);
