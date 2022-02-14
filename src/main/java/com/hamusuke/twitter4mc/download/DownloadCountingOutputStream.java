@@ -12,18 +12,10 @@ import java.util.function.Consumer;
 @Environment(EnvType.CLIENT)
 public class DownloadCountingOutputStream extends CountingOutputStream {
     @Nullable
-    private Consumer<DownloadCountingOutputStream> listener;
-
-    public DownloadCountingOutputStream(OutputStream out) {
-        this(out, null);
-    }
+    private final Consumer<DownloadCountingOutputStream> listener;
 
     public DownloadCountingOutputStream(OutputStream out, @Nullable Consumer<DownloadCountingOutputStream> listener) {
         super(out);
-        this.listener = listener;
-    }
-
-    public void setListener(@Nullable Consumer<DownloadCountingOutputStream> listener) {
         this.listener = listener;
     }
 

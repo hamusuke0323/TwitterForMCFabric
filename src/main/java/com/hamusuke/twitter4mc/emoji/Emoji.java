@@ -17,10 +17,8 @@ public final class Emoji {
     private final Identifier id;
 
     public Emoji(@NotNull String hex, @NotNull Identifier location) {
-        Objects.requireNonNull(hex, "hex cannot be null.");
-        Objects.requireNonNull(location, "location cannot be null.");
-        this.hex = hex;
-        this.id = location;
+        this.hex = Objects.requireNonNull(hex, "hex cannot be null.");
+        this.id = Objects.requireNonNull(location, "location cannot be null.");
     }
 
     public String getHex() {
