@@ -1,4 +1,4 @@
-package com.hamusuke.twitter4mc.gui.screen;
+package com.hamusuke.twitter4mc.gui.screen.twitter;
 
 import com.hamusuke.twitter4mc.tweet.TweetSummary;
 import com.hamusuke.twitter4mc.tweet.TwitterPhotoMedia;

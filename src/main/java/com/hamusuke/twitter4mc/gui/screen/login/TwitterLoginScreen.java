@@ -1,6 +1,8 @@
-package com.hamusuke.twitter4mc.gui.screen;
+package com.hamusuke.twitter4mc.gui.screen.login;
 
 import com.hamusuke.twitter4mc.TwitterForMC;
+import com.hamusuke.twitter4mc.gui.screen.ErrorScreen;
+import com.hamusuke.twitter4mc.gui.screen.ParentalScreen;
 import com.hamusuke.twitter4mc.gui.toasts.TwitterNotificationToast;
 import com.hamusuke.twitter4mc.gui.widget.MaskableTextFieldWidget;
 import com.hamusuke.twitter4mc.utils.ImageDataDeliverer;

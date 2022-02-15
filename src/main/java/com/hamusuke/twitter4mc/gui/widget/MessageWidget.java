@@ -1,6 +1,6 @@
 package com.hamusuke.twitter4mc.gui.widget;
 
-import com.hamusuke.twitter4mc.gui.screen.AbstractTwitterScreen;
+import com.hamusuke.twitter4mc.gui.screen.twitter.AbstractTwitterScreen;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
 import net.minecraft.client.MinecraftClient;

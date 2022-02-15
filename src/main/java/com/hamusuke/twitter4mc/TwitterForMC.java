@@ -3,7 +3,7 @@ package com.hamusuke.twitter4mc;
 import com.google.common.collect.Sets;
 import com.hamusuke.twitter4mc.emoji.EmojiManager;
 import com.hamusuke.twitter4mc.gui.filechooser.FileChooserOpen;
-import com.hamusuke.twitter4mc.gui.screen.TwitterScreen;
+import com.hamusuke.twitter4mc.gui.screen.twitter.TwitterScreen;
 import com.hamusuke.twitter4mc.gui.widget.MaskableTextFieldWidget;
 import com.hamusuke.twitter4mc.gui.window.ProgressBarWindow;
 import com.hamusuke.twitter4mc.license.LicenseManager;

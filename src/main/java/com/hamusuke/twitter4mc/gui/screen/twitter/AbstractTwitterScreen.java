@@ -1,8 +1,11 @@
-package com.hamusuke.twitter4mc.gui.screen;
+package com.hamusuke.twitter4mc.gui.screen.twitter;
 
 import com.google.common.collect.ImmutableList;
 import com.google.common.collect.Lists;
 import com.hamusuke.twitter4mc.TwitterForMC;
+import com.hamusuke.twitter4mc.gui.screen.DownloadTwitterVideoScreen;
+import com.hamusuke.twitter4mc.gui.screen.ParentalScreen;
+import com.hamusuke.twitter4mc.gui.screen.ReturnableGame;
 import com.hamusuke.twitter4mc.gui.widget.ChangeableImageButton;
 import com.hamusuke.twitter4mc.gui.widget.FunctionalButtonWidget;
 import com.hamusuke.twitter4mc.gui.widget.MessageWidget;

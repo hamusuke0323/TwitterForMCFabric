@@ -15,13 +15,10 @@ import java.nio.file.Path;
 final class EmojiFactory {
     public static void main(String[] args) {
         Path path = new File("./src/main/resources/assets/" + TwitterForMC.MOD_ID + "/textures/twitter").toPath();
-        File[] files = path.resolve("emoji").toFile().listFiles((dir, name) -> name.contains(".png"));
+        File[] files = path.resolve("emoji").toFile().listFiles((dir, name) -> name.endsWith(".png"));
         if (files != null) {
-            try (FileOutputStream fileOutputStream = new FileOutputStream(path.resolve("emoji.json").toFile());
-                 OutputStreamWriter outputStreamWriter = new OutputStreamWriter(fileOutputStream, StandardCharsets.UTF_8);
-                 JsonWriter jsonWriter = new JsonWriter(outputStreamWriter)
-            ) {
-                jsonWriter.setIndent("    ");
+            try (JsonWriter jsonWriter = new JsonWriter(new OutputStreamWriter(new FileOutputStream(path.resolve("emoji.json").toFile()), StandardCharsets.UTF_8))) {
+                jsonWriter.setIndent("\t");
                 jsonWriter.beginArray();
                 for (File file : files) {
                     jsonWriter.beginObject();

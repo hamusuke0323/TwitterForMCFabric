@@ -9,7 +9,6 @@ import net.minecraft.util.Identifier;
 import net.minecraft.util.math.Matrix4f;
 import org.jetbrains.annotations.NotNull;
 
-import java.util.Arrays;
 import java.util.Objects;
 
 public final class Emoji {
@@ -23,12 +22,6 @@ public final class Emoji {
 
     public String getHex() {
         return this.hex;
-    }
-
-    public String hexToString() {
-        StringBuilder stringBuilder = new StringBuilder();
-        Arrays.stream(this.hex.split("-")).forEach(s -> stringBuilder.append(Character.toChars(Integer.parseInt(s, 16))));
-        return stringBuilder.toString();
     }
 
     public Identifier getId() {

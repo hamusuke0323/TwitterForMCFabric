@@ -85,5 +85,7 @@
   "tw.refresh.desc": "The number of tweets to retrieve.",
   "tw.video.download.title": "Downloading the video",
   "tw.select.file": "Select a file to save",
+  "tw.open.file": "Open File",
+  "tw.save.file": "Name and Save",
   "tw.video.download": "Start downloading"
 }

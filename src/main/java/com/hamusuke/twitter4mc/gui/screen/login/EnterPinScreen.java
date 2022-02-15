@@ -1,4 +1,4 @@
-package com.hamusuke.twitter4mc.gui.screen;
+package com.hamusuke.twitter4mc.gui.screen.login;
 
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;

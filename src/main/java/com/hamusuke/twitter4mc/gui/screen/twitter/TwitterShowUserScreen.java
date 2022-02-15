@@ -1,4 +1,4 @@
-package com.hamusuke.twitter4mc.gui.screen;
+package com.hamusuke.twitter4mc.gui.screen.twitter;
 
 import com.google.common.collect.Lists;
 import com.hamusuke.twitter4mc.TwitterForMC;
