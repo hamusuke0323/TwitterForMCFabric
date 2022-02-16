@@ -19,6 +19,7 @@ public class WidgetList extends ElementListWidget<WidgetList.AbstractButtonEntry
         this.centerListVertically = false;
     }
 
+    @Override
     public int addEntry(AbstractButtonEntry entry) {
         return super.addEntry(entry);
     }
@@ -38,14 +39,17 @@ public class WidgetList extends ElementListWidget<WidgetList.AbstractButtonEntry
             return button;
         }
 
+        @Override
         public List<? extends Element> children() {
             return this.buttons;
         }
 
+        @Override
         public List<? extends Selectable> selectableChildren() {
             return this.buttons;
         }
 
+        @Override
         public void render(MatrixStack matrices, int index, int y, int x, int entryWidth, int entryHeight, int mouseX, int mouseY, boolean hovered, float tickDelta) {
             this.buttons.forEach((button) -> {
                 button.y = y;

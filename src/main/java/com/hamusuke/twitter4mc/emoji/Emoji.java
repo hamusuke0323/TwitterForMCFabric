@@ -41,6 +41,7 @@ public final class Emoji {
         vertexConsumer.vertex(matrix, x + this.getEmojiWidth(), y, 0.0F).color(1.0F, 1.0F, 1.0F, alpha).texture(1.0F, 0.0F).light(light).next();
     }
 
+    @Override
     public boolean equals(Object o) {
         if (this == o) {
             return true;
@@ -54,6 +55,7 @@ public final class Emoji {
         return this.hex.equals(emoji.hex) && this.id.equals(emoji.id);
     }
 
+    @Override
     public int hashCode() {
         return Objects.hash(this.hex, this.id);
     }

@@ -103,6 +103,7 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Re
         }
     }
 
+    @Override
     protected void clearChildren() {
         super.clearChildren();
         this.renderLaterButtons.clear();
@@ -112,6 +113,7 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Re
         return Optional.ofNullable(messageWidget);
     }
 
+    @Override
     public void tick() {
         if (this.list != null) {
             this.list.tick();
@@ -121,6 +123,7 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Re
         super.tick();
     }
 
+    @Override
     protected void init() {
         this.addDrawableChild(new ButtonWidget(this.width / 2 - this.width / 4, this.height - 20, this.width / 2, 20, new TranslatableText("menu.returnToGame"), button -> this.returnToGame()));
         getMessageWidget().ifPresent(messageWidget -> messageWidget.init(this.width, this.height));
@@ -136,6 +139,7 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Re
         }
     }
 
+    @Override
     public void returnToGame() {
         TwitterForMC.twitterScreen.previousScreen = this;
         this.client.setScreen(null);
@@ -147,6 +151,7 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Re
         return screen;
     }
 
+    @Override
     public boolean mouseClicked(double p_mouseClicked_1_, double p_mouseClicked_3_, int p_mouseClicked_5_) {
         if (this.list != null && this.list.hoveringEntry != null && this.list.hoveringEntry.summary != null && this.list.hoveringEntry.mayClickIcon(p_mouseClicked_1_, p_mouseClicked_3_)) {
             this.displayTwitterUser(this, this.list.hoveringEntry.summary.getUser());
@@ -337,6 +342,7 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Re
         return 10;
     }
 
+    @Override
     public boolean handleTextClick(@Nullable Style style) {
         if (style != null && style.getClickEvent() != null && style.getClickEvent().getAction() == ClickEvent.Action.OPEN_URL) {
             try {
@@ -420,27 +426,33 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Re
             super(mcIn, width, height, top, bottom);
         }
 
+        @Override
         public void tick() {
             this.fade = this.isHovering ? 10 : this.fade - 1;
             this.children().forEach(AbstractTwitterScreen.TweetList.TweetEntry::tick);
             super.tick();
         }
 
+        @Override
         protected int getScrollbarPositionX() {
             return AbstractTwitterScreen.this.width - 5;
         }
 
+        @Override
         public int getRowWidth() {
             return AbstractTwitterScreen.this.width / 2;
         }
 
+        @Override
         protected void renderBackground(MatrixStack matrices) {
         }
 
+        @Override
         protected void renderHoleBackground(MatrixStack matrices, int top, int bottom, int alphaTop, int alphaBottom) {
             this.fillGradient(matrices, this.left + this.width, bottom, this.left, top, -15392725, -15392725);
         }
 
+        @Override
         public void render(MatrixStack matrices, int p_render_1_, int p_render_2_, float p_render_3_) {
             super.render(matrices, p_render_1_, p_render_2_, p_render_3_);
 
@@ -473,6 +485,7 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Re
             }
         }
 
+        @Override
         public boolean mouseClicked(double p_mouseClicked_1_, double p_mouseClicked_3_, int p_mouseClicked_5_) {
             for (ImmutableList<ClickableWidget> clickableWidgets : this.children().stream().map(AbstractTwitterTweetList.AbstractTwitterListEntry::getOverlayButtons).toList()) {
                 for (ClickableWidget clickableWidget : clickableWidgets.stream().filter(clickableWidget -> clickableWidget.active && clickableWidget.visible).toList()) {
@@ -487,6 +500,7 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Re
             return super.mouseClicked(p_mouseClicked_1_, p_mouseClicked_3_, p_mouseClicked_5_);
         }
 
+        @Override
         protected boolean isFocused() {
             return AbstractTwitterScreen.this.getFocused() == this;
         }
@@ -543,10 +557,12 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Re
                 }
             }
 
+            @Override
             public void tick() {
                 this.updateButtonY(this.fourBtnHeightOffset + this.y);
             }
 
+            @Override
             public void init() {
                 int i = AbstractTwitterScreen.TweetList.this.getRowLeft() + 24;
                 int h = AbstractTwitterScreen.TweetList.this.getRowWidth();
@@ -645,6 +661,7 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Re
                 this.hideOrShowRetweetButtons(true);
             }
 
+            @Override
             public void render(MatrixStack matrices, int itemIndex, int rowTop, int rowLeft, int rowWidth, int height2, int mouseX, int mouseY, boolean isMouseOverAndObjectEquals, float delta) {
                 RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
                 RenderSystem.enableBlend();
@@ -803,6 +820,7 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Re
                 return 0;
             }
 
+            @Override
             public boolean mouseClicked(double x, double y, int button) {
                 if (this.summary != null) {
                     int i = AbstractTwitterScreen.TweetList.this.getRowLeft() + 24;
@@ -904,10 +922,12 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Re
                 return false;
             }
 
+            @Override
             public int getHeight() {
                 return this.height;
             }
 
+            @Override
             public void setHeight(int height) {
                 this.height = height;
                 this.fourBtnHeightOffset = this.height - 14;
@@ -919,10 +939,12 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Re
                 TweetList.this.setY(-(int) TweetList.this.getScrollAmount());
             }
 
+            @Override
             public int getY() {
                 return this.y;
             }
 
+            @Override
             public void setY(int y) {
                 this.y = y;
                 this.updateButtonY(this.fourBtnHeightOffset + this.y);
@@ -946,6 +968,7 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Re
                 });
             }
 
+            @Override
             public boolean equals(Object obj) {
                 if (this.summary != null) {
                     return this.summary.equals(obj);
@@ -954,6 +977,7 @@ public abstract class AbstractTwitterScreen extends ParentalScreen implements Re
                 return super.equals(obj);
             }
 
+            @Override
             public int hashCode() {
                 if (this.summary != null) {
                     return this.summary.hashCode();

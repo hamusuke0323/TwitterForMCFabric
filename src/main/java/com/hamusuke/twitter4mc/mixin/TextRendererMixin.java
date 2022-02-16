@@ -49,18 +49,22 @@ public abstract class TextRendererMixin implements TextRendererInvoker {
     @Shadow
     public abstract boolean isRightToLeft();
 
+    @Override
     public int drawWithShadowAndEmoji(MatrixStack matrices, Text text, float x, float y, int color) {
         return this.drawWithEmoji(text.asOrderedText(), x, y, color, matrices.peek().getModel(), true);
     }
 
+    @Override
     public int drawWithEmoji(MatrixStack matrices, Text text, float x, float y, int color) {
         return this.drawWithEmoji(text.asOrderedText(), x, y, color, matrices.peek().getModel(), false);
     }
 
+    @Override
     public int drawWithShadowAndEmoji(MatrixStack matrices, OrderedText text, float x, float y, int color) {
         return this.drawWithEmoji(text, x, y, color, matrices.peek().getModel(), true);
     }
 
+    @Override
     public int drawWithEmoji(MatrixStack matrices, OrderedText text, float x, float y, int color) {
         return this.drawWithEmoji(text, x, y, color, matrices.peek().getModel(), false);
     }
@@ -72,18 +76,22 @@ public abstract class TextRendererMixin implements TextRendererInvoker {
         return i;
     }
 
+    @Override
     public int drawWithEmoji(Text text, float x, float y, int color, boolean shadow, Matrix4f matrix, VertexConsumerProvider vertexConsumers, boolean seeThrough, int backgroundColor, int light) {
         return this.drawInternalWithEmoji(text.asOrderedText(), x, y, color, shadow, matrix, vertexConsumers, seeThrough, backgroundColor, light);
     }
 
+    @Override
     public int drawWithEmoji(OrderedText text, float x, float y, int color, boolean shadow, Matrix4f matrix, VertexConsumerProvider vertexConsumers, boolean seeThrough, int backgroundColor, int light) {
         return this.drawInternalWithEmoji(text, x, y, color, shadow, matrix, vertexConsumers, seeThrough, backgroundColor, light);
     }
 
+    @Override
     public int getWidthWithEmoji(OrderedText text) {
         return MathHelper.ceil(((TextHandlerInvoker) this.handler).getWidthWithEmoji(text));
     }
 
+    @Override
     public List<OrderedText> wrapLinesWithEmoji(StringVisitable text, int width) {
         return this.handler.wrapLines(text, width, Style.EMPTY).stream().map(stringVisitable -> TweetTextUtil.reorderIgnoreStyleChar(stringVisitable, this.isRightToLeft())).collect(ImmutableList.toImmutableList());
     }

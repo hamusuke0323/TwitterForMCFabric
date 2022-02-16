@@ -63,6 +63,7 @@ public class TweetTextDrawer implements CharacterAndEmojiVisitor {
         this.light = light;
     }
 
+    @Override
     public boolean accept(int index, Style style, int codePoint) {
         FontStorage fontStorage = this.fontStorageAccessor.apply(style.getFont());
         Glyph glyph = codePoint == 12288 ? () -> 6.0F : fontStorage.getGlyph(codePoint);
@@ -110,6 +111,7 @@ public class TweetTextDrawer implements CharacterAndEmojiVisitor {
         return true;
     }
 
+    @Override
     public boolean acceptEmoji(Emoji emoji) {
         emoji.renderEmoji(this.matrix, this.vertexConsumers, this.x, this.y, this.alpha, this.light);
         this.x += emoji.getEmojiWidth();

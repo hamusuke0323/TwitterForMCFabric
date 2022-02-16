@@ -74,6 +74,7 @@ public class MaskableTextFieldWidget extends ClickableWidget implements Drawable
         this.maxLength = maxLength;
     }
 
+    @Override
     protected MutableText getNarrationMessage() {
         Text text = this.getMessage();
         return new TranslatableText("gui.narrate.editBox", text, this.text);
@@ -245,6 +246,7 @@ public class MaskableTextFieldWidget extends ClickableWidget implements Drawable
         this.setCursor(this.text.length());
     }
 
+    @Override
     public boolean keyPressed(int keyCode, int scanCode, int modifiers) {
         if (!this.isActive()) {
             return false;
@@ -326,6 +328,7 @@ public class MaskableTextFieldWidget extends ClickableWidget implements Drawable
         return this.isVisible() && this.isFocused() && this.isEditable();
     }
 
+    @Override
     public boolean charTyped(char chr, int keyCode) {
         if (!this.isActive()) {
             return false;
@@ -340,6 +343,7 @@ public class MaskableTextFieldWidget extends ClickableWidget implements Drawable
         }
     }
 
+    @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         if (!this.isVisible()) {
             return false;
@@ -368,6 +372,7 @@ public class MaskableTextFieldWidget extends ClickableWidget implements Drawable
         super.setFocused(selected);
     }
 
+    @Override
     public void renderButton(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         if (this.isVisible()) {
             if (this.hasBorder()) {
@@ -497,14 +502,17 @@ public class MaskableTextFieldWidget extends ClickableWidget implements Drawable
         this.uneditableColor = color;
     }
 
+    @Override
     public boolean changeFocus(boolean bl) {
         return this.visible && this.editable && super.changeFocus(bl);
     }
 
+    @Override
     public boolean isMouseOver(double mouseX, double mouseY) {
         return this.visible && mouseX >= (double) this.x && mouseX < (double) (this.x + this.width) && mouseY >= (double) this.y && mouseY < (double) (this.y + this.height);
     }
 
+    @Override
     protected void onFocusedChanged(boolean bl) {
         if (bl) {
             this.focusedTicks = 0;
@@ -574,6 +582,7 @@ public class MaskableTextFieldWidget extends ClickableWidget implements Drawable
         this.x = x;
     }
 
+    @Override
     public void appendNarrations(NarrationMessageBuilder builder) {
     }
 }

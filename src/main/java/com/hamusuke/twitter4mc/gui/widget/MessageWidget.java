@@ -45,17 +45,20 @@ public class MessageWidget extends ClickableWidget {
         this.setPosition((width - messageWidth) / 2, height - 20 - this.messageLines.size() * 9, messageWidth, this.messageLines.size() * 9);
     }
 
+    @Override
     public void renderButton(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         if (this.messageLines != null) {
             this.parent.renderOrderedTooltip(matrices, this.messageLines, this.x - 12, this.y + 12);
         }
     }
 
+    @Override
     protected boolean clicked(double mouseX, double mouseY) {
         Style style = this.getStyleAt(mouseX, mouseY);
         return super.clicked(mouseX, mouseY) && style != null && style.getClickEvent() != null;
     }
 
+    @Override
     public void onClick(double mouseX, double mouseY) {
         this.parent.handleTextClick(this.getStyleAt(mouseX, mouseY));
     }
@@ -85,9 +88,11 @@ public class MessageWidget extends ClickableWidget {
         }
     }
 
+    @Override
     public void appendNarrations(NarrationMessageBuilder builder) {
     }
 
+    @Override
     public boolean isNarratable() {
         return false;
     }

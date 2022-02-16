@@ -25,6 +25,7 @@ public class ViewEmojiScreen extends ParentalScreen {
         super(new TranslatableText("tw.view.emoji"), parent);
     }
 
+    @Override
     protected void init() {
         super.init();
 
@@ -34,6 +35,7 @@ public class ViewEmojiScreen extends ParentalScreen {
         this.addSelectableChild(this.emojiList);
     }
 
+    @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         this.emojiList.render(matrices, mouseX, mouseY, delta);
         drawCenteredText(matrices, this.textRenderer, this.title, this.width / 2, 10, 16777215);
@@ -41,39 +43,45 @@ public class ViewEmojiScreen extends ParentalScreen {
     }
 
     @Environment(EnvType.CLIENT)
-    class EmojiList extends EntryListWidget<EmojiList.EmojiEntry> {
-        public EmojiList(EmojiManager emojiManager, MinecraftClient client, int width, int height, int top, int bottom, int itemHeight) {
+    private class EmojiList extends EntryListWidget<EmojiList.EmojiEntry> {
+        private EmojiList(EmojiManager emojiManager, MinecraftClient client, int width, int height, int top, int bottom, int itemHeight) {
             super(client, width, height, top, bottom, itemHeight);
             emojiManager.getAllEmojis().forEach((hex, emoji) -> this.addEntry(new EmojiEntry(emoji)));
         }
 
+        @Override
         protected int getScrollbarPositionX() {
             return this.width - 5;
         }
 
+        @Override
         public int getRowWidth() {
             return this.width;
         }
 
+        @Override
         protected boolean isSelectedEntry(int index) {
             return true;
         }
 
+        @Override
         protected boolean isFocused() {
             return true;
         }
 
+        @Override
         public void appendNarrations(NarrationMessageBuilder builder) {
         }
 
         @Environment(EnvType.CLIENT)
-        class EmojiEntry extends EntryListWidget.Entry<EmojiEntry> {
+        private class EmojiEntry extends EntryListWidget.Entry<EmojiEntry> {
             private final Emoji emoji;
 
-            public EmojiEntry(Emoji emoji) {
+            private EmojiEntry(Emoji emoji) {
                 this.emoji = emoji;
             }
 
+            @Override
             public void render(MatrixStack matrices, int index, int y, int x, int width, int height, int mouseX, int mouseY, boolean hovering, float delta) {
                 ViewEmojiScreen.this.textRenderer.drawWithShadow(matrices, "Hexadecimal(Character code): " + this.emoji.getHex(), x, y + (float) height / 2 - 4, 16777215);
                 RenderSystem.setShaderTexture(0, this.emoji.getId());

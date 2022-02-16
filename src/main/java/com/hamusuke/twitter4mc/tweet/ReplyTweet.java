@@ -70,6 +70,7 @@ public class ReplyTweet {
         return this.text;
     }
 
+    @Override
     public boolean equals(Object obj) {
         if (this == obj) {
             return true;
@@ -83,10 +84,12 @@ public class ReplyTweet {
         return this.tweetId == that.tweetId;
     }
 
+    @Override
     public int hashCode() {
         return Objects.hash(this.tweetId);
     }
 
+    @Override
     public String toString() {
         return "ReplyTweet{conversationId=" + this.conversationId + ", tweetId=" + this.tweetId + ", inReplyToUserId=" + this.inReplyToUserId + ", retweetCount=" + this.retweetCount + ", replyCount=" + this.replyCount + ", likeCount=" + this.likeCount + ", quoteCount=" + this.quoteCount + ", repliedToTweetId=" + this.repliedToTweetId + ", text='" + this.text + "'}";
     }

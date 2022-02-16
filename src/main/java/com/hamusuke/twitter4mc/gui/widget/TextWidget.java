@@ -14,23 +14,28 @@ public class TextWidget extends ClickableWidget {
         super(x, y, width, height, msg);
     }
 
+    @Override
     public void renderButton(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         MinecraftClient client = MinecraftClient.getInstance();
         drawCenteredText(matrices, client.textRenderer, this.getMessage(), this.x + this.width / 2, this.y + (this.height - 10) / 2, 16777215);
     }
 
+    @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         return false;
     }
 
+    @Override
     public boolean mouseReleased(double mouseX, double mouseY, int button) {
         return false;
     }
 
+    @Override
     public boolean mouseDragged(double mouseX, double mouseY, int button, double deltaX, double deltaY) {
         return false;
     }
 
+    @Override
     public void appendNarrations(NarrationMessageBuilder builder) {
     }
 }

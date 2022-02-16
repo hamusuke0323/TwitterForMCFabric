@@ -159,6 +159,7 @@ public final class TwitterForMC implements ClientModInitializer {
         return readToken() && token.autoLogin();
     }
 
+    @Override
     public void onInitializeClient() {
         LOGGER.info("Hello from TwitterForMC#onInitializeClient!");
 

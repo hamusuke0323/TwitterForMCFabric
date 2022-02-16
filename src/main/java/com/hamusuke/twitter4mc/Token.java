@@ -5,6 +5,7 @@ import net.fabricmc.api.Environment;
 import org.apache.commons.codec.binary.Base64;
 import org.jetbrains.annotations.NotNull;
 import twitter4j.auth.AccessToken;
+
 import javax.crypto.Cipher;
 import javax.crypto.spec.IvParameterSpec;
 import javax.crypto.spec.SecretKeySpec;
@@ -54,6 +55,7 @@ public final class Token implements Serializable {
         return this.autoLogin;
     }
 
+    @Override
     public boolean equals(Object o) {
         if (o == null || this.getClass() != o.getClass()) {
             return false;
@@ -63,6 +65,7 @@ public final class Token implements Serializable {
         return this.autoLogin == token.autoLogin && Objects.equals(this.consumer, token.consumer) && Objects.equals(this.consumerS, token.consumerS) && Objects.equals(this.access, token.access) && Objects.equals(this.accessS, token.accessS);
     }
 
+    @Override
     public int hashCode() {
         return Objects.hash(this.consumer, this.consumerS, this.access, this.accessS, this.autoLogin);
     }

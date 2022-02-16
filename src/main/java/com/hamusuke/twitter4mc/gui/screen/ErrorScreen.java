@@ -21,12 +21,14 @@ public class ErrorScreen extends ParentalScreen {
         this.errorMsg = errorMsg;
     }
 
+    @Override
     protected void init() {
         super.init();
         int i = this.width / 2;
         this.addDrawableChild(new ButtonWidget(i / 2, this.height - 20, i, 20, ScreenTexts.BACK, b -> this.onClose()));
     }
 
+    @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         if (this.parent != null) {
             matrices.push();

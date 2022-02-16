@@ -66,6 +66,7 @@ public class ReplyObject {
         this.replyTweets.removeIf((replyTweet) -> replyTweet.getRepliedToTweetId() != tweetId);
     }
 
+    @Override
     public String toString() {
         return "ReplyObject{jsonObject=" + this.jsonObject + ", newestTweetId=" + this.newestTweetId + ", oldestTweetId=" + this.oldestTweetId + ", resultCount=" + this.resultCount + ", nextToken='" + this.nextToken + '\'' + ", replyTweets=" + this.replyTweets + '}';
     }

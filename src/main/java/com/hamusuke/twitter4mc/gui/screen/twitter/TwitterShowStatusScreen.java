@@ -28,6 +28,7 @@ public class TwitterShowStatusScreen extends AbstractTwitterScreen {
 		this.summary = summary;
 	}
 
+	@Override
 	protected void init() {
 		if (!this.summary.isGettingReplies()) {
 			if (!this.summary.isAlreadyGotReplies()) {
@@ -57,6 +58,7 @@ public class TwitterShowStatusScreen extends AbstractTwitterScreen {
 		super.init();
 	}
 
+	@Override
 	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
 		if (this.parent != null) {
 			this.parent.render(matrices, -1, -1, delta);
@@ -109,6 +111,7 @@ public class TwitterShowStatusScreen extends AbstractTwitterScreen {
 				}
 			}
 
+			@Override
 			public boolean mouseClicked(double x, double y, int button) {
 				if (this.summary != null) {
 					int i = TweetList.this.getRowLeft() + 24;

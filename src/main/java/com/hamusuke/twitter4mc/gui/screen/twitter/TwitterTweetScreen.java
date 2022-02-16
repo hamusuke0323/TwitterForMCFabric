@@ -36,6 +36,7 @@ public class TwitterTweetScreen extends ClickSpaceToCloseScreen {
         super(NarratorManager.EMPTY, parent);
     }
 
+    @Override
     public void tick() {
         this.tweetText.tick();
         this.tweet.active = !this.tweetText.getText().isBlank();
@@ -43,7 +44,8 @@ public class TwitterTweetScreen extends ClickSpaceToCloseScreen {
         super.tick();
     }
 
-	protected void init() {
+    @Override
+    protected void init() {
         super.init();
         int i = this.width / 4;
         this.client.keyboard.setRepeatEvents(true);
@@ -71,6 +73,7 @@ public class TwitterTweetScreen extends ClickSpaceToCloseScreen {
         this.addSelectableChild(this.tweetText);
     }
 
+    @Override
     public boolean shouldCloseOnEsc() {
         return this.back.active;
     }
@@ -81,27 +84,30 @@ public class TwitterTweetScreen extends ClickSpaceToCloseScreen {
         }
     }
 
+    @Override
     public void resize(MinecraftClient p_resize_1_, int p_resize_2_, int p_resize_3_) {
         String s = this.tweetText.getText();
         this.init(p_resize_1_, p_resize_2_, p_resize_3_);
         this.tweetText.setText(s);
     }
 
+    @Override
     public void removed() {
         super.removed();
         this.client.keyboard.setRepeatEvents(false);
-	}
+    }
 
-	public void render(MatrixStack matrices, int p_render_1_, int p_render_2_, float p_render_3_) {
-		if (this.parent != null) {
+    @Override
+    public void render(MatrixStack matrices, int p_render_1_, int p_render_2_, float p_render_3_) {
+        if (this.parent != null) {
             matrices.push();
             matrices.translate(0.0D, 0.0D, -1.0D);
             this.parent.render(matrices, -1, -1, p_render_3_);
             matrices.pop();
         }
-		this.fillGradient(matrices, 0, 0, this.width, this.height, -1072689136, -804253680);
-		RenderSystem.disableBlend();
-		this.tweetText.render(matrices, p_render_1_, p_render_2_, p_render_3_);
-		super.render(matrices, p_render_1_, p_render_2_, p_render_3_);
-	}
+        this.fillGradient(matrices, 0, 0, this.width, this.height, -1072689136, -804253680);
+        RenderSystem.disableBlend();
+        this.tweetText.render(matrices, p_render_1_, p_render_2_, p_render_3_);
+        super.render(matrices, p_render_1_, p_render_2_, p_render_3_);
+    }
 }

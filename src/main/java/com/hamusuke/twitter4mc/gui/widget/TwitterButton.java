@@ -18,6 +18,7 @@ public class TwitterButton extends ChangeableImageButton {
         this.sizeY = renderSizeY;
     }
 
+    @Override
     public void renderButton(MatrixStack matrices, int p_renderButton_1_, int p_renderButton_2_, float p_renderButton_3_) {
         RenderSystem.setShaderTexture(0, this.resourceLocation);
         matrices.push();

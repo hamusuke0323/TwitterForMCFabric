@@ -333,26 +333,29 @@ public class TweetSummary implements Comparable<TweetSummary> {
 		return this.isRetweetedByMe;
 	}
 
-	public boolean equals(Object o) {
-		if (this == o) {
-			return true;
-		}
+    @Override
+    public boolean equals(Object o) {
+        if (this == o) {
+            return true;
+        }
 
-		if (o == null || this.getClass() != o.getClass()) {
-			return false;
-		}
+        if (o == null || this.getClass() != o.getClass()) {
+            return false;
+        }
 
-		TweetSummary that = (TweetSummary) o;
-		return this.status.equals(that.status);
-	}
+        TweetSummary that = (TweetSummary) o;
+        return this.status.equals(that.status);
+    }
 
-	public int hashCode() {
-		return this.status.hashCode();
-	}
+    @Override
+    public int hashCode() {
+        return this.status.hashCode();
+    }
 
-	public int compareTo(@NotNull TweetSummary that) {
-		return this.status.compareTo(that.status);
-	}
+    @Override
+    public int compareTo(@NotNull TweetSummary that) {
+        return this.status.compareTo(that.status);
+    }
 
 	@Environment(EnvType.CLIENT)
 	public enum ImageFormat {

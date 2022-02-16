@@ -15,6 +15,7 @@ public class TwitterSettingsScreen extends ParentalScreen {
         super(new TranslatableText("tw.settings"), parent);
     }
 
+    @Override
     protected void init() {
         super.init();
         int i = this.width / 2;
@@ -30,6 +31,7 @@ public class TwitterSettingsScreen extends ParentalScreen {
         this.addDrawableChild(new ButtonWidget(j, this.height - 20, i, 20, ScreenTexts.BACK, b -> this.onClose()));
     }
 
+    @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         this.renderBackground(matrices, 0);
         drawCenteredText(matrices, this.textRenderer, this.title, this.width / 2, 10, 16777215);

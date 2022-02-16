@@ -17,14 +17,17 @@ public class TweetText extends BaseText {
         this.orderedText = OrderedText.EMPTY;
     }
 
+    @Override
     public String asString() {
         return this.string;
     }
 
+    @Override
     public LiteralText copy() {
         return new LiteralText(this.string);
     }
 
+    @Override
     public OrderedText asOrderedText() {
         Language language = Language.getInstance();
         if (this.previousLanguage != language) {
@@ -35,6 +38,7 @@ public class TweetText extends BaseText {
         return this.orderedText;
     }
 
+    @Override
     public boolean equals(Object object) {
         if (this == object) {
             return true;
@@ -45,6 +49,7 @@ public class TweetText extends BaseText {
         }
     }
 
+    @Override
     public String toString() {
         return "TweetTextComponent{text='" + this.string + "', siblings=" + this.siblings + ", style=" + this.getStyle() + "}";
     }

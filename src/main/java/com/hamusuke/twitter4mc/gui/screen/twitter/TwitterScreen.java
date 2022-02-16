@@ -57,6 +57,7 @@ public class TwitterScreen extends AbstractTwitterScreen {
 		this.parent = parent;
 	}
 
+	@Override
 	public void init() {
 		this.getPreviousScreen().ifPresent(screen -> this.client.setScreen(screen));
 
@@ -173,6 +174,7 @@ public class TwitterScreen extends AbstractTwitterScreen {
 		return this.client != null;
 	}
 
+	@Override
 	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
 		if (this.parent != null) {
 			this.parent.render(matrices, -1, -1, delta);
@@ -197,6 +199,7 @@ public class TwitterScreen extends AbstractTwitterScreen {
 		renderMessage(matrices, mouseX, mouseY, delta);
 	}
 
+	@Override
 	public void onClose() {
 		this.client.setScreen(this.parent);
 	}
@@ -222,6 +225,7 @@ public class TwitterScreen extends AbstractTwitterScreen {
 			});
 		}
 
+		@Override
 		public void renderButton(MatrixStack matrices, int mouseX, int mouseY, float delta) {
 			super.renderButton(matrices, mouseX, mouseY, delta);
 			Optional.ofNullable(this.message).ifPresent(s -> {
@@ -235,6 +239,7 @@ public class TwitterScreen extends AbstractTwitterScreen {
 			}
 		}
 
+		@Override
 		public void renderTooltip(MatrixStack matrices, int mouseX, int mouseY) {
 			List<OrderedText> orderedTexts = TwitterScreen.this.textRenderer.wrapLines(this.getMessage(), TwitterScreen.this.width / 2);
 			TwitterScreen.this.renderOrderedTooltip(matrices, orderedTexts, mouseX, mouseY);

@@ -47,6 +47,7 @@ public class ScalableImageButton extends ButtonWidget {
         this.y = y;
     }
 
+    @Override
     public void renderButton(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         RenderSystem.setShaderTexture(0, this.texture);
         matrices.push();

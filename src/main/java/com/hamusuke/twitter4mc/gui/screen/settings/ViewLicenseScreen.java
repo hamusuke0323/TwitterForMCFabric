@@ -29,6 +29,7 @@ public class ViewLicenseScreen extends ParentalScreen {
         this.license = license;
     }
 
+    @Override
     protected void init() {
         super.init();
 
@@ -36,10 +37,12 @@ public class ViewLicenseScreen extends ParentalScreen {
         this.addDrawableChild(new ButtonWidget(this.width / 4, this.height - 20, this.width / 2, 20, ScreenTexts.BACK, b -> this.onClose()));
 
         this.list = new WidgetList(this.client, this.width, this.height, 20, this.height - 20, 10) {
+            @Override
             public int getRowWidth() {
                 return ViewLicenseScreen.this.license.getWidth();
             }
 
+            @Override
             protected int getScrollbarPositionX() {
                 return this.width - 5;
             }
@@ -51,6 +54,7 @@ public class ViewLicenseScreen extends ParentalScreen {
 
         for (int i = 0; i < this.lines.size(); i++) {
             this.list.addEntry(new TextWidget((this.width - this.list.getRowWidth()) / 2, i * this.textRenderer.fontHeight, this.list.getRowWidth(), this.textRenderer.fontHeight, new LiteralText(this.lines.get(i).getString())) {
+                @Override
                 public void renderButton(MatrixStack matrices, int mouseX, int mouseY, float delta) {
                     ViewLicenseScreen.this.textRenderer.drawWithShadow(matrices, this.getMessage(), this.x, this.y, 16777215);
                 }
@@ -60,6 +64,7 @@ public class ViewLicenseScreen extends ParentalScreen {
         this.addSelectableChild(this.list);
     }
 
+    @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         this.list.render(matrices, mouseX, mouseY, delta);
         drawCenteredText(matrices, this.textRenderer, this.title, this.width / 2, 5, 16777215);

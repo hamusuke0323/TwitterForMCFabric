@@ -27,10 +27,12 @@ public class TwitterPhotoAndShowStatusScreen extends ParentalScreen {
 		this.index = index;
 	}
 
+	@Override
 	protected void init() {
 		super.init();
 	}
 
+	@Override
 	public void render(MatrixStack matrices, int p_render_1_, int p_render_2_, float p_render_3_) {
 		this.parent.render(matrices, -1, -1, p_render_3_);
 		this.fillGradient(matrices, 0, 0, this.width, this.height, -1072689136, -804253680);

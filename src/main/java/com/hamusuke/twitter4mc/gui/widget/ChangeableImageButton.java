@@ -54,6 +54,7 @@ public class ChangeableImageButton extends ButtonWidget {
         this.yDiffText = i;
     }
 
+    @Override
     public void renderButton(MatrixStack matrices, int p_renderButton_1_, int p_renderButton_2_, float p_renderButton_3_) {
         RenderSystem.setShaderTexture(0, this.resourceLocation);
         RenderSystem.disableDepthTest();

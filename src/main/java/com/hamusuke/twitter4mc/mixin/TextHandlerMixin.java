@@ -17,6 +17,7 @@ public class TextHandlerMixin implements TextHandlerInvoker {
     @Final
     TextHandler.WidthRetriever widthRetriever;
 
+    @Override
     public float getWidthWithEmoji(OrderedText text) {
         return TweetTextUtil.getWidthWithEmoji(text, this.widthRetriever);
     }

@@ -27,22 +27,27 @@ public class PhotoCard extends ClickableWidget implements TweetElement {
 
     }
 
-    public void setHeight(int height) {
-
-    }
-
+    @Override
     public int getHeight() {
         return 0;
     }
 
+    @Override
+    public void setHeight(int height) {
+
+    }
+
+    @Override
     public int getY() {
         return 0;
     }
 
+    @Override
     public void setY(int y) {
 
     }
 
+    @Override
     public void appendNarrations(NarrationMessageBuilder builder) {
     }
 }

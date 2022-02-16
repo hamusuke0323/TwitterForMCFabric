@@ -34,6 +34,7 @@ public class TwitterShowUserScreen extends AbstractTwitterScreen {
 		this.user = new UserSummary(user);
 	}
 
+	@Override
 	protected void init() {
 		List<OrderedText> wrapped = this.wrapLines(this.title, this.width / 2 - 20);
 		this.name = wrapped;
@@ -68,6 +69,7 @@ public class TwitterShowUserScreen extends AbstractTwitterScreen {
 		super.init();
 	}
 
+	@Override
 	public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
 		if (this.parent != null) {
 			this.parent.render(matrices, -1, -1, delta);
@@ -105,6 +107,7 @@ public class TwitterShowUserScreen extends AbstractTwitterScreen {
 			}
 		}
 
+		@Override
 		public void setSelected(@Nullable TweetEntry entry) {
 			if (!(entry instanceof UserProfile)) {
 				super.setSelected(entry);
@@ -128,9 +131,11 @@ public class TwitterShowUserScreen extends AbstractTwitterScreen {
 				this.height = TwitterShowUserScreen.TweetList.this.getRowWidth() / 3 + 60 + this.desc.size() * TwitterShowUserScreen.this.textRenderer.fontHeight;
 			}
 
+			@Override
 			public void init() {
 			}
 
+			@Override
 			public void render(MatrixStack matrices, int itemIndex, int rowTop, int rowLeft, int rowWidth, int height2, int mouseX, int mouseY, boolean isMouseOverAndObjectEquals, float delta) {
 				RenderSystem.setShaderColor(1.0F, 1.0F, 1.0F, 1.0F);
 				RenderSystem.enableBlend();

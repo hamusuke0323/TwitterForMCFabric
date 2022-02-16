@@ -31,10 +31,12 @@ public final class EmojiManager implements SimpleSynchronousResourceReloadListen
     private static final Gson GSON = new Gson();
     private final Map<String, Emoji> emojiMap = Maps.newHashMap();
 
+    @Override
     public Identifier getFabricId() {
         return new Identifier(TwitterForMC.MOD_ID, "emoji_resources");
     }
 
+    @Override
     public void reload(ResourceManager manager) {
         this.load(manager);
     }

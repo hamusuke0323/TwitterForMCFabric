@@ -3,31 +3,33 @@ package com.hamusuke.twitter4mc.gui.screen.filechoosing;
 import com.google.common.collect.Lists;
 import net.fabricmc.api.EnvType;
 import net.fabricmc.api.Environment;
-import net.minecraft.client.MinecraftClient;
 import net.minecraft.client.gui.Element;
 import net.minecraft.client.gui.Selectable;
 import net.minecraft.client.gui.screen.Screen;
 import net.minecraft.client.gui.widget.ElementListWidget;
 import net.minecraft.client.util.math.MatrixStack;
+import net.minecraft.text.Text;
 import net.minecraft.text.TranslatableText;
 import org.jetbrains.annotations.Nullable;
 
+import javax.swing.filechooser.FileSystemView;
 import java.io.File;
 import java.util.List;
 
 @Environment(EnvType.CLIENT)
 public class FileChoosingScreen extends Screen {
-    protected static final TranslatableText OPEN = new TranslatableText("tw.open.file");
-    protected static final TranslatableText SAVE = new TranslatableText("tw.save.file");
+    private static final TranslatableText OPEN_FILE = new TranslatableText("tw.open.file");
+    private static final TranslatableText NAME_AND_SAVE = new TranslatableText("tw.save.file");
     protected final Mode mode;
     protected final boolean multipleSelectable;
     protected final List<File> currentSelectedFile = Lists.newArrayList();
     protected final List<File> currentlyShowing = Lists.newArrayList();
     @Nullable
     protected File currentDir;
+    protected final FileSystemView fileSystemView = FileSystemView.getFileSystemView();
 
     public FileChoosingScreen(@Nullable File currentDir, @Nullable File current, Mode mode, boolean multipleSelectable) {
-        super(mode == Mode.OPEN ? OPEN : SAVE);
+        super(mode.text);
         this.currentDir = currentDir;
         this.currentSelectedFile.clear();
         if (current != null) {
@@ -64,16 +66,28 @@ public class FileChoosingScreen extends Screen {
 
     @Environment(EnvType.CLIENT)
     public enum Mode {
-        OPEN,
-        SAVE
+        OPEN(OPEN_FILE),
+        SAVE(NAME_AND_SAVE);
+
+        private final Text text;
+
+        Mode(Text text) {
+            this.text = text;
+        }
+
+        public Text getText() {
+            return this.text;
+        }
     }
 
     @Environment(EnvType.CLIENT)
-    static class FileList extends ElementListWidget<FileList.FileEntry> {
+    class FileList extends ElementListWidget<FileList.FileEntry> {
+        public FileList() {
+            super(FileChoosingScreen.this.client, FileChoosingScreen.this.width, FileChoosingScreen.this.height, 15, FileChoosingScreen.this.height - 20, 10);
 
-        public FileList(MinecraftClient minecraftClient, int i, int j, int k, int l, int m) {
-            super(minecraftClient, i, j, k, l, m);
+
         }
+
 
         @Environment(EnvType.CLIENT)
         static class FileEntry extends ElementListWidget.Entry<FileEntry> {

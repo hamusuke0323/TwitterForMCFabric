@@ -16,6 +16,7 @@ public abstract class ParentalScreen extends Screen {
         this.parent = parent;
     }
 
+    @Override
     protected void init() {
         if (this.parent != null) {
             this.parent.resize(this.client, this.width, this.height);
@@ -24,6 +25,7 @@ public abstract class ParentalScreen extends Screen {
         super.init();
     }
 
+    @Override
     public void onClose() {
         this.client.setScreen(this.parent);
     }

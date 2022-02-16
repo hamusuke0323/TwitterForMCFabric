@@ -12,24 +12,26 @@ public class ExtendedTwitterTweetList<E extends AbstractTwitterTweetList.Abstrac
 		super(mcIn, width, height, top, bottom);
 	}
 
-	public boolean changeFocus(boolean p_changeFocus_1_) {
-		if (!this.inFocus && this.getItemCount() == 0) {
-			return false;
-		} else {
-			this.inFocus = !this.inFocus;
-			if (this.inFocus && this.getSelected() == null && this.getItemCount() > 0) {
-				this.moveSelection(1);
-			} else if (this.inFocus && this.getSelected() != null) {
-				this.moveSelection(0);
-			}
-			return this.inFocus;
-		}
-	}
+    @Override
+    public boolean changeFocus(boolean p_changeFocus_1_) {
+        if (!this.inFocus && this.getItemCount() == 0) {
+            return false;
+        } else {
+            this.inFocus = !this.inFocus;
+            if (this.inFocus && this.getSelected() == null && this.getItemCount() > 0) {
+                this.moveSelection(1);
+            } else if (this.inFocus && this.getSelected() != null) {
+                this.moveSelection(0);
+            }
+            return this.inFocus;
+        }
+    }
 
 	@Environment(EnvType.CLIENT)
 	public abstract static class AbstractTwitterListEntry<E extends ExtendedTwitterTweetList.AbstractTwitterListEntry<E>> extends AbstractTwitterTweetList.AbstractTwitterListEntry<E> {
-		public boolean changeFocus(boolean p_changeFocus_1_) {
-			return false;
-		}
+        @Override
+        public boolean changeFocus(boolean p_changeFocus_1_) {
+            return false;
+        }
 	}
 }

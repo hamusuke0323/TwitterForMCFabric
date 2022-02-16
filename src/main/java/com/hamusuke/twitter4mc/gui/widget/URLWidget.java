@@ -13,6 +13,7 @@ public class URLWidget extends ClickableWidget {
         super(x, y, width, height, message);
     }
 
+    @Override
     public void appendNarrations(NarrationMessageBuilder builder) {
     }
 }

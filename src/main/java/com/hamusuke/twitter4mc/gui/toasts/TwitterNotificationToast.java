@@ -40,10 +40,12 @@ public class TwitterNotificationToast extends InputStreamToast implements Clicka
 		return (TextRendererInvoker) textRenderer;
 	}
 
+	@Override
 	public void mouseClicked(int toastX, int toastY, double x, double y, int button) {
 		LogManager.getLogger().info("x: {}, y: {}", toastX, toastY);
 	}
 
+	@Override
 	public Visibility draw(MatrixStack matrices, ToastManager toastGui, long delta) {
 		RenderSystem.setShader(GameRenderer::getPositionTexShader);
 		RenderSystem.setShaderTexture(0, TEXTURE);

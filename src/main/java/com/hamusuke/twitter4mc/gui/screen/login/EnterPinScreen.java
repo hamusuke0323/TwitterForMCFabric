@@ -22,6 +22,7 @@ public class EnterPinScreen extends Screen {
         this.callback = callback;
     }
 
+    @Override
     protected void init() {
         super.init();
         int i = this.width / 3;
@@ -35,6 +36,7 @@ public class EnterPinScreen extends Screen {
         }));
     }
 
+    @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         this.renderBackground(matrices, 0);
         drawCenteredText(matrices, this.textRenderer, this.title, this.width / 2, this.height / 2 - 15, 16777215);

@@ -16,6 +16,7 @@ import java.io.InputStream;
 
 @Environment(EnvType.CLIENT)
 public class InputStreamTexture extends AbstractTexture {
+    @Override
     public void load(ResourceManager manager) {
     }
 
@@ -70,6 +71,7 @@ public class InputStreamTexture extends AbstractTexture {
             }
         }
 
+        @Override
         public void close() {
             if (this.image != null) {
                 this.image.close();

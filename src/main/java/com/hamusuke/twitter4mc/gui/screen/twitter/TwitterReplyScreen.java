@@ -40,6 +40,7 @@ public class TwitterReplyScreen extends ClickSpaceToCloseScreen {
         this.replyTo = tweetSummary;
     }
 
+    @Override
     public void tick() {
         this.tweetText.tick();
         this.tweet.active = !this.tweetText.getText().isBlank();
@@ -47,6 +48,7 @@ public class TwitterReplyScreen extends ClickSpaceToCloseScreen {
         super.tick();
     }
 
+    @Override
     protected void init() {
         super.init();
         int i = this.width / 4;
@@ -75,6 +77,7 @@ public class TwitterReplyScreen extends ClickSpaceToCloseScreen {
         this.addSelectableChild(this.tweetText);
     }
 
+    @Override
     public boolean shouldCloseOnEsc() {
         return this.back.active;
     }
@@ -85,17 +88,20 @@ public class TwitterReplyScreen extends ClickSpaceToCloseScreen {
         }
     }
 
+    @Override
     public void resize(MinecraftClient p_resize_1_, int p_resize_2_, int p_resize_3_) {
         String s = this.tweetText.getText();
         this.init(p_resize_1_, p_resize_2_, p_resize_3_);
         this.tweetText.setText(s);
     }
 
+    @Override
     public void removed() {
         super.removed();
         this.client.keyboard.setRepeatEvents(false);
     }
 
+    @Override
     public void render(MatrixStack matrices, int p_render_1_, int p_render_2_, float p_render_3_) {
         if (this.parent != null) {
             matrices.push();

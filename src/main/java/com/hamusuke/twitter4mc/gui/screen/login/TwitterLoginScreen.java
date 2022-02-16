@@ -34,6 +34,7 @@ public class TwitterLoginScreen extends ParentalScreen {
         super(new TranslatableText("twitter.login"), parent);
     }
 
+    @Override
     protected void init() {
         super.init();
         int i = this.width / 2;
@@ -106,6 +107,7 @@ public class TwitterLoginScreen extends ParentalScreen {
         TwitterForMC.login.active = flag;
     }
 
+    @Override
     public void tick() {
         TwitterForMC.login.active = !(TwitterForMC.consumer.active && TwitterForMC.consumer.getText().isEmpty()) && !(TwitterForMC.consumerS.active && TwitterForMC.consumerS.getText().isEmpty());
         TwitterForMC.autoLogin.active = TwitterForMC.save.active && TwitterForMC.save.isChecked();
@@ -113,6 +115,7 @@ public class TwitterLoginScreen extends ParentalScreen {
         super.tick();
     }
 
+    @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         this.parent.render(matrices, -1, -1, delta);
         this.fillGradient(matrices, 0, 0, this.width, this.height, -1072689136, -804253680);

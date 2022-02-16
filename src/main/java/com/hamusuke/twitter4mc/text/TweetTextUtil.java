@@ -21,11 +21,13 @@ public class TweetTextUtil {
     public static float getWidthWithEmoji(OrderedText text, TextHandler.WidthRetriever widthRetriever) {
         MutableFloat mutableFloat = new MutableFloat();
         text.accept(new CharacterAndEmojiVisitor() {
+            @Override
             public boolean accept(int index, Style style, int codePoint) {
                 mutableFloat.add(widthRetriever.getWidth(codePoint, style));
                 return true;
             }
 
+            @Override
             public boolean acceptEmoji(Emoji emoji) {
                 mutableFloat.add(emoji.getEmojiWidth());
                 return true;

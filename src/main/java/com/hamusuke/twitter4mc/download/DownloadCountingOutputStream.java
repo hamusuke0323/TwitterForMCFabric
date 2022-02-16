@@ -19,6 +19,7 @@ public class DownloadCountingOutputStream extends CountingOutputStream {
         this.listener = listener;
     }
 
+    @Override
     protected void afterWrite(int n) throws IOException {
         super.afterWrite(n);
         if (this.listener != null) {

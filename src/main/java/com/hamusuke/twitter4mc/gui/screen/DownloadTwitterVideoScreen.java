@@ -51,6 +51,7 @@ public class DownloadTwitterVideoScreen extends ParentalScreen {
         this.fileDownload = new FileDownload(this.videoUrl);
     }
 
+    @Override
     protected void init() {
         this.selectFile = this.addDrawableChild(new ButtonWidget(0, this.height - 40, this.width / 2, 20, new TranslatableText("tw.select.file"), button -> this.fileChooserSave.choose()));
         this.selectFile.active = !this.started.booleanValue();
@@ -73,12 +74,14 @@ public class DownloadTwitterVideoScreen extends ParentalScreen {
         super.init();
     }
 
+    @Override
     public void tick() {
         this.tickCount++;
         this.cancel.active = this.started.booleanValue() && !this.fileDownload.finished() && !this.fileDownload.cancelled();
         super.tick();
     }
 
+    @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         if (this.parent != null) {
             matrices.push();

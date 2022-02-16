@@ -14,6 +14,7 @@ public abstract class ClickSpaceToCloseScreen extends ParentalScreen {
         super(title, parent);
     }
 
+    @Override
     public boolean mouseClicked(double mouseX, double mouseY, int button) {
         boolean bl = super.mouseClicked(mouseX, mouseY, button);
         boolean bl2 = false;

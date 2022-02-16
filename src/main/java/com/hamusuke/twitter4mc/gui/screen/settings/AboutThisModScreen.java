@@ -26,6 +26,7 @@ public class AboutThisModScreen extends ParentalScreen {
         super(new TranslatableText("tw.about.this.mod"), parent);
     }
 
+    @Override
     protected void init() {
         super.init();
         int i = this.width / 2;
@@ -34,10 +35,12 @@ public class AboutThisModScreen extends ParentalScreen {
         this.addDrawableChild(new ButtonWidget(j, this.height - 20, i, 20, ScreenTexts.BACK, b -> this.onClose()));
 
         this.list = new WidgetList(this.client, this.width, this.height, 20, this.height - 20, 20) {
+            @Override
             public int getRowWidth() {
                 return i;
             }
 
+            @Override
             protected int getScrollbarPositionX() {
                 return this.width - 5;
             }
@@ -63,6 +66,7 @@ public class AboutThisModScreen extends ParentalScreen {
         this.addSelectableChild(this.list);
     }
 
+    @Override
     public void render(MatrixStack matrices, int mouseX, int mouseY, float delta) {
         this.renderBackground(matrices, 0);
         this.list.render(matrices, mouseX, mouseY, delta);
